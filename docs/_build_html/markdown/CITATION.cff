@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use QpiAI Opt SDK in published work, cite this software."
+type: software
+title: "QpiAI Opt SDK"
+version: 0.0.9
+authors:
+  - name: "QpiAI"
+repository-code: "https://github.com/qpiai/qpiai-opt"
+url: "https://github.com/qpiai/qpiai-opt"
+license: Apache-2.0
+abstract: >-
+  Python SDK for optimization modelling, validation, representation conversion,
+  local solving, gate-based optimization, and QpiAI Platform access.

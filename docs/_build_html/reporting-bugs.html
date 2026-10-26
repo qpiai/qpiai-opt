@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Reporting bugs and security issues">
+<title>Reporting bugs and security issues | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/REPORTING_BUGS.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="reporting-bugs">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="active" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Project</span><span aria-hidden="true">&gt;</span><span>Reporting bugs and security issues</span></div><article class="doc-content"><h1 id="reporting-bugs-and-security-issues">Reporting bugs and security issues</h1>
+<h2 id="ordinary-defects">Ordinary defects</h2>
+<p>Search <a href="https://github.com/qpiai/qpiai-opt/issues">existing issues</a>, then <a href="https://github.com/qpiai/qpiai-opt/issues/new?template=bug_report.yml">open a bug report</a> if the defect is not already tracked. Reproduce the problem on a supported Python version and the latest release. Include:</p>
+<ul>
+<li><code>python --version</code> and <code>python -m pip show qpiai-opt</code>;</li>
+<li>operating system and architecture;</li>
+<li>the smallest (credential-free) reproducer;</li>
+<li>expected vs. actual behavior;</li>
+<li>complete traceback with API keys, entity IDs, URLs, and private model data redacted;</li>
+<li>whether execution was <code>local</code>, <code>platform</code>, or <code>auto</code>.</li>
+</ul>
+<p>For solver behavior, include <code>type(result).__name__</code>, <code>result.model_dump(mode="json")</code>, the problem classification, and a canonical IR or LP/MPS reproducer only when it contains no confidential data.</p>
+<h2 id="security-policy">Security policy</h2>
+<p>Report suspected vulnerabilities through the repository's <a href="https://github.com/qpiai/qpiai-opt/security/advisories/new">private vulnerability reporting page</a>. Do not use a public issue for authentication, credential exposure, authorization bypass, paid-work duplication, dependency compromise, or remote-code-execution concerns.</p>
+<p>Include affected versions, impact, reproduction conditions, and mitigations if known. Do not include live API keys. Maintainers will acknowledge the report, coordinate validation and remediation, and agree on disclosure timing with the reporter.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="contributing.html"><span>Previous</span><strong>Contributing to QpiAI Opt</strong></a><a class="pager-card next" href="feature-requests.html"><span>Next</span><strong>Feature requests</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#ordinary-defects">Ordinary defects</a><a class="toc-level-2" href="#security-policy">Security policy</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

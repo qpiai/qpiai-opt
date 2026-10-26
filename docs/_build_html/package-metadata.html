@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Package metadata and system support">
+<title>Package metadata and system support | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/package-metadata.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="package-metadata">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="active" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Reference</span><span aria-hidden="true">&gt;</span><span>Package metadata and system support</span></div><article class="doc-content"><h1 id="package-metadata-and-system-support">Package metadata and system support</h1>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Distribution</td>
+<td><code>qpiai-opt</code></td>
+</tr>
+<tr>
+<td>Import package</td>
+<td><code>qpiai_opt</code></td>
+</tr>
+<tr>
+<td>Version</td>
+<td><code>0.0.9</code></td>
+</tr>
+<tr>
+<td>License</td>
+<td>Apache-2.0</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>CPython 3.10–3.14</td>
+</tr>
+<tr>
+<td>Operating systems</td>
+<td>Linux, macOS, Windows</td>
+</tr>
+<tr>
+<td>Dependency requirements</td>
+<td>Declared in <a href="markdown/pyproject.toml">pyproject.toml</a>; installed automatically with the package</td>
+</tr>
+<tr>
+<td>Optional integrations</td>
+<td>Gate-based optimization through <code>qpiai-opt[quantum]</code> (QpiAI Quantum SDK 0.3.0); OMMX 2.6–2.x through <code>qpiai-opt[ommx]</code>; both through <code>qpiai-opt[all]</code></td>
+</tr>
+<tr>
+<td>Platform API root</td>
+<td><code>https://opt-server.qpiai.tech/api</code></td>
+</tr>
+<tr>
+<td>Local access</td>
+<td><a href="https://opt.qpiai.tech/">Free registration and an Opt key</a>, verified online before local solving with <code>Client</code></td>
+</tr>
+<tr>
+<td>Local gate-based optimization access</td>
+<td><a href="https://qcloud.qpiai.tech/">Free QCloud API key</a>, authenticated and verified online before execution</td>
+</tr>
+<tr>
+<td>Local runtime distribution</td>
+<td>Binary-only native extension in CPython/platform-specific wheels</td>
+</tr>
+</tbody>
+</table>
+<p>The base package includes local LP, MILP, QP, QUBO, HUBO, and Ising solvers. The public modelling and interoperability SDK is open source; the local solver runtime is distributed in binary-only form under Apache-2.0. Standard pip installation from PyPI selects the compatible wheel and installs its dependencies. Building a complete SDK wheel from the <a href="https://github.com/qpiai/qpiai-opt">public source repository</a> requires a compatible native binary. See <a href="contributing.html">Contributing</a> for source development and documentation setup. Modelling, inspection, validation, conversion, and result evaluation remain credential-free. Local authentication does not create jobs or consume credits.</p>
+<p>The <code>quantum</code> extra adds the pinned <code>qpiai-quantum==0.3.0</code> integration; <code>all</code> includes it and OMMX. Local simulation and circuit execution use <code>qpiai-quantum</code>. Optional dependencies follow their own wheel availability.</p>
+<p>Canonical IR uses schema version <code>qpiai-opt-ir/1.0</code>, independently of the package version.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="api-milp.html"><span>Previous</span><strong>MILP solver API reference</strong></a><a class="pager-card next" href="contributing.html"><span>Next</span><strong>Contributing to QpiAI Opt</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

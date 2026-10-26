@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Gate-based optimization API reference">
+<title>Gate-based optimization API reference | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/api-quantum.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="api-quantum">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="active" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Reference</span><span aria-hidden="true">&gt;</span><span>Gate-based optimization API reference</span></div><article class="doc-content"><h1 id="gate-based-optimization-api-reference">Gate-based optimization API reference</h1>
+<p>Import the objects below from <code>qpiai_opt.quantum</code>. Install <code>qpiai-opt[quantum]</code> before using circuits, Hamiltonians, inspection, or execution. The <a href="quantum-optimization.html">gate-based optimization guide</a> defines the Hamiltonian mapping, parameter order, algorithms, authentication, and sample selection.</p>
+<p>Algorithm configurations are frozen dataclasses. Numeric initial-point sequences, basis-state sequences, and custom operator pools are copied to tuples. Execution and auxiliary configurations are Pydantic models with keyword-only constructors, forbidden unknown fields, and frozen field assignment. Circuit objects and callbacks remain caller-owned; do not mutate them during a workflow. Pydantic result models support <code>model_validate</code>, <code>model_validate_json</code>, <code>model_dump</code>, <code>model_dump_json</code>, and <code>model_json_schema</code> through the <a href="https://docs.pydantic.dev/latest/api/base_model/">Pydantic model API</a>.</p>
+<h2 id="class-qaoa">Class: <code>QAOA</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">QAOA(reps=1, parameterization="standard", optimizer="cobyla",
+     max_iterations=100, initial_point=None, aggregation=None,
+     warm_start=None, mixer=None, initial_state=None)
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>reps</code></td>
+<td><code>int</code></td>
+<td>Positive layer count; Boolean values are rejected.</td>
+</tr>
+<tr>
+<td><code>parameterization</code></td>
+<td><code>str</code></td>
+<td><code>"standard"</code> or <code>"multi_angle"</code>; case and hyphens are normalized.</td>
+</tr>
+<tr>
+<td><code>optimizer</code></td>
+<td><code>str | Callable</code></td>
+<td>Named optimizer or the custom optimizer contract below.</td>
+</tr>
+<tr>
+<td><code>max_iterations</code></td>
+<td><code>int</code></td>
+<td>Positive optimizer budget passed to the selected optimizer. Its interpretation is optimizer-specific.</td>
+</tr>
+<tr>
+<td><code>initial_point</code></td>
+<td><code>Sequence[float] | None</code></td>
+<td>Finite vector of exactly the parameter count; <code>None</code> starts QAOA at zero.</td>
+</tr>
+<tr>
+<td><code>aggregation</code></td>
+<td><code>CVaR | None</code></td>
+<td><code>None</code> uses sampled expectation.</td>
+</tr>
+<tr>
+<td><code>warm_start</code></td>
+<td><code>WarmStart | None</code></td>
+<td>Supplies preparation and tilted mixer; conflicts with <code>mixer</code> and <code>initial_state</code>.</td>
+</tr>
+<tr>
+<td><code>mixer</code></td>
+<td><code>XYMixer | Callable | None</code></td>
+<td><code>None</code> uses X mixing. An XY mixer requires an explicit initial state. A callable requires standard parameterization.</td>
+</tr>
+<tr>
+<td><code>initial_state</code></td>
+<td><code>Sequence[int] | Circuit | None</code></td>
+<td>One basis bit per qubit, or a same-width circuit without measurements. <code>None</code> prepares the uniform superposition. Bits are in increasing qubit order, unlike printed measurement strings.</td>
+</tr>
+</tbody>
+</table>
+<p>The supported problem input is an explicit QUBO or Ising problem or its documented dictionary form, or an exactly convertible identity/Z/ZZ <code>QubitHamiltonian</code>. At least one qubit is required. An algebraic <code>Model</code> must be compiled explicitly first.</p>
+<h3 id="methods">Methods</h3>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">parameter_count(ising) -&gt; int
+build_circuit(problem, parameters, measurements=False) -&gt; Circuit
+run(problem, *, execution=None, mode="local") -&gt; QuantumResult
+</code></pre></div>
+<p><code>parameter_count</code> accepts the supported QAOA problem representations. Standard parameterization returns <code>2 * reps</code>; multi-angle parameterization returns <code>reps * (nonzero_fields + nonzero_couplings + mixer_generators)</code>. There is one X or warm-start generator per qubit, or one generator per XY edge. The identity term has no parameter. Use <code>inspect(problem, algorithm=algorithm)</code> for full compatibility checks.</p>
+<p><code>build_circuit</code> requires a finite parameter vector of that exact length. It returns a numeric <code>Circuit</code>, optionally with measurements, without execution. <code>run</code> executes the same algorithm as <code>solve(problem, algorithm=algorithm, execution=execution, mode=mode)</code> and returns the same typed result. All direct <code>run</code> calls retain the authentication and mode restrictions of routed solving.</p>
+<h2 id="classes-vqe-and-samplingvqe">Classes: <code>VQE</code> and <code>SamplingVQE</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">VQE(ansatz="standard", optimizer="cobyla", max_iterations=100,
+    initial_point=None)
+SamplingVQE(ansatz="standard", optimizer="cobyla", max_iterations=100,
+            initial_point=None, aggregation=None)
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ansatz</code></td>
+<td><code>str | Circuit | Callable[[int], Circuit]</code></td>
+<td><code>"standard"</code>, <code>"hardware_efficient"</code>, <code>"two_local"</code>, a circuit, or a factory receiving the problem's qubit count.</td>
+</tr>
+<tr>
+<td><code>optimizer</code></td>
+<td><code>str</code></td>
+<td>A named optimizer; custom optimizer callbacks are rejected.</td>
+</tr>
+<tr>
+<td><code>max_iterations</code></td>
+<td><code>int</code></td>
+<td>Positive optimizer budget; Boolean values are rejected.</td>
+</tr>
+<tr>
+<td><code>initial_point</code></td>
+<td><code>Sequence[float] | None</code></td>
+<td>Finite vector with one value per bindable circuit angle. <code>None</code> lets VQE initialize through the QpiAI Quantum SDK; SamplingVQE samples uniformly on <code>[0, 2*pi)</code>. A local execution seed controls random initialization.</td>
+</tr>
+<tr>
+<td><code>aggregation</code></td>
+<td><code>CVaR | None</code></td>
+<td>SamplingVQE only; <code>None</code> uses sampled expectation.</td>
+</tr>
+</tbody>
+</table>
+<p>Both classes expose <code>build_circuit(problem, parameters, measurements=False) -&gt; Circuit</code> and <code>run(problem, *, execution=None, mode="local") -&gt; QuantumResult</code>. They accept explicit optimization QUBO/Ising input or a real Pauli <code>QubitHamiltonian</code>. SamplingVQE requires diagonal I/Z terms; VQE also accepts X/Y terms. Custom ansätze must have exactly the problem width, contain no measurements, and have at least one bindable parameter. Each parametric gate must have exactly one angle. Parameters bind in circuit operation order; inspection reports the count.</p>
+<p>Generic VQE returns the optimized variational energy as <code>eigenvalue</code>. Generic SamplingVQE returns the lowest observed computational-basis energy, with the optimized expectation or CVaR in <code>quantum.algorithm_metadata["optimized_aggregate"]</code>. Optimization-origin runs instead return a source-feasible candidate when one was observed. The optimized aggregate is not the returned candidate's source objective.</p>
+<h2 id="class-recursiveqaoa">Class: <code>RecursiveQAOA</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">RecursiveQAOA(qaoa=QAOA(), min_variables=10, eliminations_per_step=1)
+</code></pre></div>
+<p>Each omitted <code>qaoa</code> creates a separate default QAOA configuration.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>qaoa</code></td>
+<td><code>QAOA</code></td>
+<td>Inner algorithm; <code>initial_point</code>, <code>initial_state</code>, <code>warm_start</code>, and <code>mixer</code> must be <code>None</code>. Standard or multi-angle parameterization and CVaR are supported.</td>
+</tr>
+<tr>
+<td><code>min_variables</code></td>
+<td><code>int</code></td>
+<td>Integer in <code>[1, 20]</code>, excluding Boolean values. The algorithm can reduce further to satisfy exact residual-work limits.</td>
+</tr>
+<tr>
+<td><code>eliminations_per_step</code></td>
+<td><code>int</code></td>
+<td>Positive maximum number of disjoint pair relations selected per stage.</td>
+</tr>
+</tbody>
+</table>
+<p><code>run(problem, *, execution=None, mode="local") -&gt; QuantumResult</code> accepts explicit optimization QUBO/Ising input, including supported dictionaries. It rejects generic Hamiltonians. It requires the compiled local runtime and QCloud authentication in either mode. There is no static <code>build_circuit</code> method. The <a href="quantum-optimization.html#recursive-qaoa">recursive workflow</a> explains reconstruction, zero-stage behavior, and the heuristic guarantee.</p>
+<h2 id="class-adaptqaoa">Class: <code>ADAPTQAOA</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">ADAPTQAOA(operator_pool="single", optimizer="nelder_mead",
+          max_iterations=100, max_layers=10,
+          gradient_tolerance=1e-3, selection_gamma=0.01)
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>operator_pool</code></td>
+<td><code>str | Sequence[Sequence[tuple[int, str]]]</code></td>
+<td><code>"single"</code>, <code>"multi"</code>, or a non-empty sequence of distinct Pauli strings. Each string contains distinct non-negative qubit indices paired with X, Y, or Z. Indices must fit the problem register.</td>
+</tr>
+<tr>
+<td><code>optimizer</code></td>
+<td><code>str | Callable</code></td>
+<td>Named optimizer or the custom optimizer contract below.</td>
+</tr>
+<tr>
+<td><code>max_iterations</code></td>
+<td><code>int</code></td>
+<td>Positive optimizer budget for each selected layer's joint optimization.</td>
+</tr>
+<tr>
+<td><code>max_layers</code></td>
+<td><code>int</code></td>
+<td>Positive maximum number of committed mixer selections.</td>
+</tr>
+<tr>
+<td><code>gradient_tolerance</code></td>
+<td><code>float</code></td>
+<td>Finite positive Euclidean gradient-norm stopping threshold.</td>
+</tr>
+<tr>
+<td><code>selection_gamma</code></td>
+<td><code>float</code></td>
+<td>Finite positive cost-evolution angle used when evaluating pool gradients.</td>
+</tr>
+</tbody>
+</table>
+<p><code>run(problem, *, execution=None, mode="local") -&gt; QuantumResult</code> accepts the same quadratic input representations as QAOA. There is no static <code>build_circuit</code> method. CVaR, warm start, custom initial states, and XY mixers are not configuration fields. See the <a href="quantum-optimization.html#adapt-qaoa">ADAPT-QAOA mechanism</a>.</p>
+<h2 id="named-and-custom-optimizers">Named and custom optimizers</h2>
+<p>Named optimizers are <code>"cobyla"</code>, <code>"spsa"</code>, <code>"nelder_mead"</code>, and <code>"powell"</code>. Names are case-insensitive and hyphens normalize to underscores. QAOA, SamplingVQE, and ADAPT-QAOA use the shared optimizer adapter; VQE delegates to the QpiAI Quantum SDK's VQE implementation.</p>
+<p>QAOA and ADAPT-QAOA additionally accept:</p>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">optimizer(objective, initial_parameters, max_iterations)
+# Return (parameters, value) or (parameters, value, info).
+</code></pre></div>
+<p><code>objective</code> accepts a one-dimensional finite NumPy parameter vector and returns a finite <code>float</code>; evaluating it can execute a circuit. <code>initial_parameters</code> is a detached one-dimensional NumPy array. Returned <code>parameters</code> must have the same length and finite real entries; <code>value</code> must be finite. Optional <code>info</code> is a mapping whose recognized diagnostics are <code>nfev</code> and <code>nit</code> (non-negative integral values or <code>None</code>), <code>history</code> (finite objective values), and <code>param_history</code> (finite vectors matching the parameter count). Missing histories default to empty lists and missing counts to <code>None</code>. Malformed diagnostics fail before final circuit execution. The callback owns its stopping behavior and must honor the caller's resource budget.</p>
+<h2 id="class-quantumrun">Class: <code>QuantumRun</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">QuantumRun(*, shots=1024, experiment_name=None, timeout=None,
+           seed=None, device_name=None)
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shots</code></td>
+<td><code>int</code></td>
+<td>Strict positive integer per circuit execution, not a total variational-run budget.</td>
+</tr>
+<tr>
+<td><code>experiment_name</code></td>
+<td><code>str | None</code></td>
+<td>Non-empty stripped name. Platform omission uses <code>"Default Experiment"</code>; an explicit name must identify an existing experiment.</td>
+</tr>
+<tr>
+<td><code>timeout</code></td>
+<td><code>float | None</code></td>
+<td>Finite positive platform circuit timeout in seconds. Rejected locally. It is not a total algorithm deadline.</td>
+</tr>
+<tr>
+<td><code>seed</code></td>
+<td><code>int | None</code></td>
+<td>Strict integer in <code>[0, 2**32 - 1]</code>; local sampling, random initialization, and supported SPSA random calls. Rejected in platform mode.</td>
+</tr>
+<tr>
+<td><code>device_name</code></td>
+<td><code>str | None</code></td>
+<td>Non-empty stripped QCloud selection; omission uses <code>"QpiAI-Indus-1"</code> in platform mode. Rejected locally; <code>"QpiAI-QSV-Local"</code> is rejected in platform mode.</td>
+</tr>
+</tbody>
+</table>
+<p>Omitting the <code>execution</code> argument uses <code>QuantumRun()</code>. Execution accepts only <code>mode="local"</code> or <code>mode="platform"</code>. Gate-based optimization uses QCloud authentication and accepts execution settings through <code>QuantumRun</code>. Do not pass an Opt <code>Client</code> or solver options such as <code>time_limit</code> (an LP/MILP/QP time limit) or <code>num_reads</code> (a QUBO/HUBO/Ising sampling count). Select <code>mode="platform"</code> explicitly for QCloud execution; <code>mode="auto"</code> and <code>allow_platform=True</code> are rejected.</p>
+<h2 id="class-cvar">Class: <code>CVaR</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">CVaR(*, alpha=1.0)
+aggregate(distribution: Mapping[float, float]) -&gt; float
+</code></pre></div>
+<p><code>alpha</code> is finite and in <code>(0, 1]</code>. <code>distribution</code> is a non-empty energy-to-probability mapping; energies and probabilities must be finite non-Boolean real values, probabilities non-negative, and total probability close to one with relative tolerance <code>1e-10</code> and absolute tolerance <code>1e-12</code>. Accepted mass is normalized, zero-mass buckets are ignored, and the lowest-energy tail includes a fractional boundary bucket. An unrepresentable nonzero aggregate raises rather than silently underflowing. Invalid values raise <code>ValueError</code> or a Pydantic validation error during construction.</p>
+<h2 id="class-warmstart">Class: <code>WarmStart</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">WarmStart(*, epsilon=0.25, relaxed_solution=None)
+</code></pre></div>
+<p><code>epsilon</code> is a finite real number in <code>[0, 0.5]</code>. <code>relaxed_solution</code> is <code>None</code>, a sequence, a complete variable-name mapping, or a mapping covering consecutive indices <code>0..n-1</code>; all values must lie in <code>[0, 1]</code>. Indexed mappings and sequences become tuples; name mappings become detached immutable mappings. Problem-dependent length and name coverage are checked during inspection or construction. <code>None</code> requests the bounded local continuous relaxation. Values are clipped to <code>[epsilon, 1-epsilon]</code> for state preparation and the tilted mixer. This does not establish a global relaxation optimum.</p>
+<h2 id="class-xymixer">Class: <code>XYMixer</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">XYMixer(*, groups, topology="ring")
+edges() -&gt; tuple[tuple[int, int], ...]
+</code></pre></div>
+<p><code>groups</code> is a non-empty sequence of disjoint groups, each containing at least two distinct non-negative Python integer qubit indices; booleans are rejected. It is stored as a tuple of tuples. <code>topology</code> is <code>"ring"</code> or <code>"full"</code>, normalized to lowercase. <code>edges()</code> returns stable, unique pairs with each pair sorted. Groups need not cover the whole register; only the configured edges mix qubits. Register-range checks occur with a problem. The product of paired XX/YY rotations preserves each group's Hamming weight; overlapping edges need not commute.</p>
+<h2 id="function-build_circuit">Function: <code>build_circuit</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">build_circuit(problem, *, algorithm, parameters=None,
+              measurements=False) -&gt; Circuit
+</code></pre></div>
+<p><code>algorithm</code> must be <code>QAOA</code>, <code>VQE</code>, or <code>SamplingVQE</code>. <code>parameters</code> is a finite vector of the exact parameter count; <code>None</code> uses the algorithm's <code>initial_point</code>, which must then be supplied. <code>measurements</code> must be a strict Boolean. Returns a numeric <code>Circuit</code> without authentication or execution. Invalid algorithm types raise <code>TypeError</code>; adaptive algorithms and missing or incompatible parameters raise <code>ValueError</code>.</p>
+<h2 id="class-quantumsample">Class: <code>QuantumSample</code></h2>
+<p>Keyword-only Pydantic fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default and meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bitstring</code></td>
+<td><code>str</code></td>
+<td>Required non-empty binary measurement string, most significant bit first. Its rightmost bit is qubit zero.</td>
+</tr>
+<tr>
+<td><code>count</code></td>
+<td><code>int</code></td>
+<td>Required strict non-negative observation count.</td>
+</tr>
+<tr>
+<td><code>probability</code></td>
+<td><code>float</code></td>
+<td>Required finite frequency in <code>[0, 1]</code> within this candidate distribution.</td>
+</tr>
+<tr>
+<td><code>internal_energy</code></td>
+<td><code>float</code></td>
+<td>Required finite energy in the canonical minimizing representation, including its offset; it can differ from the restored source objective for compiled models.</td>
+</tr>
+<tr>
+<td><code>objective</code></td>
+<td><code>float | None</code></td>
+<td><code>None</code>; restored source objective when evaluable.</td>
+</tr>
+<tr>
+<td><code>feasible</code></td>
+<td><code>bool | None</code></td>
+<td><code>None</code>; source feasibility when known.</td>
+</tr>
+<tr>
+<td><code>solution</code></td>
+<td><code>list[int | float] | None</code></td>
+<td><code>None</code>; finite coordinates in the problem's binary or spin order.</td>
+</tr>
+<tr>
+<td><code>variable_assignment</code></td>
+<td><code>dict[str, int | float] | None</code></td>
+<td><code>None</code>; finite source-name coordinates when available.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="class-logicalcircuitinfo">Class: <code>LogicalCircuitInfo</code></h2>
+<p><code>LogicalCircuitInfo(*, depth, size, gate_counts)</code> requires strict non-negative integer <code>depth</code> and <code>size</code> and a <code>dict[str, int]</code> of non-empty gate names to strict non-negative counts. Metrics describe the logical circuit before physical routing and native-gate decomposition.</p>
+<h2 id="class-quantumdiagnostics">Class: <code>QuantumDiagnostics</code></h2>
+<p>Keyword-only Pydantic fields; unknown fields are rejected:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default and meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>algorithm</code></td>
+<td><code>str</code></td>
+<td>Required non-empty algorithm name.</td>
+</tr>
+<tr>
+<td><code>backend</code></td>
+<td><code>str</code></td>
+<td>Required non-empty actual execution backend.</td>
+</tr>
+<tr>
+<td><code>shots</code></td>
+<td><code>int</code></td>
+<td>Required strict positive shots per circuit.</td>
+</tr>
+<tr>
+<td><code>optimizer</code></td>
+<td><code>str | None</code></td>
+<td><code>None</code>; non-empty name when known.</td>
+</tr>
+<tr>
+<td><code>evaluations</code>, <code>iterations</code></td>
+<td><code>int | None</code></td>
+<td>Each <code>None</code>; strict non-negative diagnostics when returned.</td>
+</tr>
+<tr>
+<td><code>optimized_parameters</code></td>
+<td><code>list[float]</code></td>
+<td><code>[]</code>; finite final parameter vector.</td>
+</tr>
+<tr>
+<td><code>objective_history</code></td>
+<td><code>list[float]</code></td>
+<td><code>[]</code>; finite aggregate or variational objective history, not necessarily source objectives.</td>
+</tr>
+<tr>
+<td><code>parameter_history</code></td>
+<td><code>list[list[float]]</code></td>
+<td><code>[]</code>; finite optimizer parameter vectors when returned.</td>
+</tr>
+<tr>
+<td><code>counts</code></td>
+<td><code>dict[str, int]</code></td>
+<td><code>{}</code>; binary strings to strict non-negative counts; zero entries are removed.</td>
+</tr>
+<tr>
+<td><code>candidates</code></td>
+<td><code>list[QuantumSample]</code></td>
+<td><code>[]</code>; observed candidate distribution.</td>
+</tr>
+<tr>
+<td><code>job_ids</code></td>
+<td><code>list[str]</code></td>
+<td><code>[]</code>; actual non-empty QCloud circuit job identifiers.</td>
+</tr>
+<tr>
+<td><code>logical_circuit</code></td>
+<td><code>LogicalCircuitInfo | None</code></td>
+<td><code>None</code>; measured logical metrics when available.</td>
+</tr>
+<tr>
+<td><code>qpu_metadata</code></td>
+<td><code>list[dict[str, JSONValue]]</code></td>
+<td><code>[]</code>; metadata returned by the QpiAI Quantum SDK.</td>
+</tr>
+<tr>
+<td><code>transformations</code></td>
+<td><code>list[dict[str, JSONValue]]</code></td>
+<td><code>[]</code>; explicit mathematical representation records.</td>
+</tr>
+<tr>
+<td><code>algorithm_metadata</code></td>
+<td><code>dict[str, JSONValue]</code></td>
+<td><code>{}</code>; algorithm-specific diagnostics.</td>
+</tr>
+</tbody>
+</table>
+<p><code>JSONValue</code> denotes JSON null, Boolean, integer, finite floating-point number, string, list of JSON values, or string-keyed object of JSON values. Non-finite numbers, non-string metadata keys, unsupported objects, and cycles are rejected. List and dictionary defaults are independent for every instance.</p>
+<p>For QAOA, VQE, SamplingVQE, and ADAPT-QAOA, <code>counts</code> holds the final distribution. RecursiveQAOA holds reconstructed full-register observations across stages; its unsampled exact residual is recorded separately. Candidate counts can therefore exceed <code>shots</code>, and candidate probabilities need not match the final <code>counts</code> distribution. See <a href="quantum-optimization.html#results-and-automation">result semantics</a>.</p>
+<h3 id="algorithm-metadata">Algorithm metadata</h3>
+<p>Completed algorithms populate <code>algorithm_metadata</code> with the fields below. These fields describe the optimization process; the selected source assignment and its restored objective are in <code>QuantumResult</code>.</p>
+<h4 id="qaoa-vqe-and-samplingvqe">QAOA, VQE, and SamplingVQE</h4>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Algorithms</th>
+<th>Type and meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>reps</code></td>
+<td>QAOA</td>
+<td><code>int</code>; configured number of layers.</td>
+</tr>
+<tr>
+<td><code>parameterization</code></td>
+<td>QAOA</td>
+<td><code>str</code>; <code>"standard"</code> or <code>"multi_angle"</code>.</td>
+</tr>
+<tr>
+<td><code>parameter_order</code></td>
+<td>QAOA</td>
+<td><code>str</code>; <code>"gamma[0:p], beta[0:p]"</code> for standard parameters, or <code>"per layer: sorted Z terms, sorted ZZ terms, then mixer generators"</code> for multi-angle parameters.</td>
+</tr>
+<tr>
+<td><code>mixer</code></td>
+<td>QAOA</td>
+<td><code>str</code>; <code>"x"</code>, <code>"xy"</code>, <code>"warm_start"</code>, or <code>"custom"</code>.</td>
+</tr>
+<tr>
+<td><code>ansatz</code></td>
+<td>VQE, SamplingVQE</td>
+<td><code>str</code>; the supplied built-in name, or <code>"custom"</code> for a circuit or callable.</td>
+</tr>
+<tr>
+<td><code>aggregation</code></td>
+<td>QAOA, SamplingVQE</td>
+<td><code>"expectation"</code> for the mean, or the CVaR <code>alpha</code> as a <code>float</code>.</td>
+</tr>
+<tr>
+<td><code>optimized_aggregate</code></td>
+<td>QAOA, SamplingVQE</td>
+<td><code>float</code>; optimized mean or CVaR in the same energy coordinates as <code>objective_history</code>.</td>
+</tr>
+<tr>
+<td><code>variational_energy</code></td>
+<td>VQE</td>
+<td><code>float</code>; optimized Hamiltonian expectation in the same energy coordinates as <code>objective_history</code>.</td>
+</tr>
+<tr>
+<td><code>optimizer_message</code></td>
+<td>VQE</td>
+<td><code>str</code>; optimizer message, or <code>""</code> when unavailable.</td>
+</tr>
+<tr>
+<td><code>optimization_offset</code></td>
+<td>QAOA; optimization-origin VQE and SamplingVQE</td>
+<td><code>float</code>; constant omitted from optimizer energies, as defined below. Absent for generic-Hamiltonian VQE and SamplingVQE.</td>
+</tr>
+<tr>
+<td><code>candidate_distribution</code></td>
+<td>All three</td>
+<td><code>str</code>; <code>"all computational-basis measurements"</code> for VQE, or <code>"all variational and final measurement evaluations"</code> for QAOA and SamplingVQE.</td>
+</tr>
+</tbody>
+</table>
+<p>For these algorithms and ADAPT-QAOA, QUBO optimizer energies omit the input QUBO's constant and use the minimizing sign: <code>optimization_offset</code> is <code>problem.offset</code> for MIN and <code>-problem.offset</code> for MAX. Adding it to an optimizer energy restores the full canonical minimizing energy. Ising and generic Hamiltonian energies retain their constants; their offset field is zero when present. Compiled penalties remain part of these energies. A restored source objective can differ after source decoding and is reported separately.</p>
+<p>QAOA with <code>WarmStart</code> adds:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type and meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>relaxation_method</code></td>
+<td><code>str</code>; <code>"L-BFGS-B box relaxation"</code> for automatic relaxation or <code>"supplied"</code> for a supplied solution.</td>
+</tr>
+<tr>
+<td><code>relaxation_global</code></td>
+<td><code>False</code> for automatic relaxation; <code>None</code> for a supplied solution.</td>
+</tr>
+<tr>
+<td><code>relaxed_solution</code></td>
+<td><code>list[float]</code>; binary probabilities before clipping, in variable order.</td>
+</tr>
+<tr>
+<td><code>clipped_solution</code></td>
+<td><code>list[float]</code>; probabilities clipped to <code>[epsilon, 1 - epsilon]</code>.</td>
+</tr>
+<tr>
+<td><code>relaxation_success</code></td>
+<td><code>bool</code>; automatic optimizer's success flag.</td>
+</tr>
+<tr>
+<td><code>relaxation_objective</code></td>
+<td><code>float</code>; automatic box-relaxation objective.</td>
+</tr>
+<tr>
+<td><code>relaxation_offset</code></td>
+<td><code>float</code>; add to <code>relaxation_objective</code> to obtain the full minimizing Ising energy at the relaxed point.</td>
+</tr>
+<tr>
+<td><code>relaxation_message</code></td>
+<td><code>str</code>; automatic optimizer's termination message.</td>
+</tr>
+</tbody>
+</table>
+<p>The last four fields are present only for automatic relaxation. Its success flag records optimizer termination; it does not establish a global relaxation optimum.</p>
+<h4 id="adapt-qaoa">ADAPT-QAOA</h4>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type and meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>operator_pool</code></td>
+<td><code>str</code>; <code>"single"</code>, <code>"multi"</code>, or <code>"custom"</code>.</td>
+</tr>
+<tr>
+<td><code>operator_pool_size</code></td>
+<td><code>int</code>; number of operators in the pool.</td>
+</tr>
+<tr>
+<td><code>operator_sequence</code></td>
+<td><code>list[str]</code>; selected operator labels in layer order. Labels concatenate Pauli letters and qubit indices; sums separate terms with <code>" + "</code>.</td>
+</tr>
+<tr>
+<td><code>layers</code></td>
+<td><code>int</code>; number of selected layers.</td>
+</tr>
+<tr>
+<td><code>selection_gamma</code>, <code>gradient_tolerance</code></td>
+<td><code>float</code>; configured selection angle and stopping threshold.</td>
+</tr>
+<tr>
+<td><code>final_gradient_norm</code></td>
+<td><code>float</code>; Euclidean norm of the last evaluated pool gradient.</td>
+</tr>
+<tr>
+<td><code>selection_history</code></td>
+<td><code>list[dict]</code>; one record per selected layer, as defined below.</td>
+</tr>
+<tr>
+<td><code>optimization_offset</code></td>
+<td><code>float</code>; constant adjustment defined above.</td>
+</tr>
+<tr>
+<td><code>candidate_distribution</code></td>
+<td><code>str</code>; <code>"all variational and final measurement evaluations"</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Each selection record contains <code>layer: int</code> (zero-based), <code>gradient_norm: float</code>, <code>selected_operator: str</code>, and <code>selected_gradient: float</code>. The selected gradient retains its sign. <code>objective_history</code> contains mean energies from variational objective evaluations.</p>
+<h4 id="recursiveqaoa">RecursiveQAOA</h4>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type and meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>reductions</code></td>
+<td><code>list[dict]</code>; reduction-stage records, as defined below.</td>
+</tr>
+<tr>
+<td><code>quantum_stages</code></td>
+<td><code>int</code>; number of QAOA reduction stages.</td>
+</tr>
+<tr>
+<td><code>quantum_execution_performed</code></td>
+<td><code>bool</code>; whether any QAOA stage ran.</td>
+</tr>
+<tr>
+<td><code>residual_variables</code></td>
+<td><code>int</code>; size of the final reduced register.</td>
+</tr>
+<tr>
+<td><code>residual_solver</code></td>
+<td><code>str</code>; <code>"qpiai-opt local exact Ising"</code>.</td>
+</tr>
+<tr>
+<td><code>residual_objective</code></td>
+<td><code>float</code>; exact objective of the reduced Ising problem.</td>
+</tr>
+<tr>
+<td><code>optimization_offset</code></td>
+<td><code>float</code>; initial minimizing Ising constant after binary-to-spin conversion for QUBO input, or zero for Ising input.</td>
+</tr>
+<tr>
+<td><code>reconstructed_internal_energy</code></td>
+<td><code>float</code>; full original canonical minimizing energy of the reconstructed residual candidate.</td>
+</tr>
+<tr>
+<td><code>residual_candidate</code></td>
+<td><code>dict</code>; <code>bitstring: str</code> in the full register, restored <code>objective: float</code>, and source <code>feasible: bool</code>. This candidate need not be selected as the top-level result.</td>
+</tr>
+<tr>
+<td><code>candidate_distribution</code></td>
+<td><code>str</code>; <code>"reconstructed full-register samples from all QAOA stages"</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Each reduction record contains <code>input_variables: int</code>, <code>output_variables: int</code>, and <code>relations: list[dict]</code>. Its <code>objective_history_range: list[int]</code> and <code>parameter_history_range: list[int]</code> are half-open <code>[start, end]</code> slices into the corresponding concatenated histories. Each relation contains original-register indices <code>eliminated: int</code> and <code>retained: int</code>, <code>sign: int</code> in <code>{-1, 1}</code>, <code>correlation: float</code> in <code>[-1, 1]</code>, and <code>absolute_correlation: float</code>. The relation is <code>s_eliminated = sign * s_retained</code>.</p>
+<p>Histories use each stage's reduced problem. For QUBO input, reduction constants are omitted from stage and residual objectives; the single <code>optimization_offset</code> does not restore every stage to original-problem energies. Use candidate <code>internal_energy</code>, <code>reconstructed_internal_energy</code>, or the restored source <code>objective</code> for comparisons in the original problem's coordinates.</p>
+<h2 id="class-quantumresult">Class: <code>QuantumResult</code></h2>
+<p>Keyword-only fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default and meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>problem_class</code></td>
+<td><code>Literal["QUBO", "ISING", "QUBIT_HAMILTONIAN"]</code></td>
+<td>Required mathematical result class.</td>
+</tr>
+<tr>
+<td><code>execution_mode</code></td>
+<td><code>Literal["local", "platform"]</code></td>
+<td>Required execution mode.</td>
+</tr>
+<tr>
+<td><code>quantum</code></td>
+<td><code>QuantumDiagnostics</code></td>
+<td>Required algorithm diagnostics.</td>
+</tr>
+<tr>
+<td><code>objective</code></td>
+<td><code>float | None</code></td>
+<td><code>None</code>; finite source objective for an optimization candidate.</td>
+</tr>
+<tr>
+<td><code>solution</code></td>
+<td><code>list[int | float] | None</code></td>
+<td><code>None</code>; binary QUBO or spin Ising vector.</td>
+</tr>
+<tr>
+<td><code>variable_assignment</code></td>
+<td><code>dict[str, int | float] | None</code></td>
+<td><code>None</code>; finite source assignment, including decoding when retained.</td>
+</tr>
+<tr>
+<td><code>eigenvalue</code></td>
+<td><code>float | None</code></td>
+<td><code>None</code>; required finite generic Hamiltonian estimate.</td>
+</tr>
+<tr>
+<td><code>solve_info</code></td>
+<td><code>QuantumSolveInfo | None</code></td>
+<td><code>None</code> for manual construction; attached by completed SDK algorithms.</td>
+</tr>
+<tr>
+<td><code>job_id</code>, <code>problem_id</code></td>
+<td><code>str | None</code></td>
+<td>Each <code>None</code>; the composite algorithm has no optimization-platform job. Circuit IDs are in diagnostics.</td>
+</tr>
+<tr>
+<td><code>solver_time_s</code>, <code>compute_time_s</code></td>
+<td><code>float | None</code></td>
+<td>Each <code>None</code>; finite non-negative durations in seconds when measured.</td>
+</tr>
+</tbody>
+</table>
+<p>For optimization problems, gate-based methods return the best source-feasible assignment seen across the run, according to the source MIN/MAX objective. Selection uses objective value, not observation count. RecursiveQAOA also considers the reconstructed exact-residual candidate.</p>
+<p>An optimization result supplies <code>objective</code>, <code>solution</code>, and <code>variable_assignment</code> together, or leaves all three <code>None</code> when no usable candidate was observed. It cannot contain <code>eigenvalue</code>. A generic Hamiltonian result requires <code>eigenvalue</code> and forbids those three fields. QUBO vectors contain only 0/1; Ising vectors contain only -1/+1. Source assignments may contain other finite values after decoding.</p>
+<p>Properties <code>counts</code>, <code>parameters</code>, and <code>history</code> return the corresponding diagnostics containers. <code>info() -&gt; QuantumSolveInfo</code> returns a detached deep copy; manually constructed results without information raise <code>RuntimeError</code>. <code>runtime(unit="s", *, kind="compute") -&gt; float | None</code> accepts units <code>"s"</code>, <code>"ms"</code>, or <code>"us"</code> and kinds <code>"compute"</code> or <code>"solver"</code>; unavailable values stay <code>None</code>. <code>compute_time_ms</code>, <code>compute_time_us</code>, <code>solver_time_ms</code>, and <code>solver_time_us</code> are equivalent unit views. Invalid units, kinds, or unrepresentable conversions raise <code>ValueError</code>.</p>
+<h2 id="class-quantumsolveinfo">Class: <code>QuantumSolveInfo</code></h2>
+<p>This keyword-only Pydantic model inherits the <a href="local-solving.html#common-solve-information">common solve information fields</a> and specializes:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>problem_class</code></td>
+<td><code>Literal["QUBO", "ISING", "QUBIT_HAMILTONIAN"]</code></td>
+<td>Required.</td>
+</tr>
+<tr>
+<td><code>execution_mode</code></td>
+<td><code>Literal["local", "platform"]</code></td>
+<td>Required.</td>
+</tr>
+<tr>
+<td><code>termination</code></td>
+<td><code>Literal["completed", "limit_reached", "failed"]</code></td>
+<td>Required; never claims an optimal termination.</td>
+</tr>
+<tr>
+<td><code>optimality_proven</code></td>
+<td><code>Literal[False]</code></td>
+<td>Defaults to <code>False</code>.</td>
+</tr>
+<tr>
+<td><code>guarantee</code></td>
+<td><code>Literal["best_found", "none", "unknown"]</code></td>
+<td>Required; usable optimization candidates use <code>"best_found"</code>.</td>
+</tr>
+<tr>
+<td><code>transformed</code></td>
+<td><code>bool</code></td>
+<td>Required transformation indicator.</td>
+</tr>
+</tbody>
+</table>
+<p>Inherited fields are <code>provider: str</code>, <code>solver: str | None = None</code>, <code>method: str | None = None</code>, required <code>has_usable_solution: bool</code> and <code>solution_feasible: bool | None</code>, <code>source_objective: float | None = None</code>, and <code>settings: dict[str, int | float | str | bool] = {}</code>. Generic Hamiltonian estimates cannot claim a usable variable assignment. Frozen field assignment does not make nested dictionaries immutable.</p>
+<h2 id="qpiai-quantum-sdk-types">QpiAI Quantum SDK types</h2>
+<p><code>Circuit</code>, <code>QubitHamiltonian</code>, and <code>QpiAIQuantumAuth</code> are re-exported from <code>qpiai-quantum</code>. Their circuit algebra, drawing, execution, Hamiltonian operations, and authentication API are documented by the <a href="https://docs.qcloud.qpiai.tech/">QpiAI Quantum SDK</a> and its <a href="https://github.com/qpiai/quantum-sdk">source repository</a>. Use optimization <code>build_circuit</code> and <code>solve</code> for optimization workflows, and the QpiAI Quantum SDK for general circuit and QCloud operations.</p>
+<p>Obtain a free QCloud API key at <a href="https://qcloud.qpiai.tech/">QpiAI QCloud</a>. The optimization workflow uses <code>QpiAIQuantumAuth.login(api_key=...)</code>, and optionally <code>QpiAIQuantumAuth.list_compute_resources(display=False)</code> for a read-only account snapshot. Resource discovery does not select or validate <code>QuantumRun.device_name</code>. <code>QubitHamiltonian</code> accepts terms of the form <code>[(operators, coefficient), ...]</code>, where <code>operators</code> is a sequence of <code>(qubit_index, "X" | "Y" | "Z")</code> pairs and an empty sequence represents identity. Optimization conversion preserves register and source metadata; do not discard it when isolated qubits or source coordinates matter.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="public-api.html"><span>Previous</span><strong>Public Python API</strong></a><a class="pager-card next" href="exceptions.html"><span>Next</span><strong>Exception reference</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#class-qaoa">Class: QAOA</a><a class="toc-level-3" href="#methods">Methods</a><a class="toc-level-2" href="#classes-vqe-and-samplingvqe">Classes: VQE and SamplingVQE</a><a class="toc-level-2" href="#class-recursiveqaoa">Class: RecursiveQAOA</a><a class="toc-level-2" href="#class-adaptqaoa">Class: ADAPTQAOA</a><a class="toc-level-2" href="#named-and-custom-optimizers">Named and custom optimizers</a><a class="toc-level-2" href="#class-quantumrun">Class: QuantumRun</a><a class="toc-level-2" href="#class-cvar">Class: CVaR</a><a class="toc-level-2" href="#class-warmstart">Class: WarmStart</a><a class="toc-level-2" href="#class-xymixer">Class: XYMixer</a><a class="toc-level-2" href="#function-build_circuit">Function: build_circuit</a><a class="toc-level-2" href="#class-quantumsample">Class: QuantumSample</a><a class="toc-level-2" href="#class-logicalcircuitinfo">Class: LogicalCircuitInfo</a><a class="toc-level-2" href="#class-quantumdiagnostics">Class: QuantumDiagnostics</a><a class="toc-level-3" href="#algorithm-metadata">Algorithm metadata</a><a class="toc-level-2" href="#class-quantumresult">Class: QuantumResult</a><a class="toc-level-2" href="#class-quantumsolveinfo">Class: QuantumSolveInfo</a><a class="toc-level-2" href="#qpiai-quantum-sdk-types">QpiAI Quantum SDK types</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

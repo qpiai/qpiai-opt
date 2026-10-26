@@ -1,0 +1,43 @@
+# QpiAI Opt
+
+> Python SDK for optimization modelling, validation, conversion, and explicit local or platform execution.
+
+Start with [automation.md](markdown/automation.md) for task selection, execution boundaries, and recovery procedures.
+
+## Documentation
+
+- [QpiAI Opt SDK](markdown/README.md)
+- [QpiAI Opt user manual](markdown/docs/index.md)
+- [Getting started](markdown/docs/getting-started.md)
+- [Indexed variables, updates, and parameters](markdown/docs/modelling-workflows.md)
+- [MILP modeller](markdown/docs/milp-modeller.md)
+- [Continuous quadratic programming](markdown/docs/qp-modeller.md)
+- [QUBO modeller](markdown/docs/qubo-modeller.md)
+- [HUBO modeller](markdown/docs/hubo-modeller.md)
+- [Ising modeller](markdown/docs/ising-modeller.md)
+- [Piecewise-linear relationships](markdown/docs/piecewise-linear.md)
+- [Modeller limits and capacity](markdown/docs/performance.md)
+- [Local solving and automatic routing](markdown/docs/local-solving.md)
+- [QUBO solver](markdown/docs/qubo-solver.md)
+- [HUBO solver](markdown/docs/hubo-solver.md)
+- [MILP solver](markdown/docs/milp-solver.md)
+- [Gate-based optimization](markdown/docs/quantum-optimization.md)
+- [Canonical model IR](markdown/docs/model-ir.md)
+- [External solver interoperability](markdown/docs/interoperability.md)
+- [Model inspection, transformations, and decoding](markdown/docs/transformations.md)
+- [Platform client](markdown/docs/platform-client.md)
+- [Automation and agent workflows](markdown/automation.md)
+- [Public Python API](markdown/docs/public-api.md)
+- [Gate-based optimization API reference](markdown/docs/api-quantum.md)
+- [Exception reference](markdown/docs/exceptions.md)
+- [Modeller API reference](markdown/docs/api-modeller.md)
+- [Representation utility API](markdown/docs/api-formats.md)
+- [Common solver API reference](markdown/docs/api-solvers.md)
+- [QUBO solver API reference](markdown/docs/api-qubo.md)
+- [HUBO solver API reference](markdown/docs/api-hubo.md)
+- [MILP solver API reference](markdown/docs/api-milp.md)
+- [Package metadata and system support](markdown/docs/package-metadata.md)
+- [Contributing to QpiAI Opt](markdown/CONTRIBUTING.md)
+- [Reporting bugs and security issues](markdown/REPORTING_BUGS.md)
+- [Feature requests](markdown/FEATURE_REQUESTS.md)
+- [Citation](markdown/docs/citation.md)

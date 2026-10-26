@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Exception reference">
+<title>Exception reference | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/exceptions.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="exceptions">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="active" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Reference</span><span aria-hidden="true">&gt;</span><span>Exception reference</span></div><article class="doc-content"><h1 id="exception-reference">Exception reference</h1>
+<p>Catch the narrowest exception that has a distinct recovery action. Modeller failures derive from <code>QuboModellerError</code>; solver, routing, and platform failures derive from <code>PlatformError</code>.</p>
+<p><code>NonlinearExpressionError</code> and <code>HigherOrderTermError</code> derive from <code>InvalidExpressionError</code>. <code>EmptyModelError</code>, <code>InvalidQUBOError</code>, and <code>InvalidLinearModelError</code> derive from <code>ModelValidationError</code>. Other modeller exceptions below derive directly from <code>QuboModellerError</code>. <code>AuthenticationError</code> derives from <code>APIError</code>, which derives from <code>PlatformError</code>; the other solver exceptions derive directly from <code>PlatformError</code>.</p>
+<h2 id="modeller-exceptions">Modeller exceptions</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BoundsError</span><span class="p">,</span>
+    <span class="n">ConstraintValidationError</span><span class="p">,</span>
+    <span class="n">EmptyModelError</span><span class="p">,</span>
+    <span class="n">EncodingError</span><span class="p">,</span>
+    <span class="n">HigherOrderTermError</span><span class="p">,</span>
+    <span class="n">InvalidExpressionError</span><span class="p">,</span>
+    <span class="n">InvalidLinearModelError</span><span class="p">,</span>
+    <span class="n">InvalidQUBOError</span><span class="p">,</span>
+    <span class="n">ModelCompilationError</span><span class="p">,</span>
+    <span class="n">ModelValidationError</span><span class="p">,</span>
+    <span class="n">NonlinearExpressionError</span><span class="p">,</span>
+    <span class="n">NumericalStabilityError</span><span class="p">,</span>
+    <span class="n">ObjectiveError</span><span class="p">,</span>
+    <span class="n">QuboModellerError</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Exception</th>
+<th>Raised by</th>
+<th>Correction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>QuboModellerError</code></td>
+<td>Base for all exceptions in this table.</td>
+<td>Catch only when every modelling failure has the same recovery path.</td>
+</tr>
+<tr>
+<td><code>InvalidExpressionError</code></td>
+<td>Variable names, <code>Term</code>/<code>Expression</code>, arithmetic, <code>quicksum()</code>, <code>dot()</code>, evaluation, unsupported powers, non-finite or underflowing coefficients.</td>
+<td>Correct the symbolic expression or rescale its coefficients.</td>
+</tr>
+<tr>
+<td><code>NonlinearExpressionError</code></td>
+<td>A polynomial operation receives a degree outside its declared bound.</td>
+<td>Use a supported model class or reformulate the expression.</td>
+</tr>
+<tr>
+<td><code>HigherOrderTermError</code></td>
+<td>A quadratic-only operation receives a term above degree two.</td>
+<td>Use HUBO or reduce the higher-order product explicitly.</td>
+</tr>
+<tr>
+<td><code>BoundsError</code></td>
+<td>Invalid bounds for integer, continuous, semi-continuous, semi-integer, fraction, or mixed variables.</td>
+<td>Supply ordered finite bounds where the domain requires them.</td>
+</tr>
+<tr>
+<td><code>ModelValidationError</code></td>
+<td>Invalid model names, variable registration, parameter targets, piecewise data, validation targets, QP structure, or incompatible model features.</td>
+<td>Inspect the message and correct the model structure before conversion or solve.</td>
+</tr>
+<tr>
+<td><code>EmptyModelError</code></td>
+<td>Validation, updates, or conversion requiring a missing objective.</td>
+<td>Set an objective and register any zero-coefficient variables that must remain in the model.</td>
+</tr>
+<tr>
+<td><code>ObjectiveError</code></td>
+<td>A missing, malformed, non-finite, or unsupported objective/sense.</td>
+<td>Set a finite objective and use <code>MIN</code> or <code>MAX</code>.</td>
+</tr>
+<tr>
+<td><code>ConstraintValidationError</code></td>
+<td>Invalid relational, logical, SOS, indicator, custom-penalty, RHS, label, or penalty-weight input.</td>
+<td>Correct the relation/domain or choose a safe penalty.</td>
+</tr>
+<tr>
+<td><code>InvalidLinearModelError</code></td>
+<td>LP/MILP matrix or file conversion finds nonlinear terms, nonlinear constraints, duplicate names, or unsupported domains.</td>
+<td>Keep the linear path linear or use QUBO/HUBO/QP as appropriate.</td>
+</tr>
+<tr>
+<td><code>InvalidQUBOError</code></td>
+<td>QUBO validation, matrix conversion, energy evaluation, or QUBO/Ising conversion receives malformed keys, indices, coefficients, samples, sense, or degree.</td>
+<td>Normalize the representation and provide finite quadratic coefficients and binary samples.</td>
+</tr>
+<tr>
+<td><code>EncodingError</code></td>
+<td>Integer, fractional, continuous, or inequality-slack encoding cannot represent the declared domain within its options.</td>
+<td>Add finite bounds, choose one resolution method, increase <code>max_bits</code> within 1–53, or use a native linear solve.</td>
+</tr>
+<tr>
+<td><code>NumericalStabilityError</code></td>
+<td>Encoding, QP matrix construction, compilation, objective interpretation, or local solving would erase or misrepresent a nonzero value at binary64 precision.</td>
+<td>Rescale the model or choose a coarser representable discretization.</td>
+</tr>
+<tr>
+<td><code>ModelCompilationError</code></td>
+<td>QUBO/HUBO/Ising compilation, penalty construction, quadratization, sense restoration, or coefficient aggregation cannot preserve the model.</td>
+<td>Inspect the message; reformulate, rescale, or supply a safe explicit strength.</td>
+</tr>
+</tbody>
+</table>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Continuous</span><span class="p">,</span> <span class="n">encode_continuous</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">EncodingError</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">encode_continuous</span><span class="p">(</span><span class="n">Continuous</span><span class="p">(</span><span class="s2">"flow"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">num_bits</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">EncodingError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>  <span class="c1"># choose num_bits or precision, not both</span>
+</code></pre></div>
+<h2 id="solver-and-platform-exceptions">Solver and platform exceptions</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">APIError</span><span class="p">,</span>
+    <span class="n">AuthenticationError</span><span class="p">,</span>
+    <span class="n">CapabilityError</span><span class="p">,</span>
+    <span class="n">JobCancelledError</span><span class="p">,</span>
+    <span class="n">JobFailedError</span><span class="p">,</span>
+    <span class="n">LocalLimitExceeded</span><span class="p">,</span>
+    <span class="n">PlatformError</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">APIError(message, *, status_code=None, code=None, details=None)
+CapabilityError(problem_class, *, requested_mode, available_providers, reason=None, compatible_alternatives=())
+JobFailedError(job_id, message)
+JobCancelledError(job_id, message="cancelled")
+LocalLimitExceeded(problem_class, *, observed, limits, explanation, next_action)
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Exception</th>
+<th>Meaning and fields</th>
+<th>Recovery</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PlatformError</code></td>
+<td>Base for SDK routing, solver, and platform failures.</td>
+<td>Catch only for one common application-level failure policy.</td>
+</tr>
+<tr>
+<td><code>APIError</code></td>
+<td>Platform HTTP/shape error. Fields: <code>status_code</code>, <code>code</code>, <code>details</code>.</td>
+<td>Preserve the fields and identifiers; reconcile ambiguous submissions before retrying.</td>
+</tr>
+<tr>
+<td><code>AuthenticationError</code></td>
+<td>Missing, rejected, or unverifiable local credentials, or a platform HTTP <code>401</code> response; subclass of <code>APIError</code>.</td>
+<td>Supply the appropriate Opt or QCloud credential, check connectivity, or retry after the authentication service recovers. Obtain a free Opt API key at <a href="https://opt.qpiai.tech/">QpiAI Opt</a> or a free QCloud API key at <a href="https://qcloud.qpiai.tech/">QpiAI QCloud</a>, according to the execution route. No paid fallback occurs.</td>
+</tr>
+<tr>
+<td><code>CapabilityError</code></td>
+<td>The selected mode cannot solve the detected class. <code>as_dict()</code> returns the class, mode, reason, provider capabilities, and alternatives.</td>
+<td>Select a compatible representation/provider or change the explicit mode.</td>
+</tr>
+<tr>
+<td><code>LocalLimitExceeded</code></td>
+<td>Deterministic local structural refusal. <code>as_dict()</code> returns <code>observed</code>, <code>limits</code>, <code>explanation</code>, and <code>next_action</code>.</td>
+<td>Reduce the model/work setting or explicitly authorize platform execution.</td>
+</tr>
+<tr>
+<td><code>JobFailedError</code></td>
+<td>Terminal failed job; exposes <code>job_id</code>.</td>
+<td>Read the platform job error and do not treat it as a completed result.</td>
+</tr>
+<tr>
+<td><code>JobCancelledError</code></td>
+<td>Terminal cancelled job; exposes <code>job_id</code>.</td>
+<td>Treat the job as having no solution.</td>
+</tr>
+</tbody>
+</table>
+<p>Transport errors from <code>requests</code>, Pydantic <code>ValidationError</code>, and built-in <code>TimeoutError</code>, <code>ValueError</code>, <code>TypeError</code>, <code>KeyError</code>, <code>ZeroDivisionError</code>, <code>ImportError</code>, and <code>FileNotFoundError</code> remain their native types. The relevant modelling, interoperability, solver, and platform chapters identify which boundary raises each one.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="api-quantum.html"><span>Previous</span><strong>Gate-based optimization API reference</strong></a><a class="pager-card next" href="api-modeller.html"><span>Next</span><strong>Modeller API reference</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#modeller-exceptions">Modeller exceptions</a><a class="toc-level-2" href="#solver-and-platform-exceptions">Solver and platform exceptions</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

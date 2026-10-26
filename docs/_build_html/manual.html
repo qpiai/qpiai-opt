@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="QpiAI Opt user manual">
+<title>QpiAI Opt user manual | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/index.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="manual">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="active" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Overview</span><span aria-hidden="true">&gt;</span><span>QpiAI Opt user manual</span></div><article class="doc-content"><h1 id="qpiai-opt-user-manual">QpiAI Opt user manual</h1>
+<p>Start with installation and the modelling workflow, then use the chapter for the problem class returned by <code>classify(model)</code>. The API references define signatures, parameters, return types, and errors.</p>
+<h2 id="part-i-getting-started">Part I: Getting started</h2>
+<ol>
+<li><a href="getting-started.html">Install, build a first model, and solve it</a></li>
+<li><a href="modelling-workflows.html">Choose a problem class and modelling workflow</a></li>
+<li><a href="local-solving.html#modes">Choose local, platform, or local-first execution</a></li>
+<li><a href="local-solving.html#completed-result-contract">Read solve result</a></li>
+</ol>
+<p>The first complete workflow is:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Binary</span><span class="p">,</span> <span class="n">Model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">classify</span><span class="p">,</span> <span class="n">solve</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"QPIAI_OPT_API_KEY"</span><span class="p">])</span>
+
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"x"</span><span class="p">),</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"y"</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"first_model"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">maximize</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"choose_one"</span><span class="p">)</span>
+
+<span class="n">problem_class</span> <span class="o">=</span> <span class="n">classify</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>  <span class="c1"># "MILP"</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>  <span class="c1"># authenticated local execution; no paid work</span>
+<span class="n">objective</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">objective</span>  <span class="c1"># 5.0</span>
+<span class="n">assignment</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">solution</span>  <span class="c1"># {"x": 1.0, "y": 0.0}</span>
+</code></pre></div>
+<h2 id="part-ii-modelling">Part II: Modelling</h2>
+<h3 id="shared-modelling-language">Shared modelling language</h3>
+<ul>
+<li><a href="modelling-workflows.html">Variables, expressions, indexed variables, parameters, and updates</a></li>
+<li><a href="piecewise-linear.html">Piecewise-linear interpolation with SOS2</a></li>
+<li><a href="transformations.html">Model summary, validation, transformation inspection, and decoding</a></li>
+<li><a href="performance.html">Modeller limits and capacity</a></li>
+<li><a href="model-ir.html">Canonical model IR and process boundaries</a></li>
+</ul>
+<h3 id="problem-class-chapters">Problem-class chapters</h3>
+<ul>
+<li><a href="milp-modeller.html">LP and MILP modeller</a></li>
+<li><a href="qp-modeller.html">Continuous convex QP modeller</a></li>
+<li><a href="qubo-modeller.html">QUBO modeller and exact constraint penalties</a></li>
+<li><a href="hubo-modeller.html">Native HUBO modeller</a></li>
+<li><a href="ising-modeller.html">Native Ising modeller</a></li>
+</ul>
+<p>The modeller supports continuous QP with linear constraints and polynomial binary/spin objectives. It does not support MIQP, QCQP, general nonlinear programming, SDP, or conic models.</p>
+<h2 id="part-iii-solving">Part III: Solving</h2>
+<h3 id="common-solving-flow">Common solving flow</h3>
+<ul>
+<li><a href="local-solving.html">Classification, local algorithms, limits, options, and routing</a></li>
+<li><a href="local-solving.html#completed-result-contract">Problem-class results and common solve information</a></li>
+<li><a href="platform-client.html">Platform client, jobs, resources, and account objects</a></li>
+</ul>
+<h3 id="solver-specific-chapters">Solver-specific chapters</h3>
+<ul>
+<li><a href="milp-solver.html">LP/MILP platform solver</a></li>
+<li><a href="qubo-solver.html">QUBO platform solver</a></li>
+<li><a href="hubo-solver.html">HUBO platform solver</a></li>
+<li><a href="ising-modeller.html#solve">Ising solving</a></li>
+<li><a href="qp-modeller.html#solve-and-verify">Continuous QP local solving</a></li>
+<li><a href="quantum-optimization.html">Gate-based optimization</a></li>
+</ul>
+<p>Local QUBO, HUBO, and Ising use their native representations. HUBO is not converted to MILP or QUBO for either platform or local solving.</p>
+<h2 id="part-iv-interoperability-and-automation">Part IV: Interoperability and automation</h2>
+<ul>
+<li><a href="interoperability.html">Standard files, dictionaries, QUBO/Ising conversions, and OMMX</a></li>
+<li><a href="model-ir.html">Canonical JSON IR</a></li>
+<li><a href="automation.html">Automation workflows</a></li>
+</ul>
+<h2 id="part-v-reference-and-project-operation">Part V: Reference and project operation</h2>
+<ul>
+<li><a href="public-api.html">Public Python API index</a></li>
+<li><a href="api-quantum.html">Gate-based optimization algorithm, configuration, and result API</a></li>
+<li><a href="api-formats.html">Representation utility signatures</a></li>
+<li><a href="local-solving.html#completed-result-contract">Result schemas and units</a></li>
+<li><a href="contributing.html">Contributing, tests, releases, and supported Python versions</a></li>
+<li><a href="reporting-bugs.html">Private security reporting</a></li>
+<li><a href="markdown/CITATION.cff">Structured citation metadata</a></li>
+<li><a href="feature-requests.html">Feature requests</a></li>
+</ul></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="index.html"><span>Previous</span><strong>QpiAI Opt SDK</strong></a><a class="pager-card next" href="getting-started.html"><span>Next</span><strong>Getting started</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#part-i-getting-started">Part I: Getting started</a><a class="toc-level-2" href="#part-ii-modelling">Part II: Modelling</a><a class="toc-level-3" href="#shared-modelling-language">Shared modelling language</a><a class="toc-level-3" href="#problem-class-chapters">Problem-class chapters</a><a class="toc-level-2" href="#part-iii-solving">Part III: Solving</a><a class="toc-level-3" href="#common-solving-flow">Common solving flow</a><a class="toc-level-3" href="#solver-specific-chapters">Solver-specific chapters</a><a class="toc-level-2" href="#part-iv-interoperability-and-automation">Part IV: Interoperability and automation</a><a class="toc-level-2" href="#part-v-reference-and-project-operation">Part V: Reference and project operation</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

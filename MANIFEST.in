@@ -1,0 +1,16 @@
+include LICENSE
+include THIRD_PARTY_NOTICES
+include README.md
+include automation.md
+include CITATION.cff
+include CONTRIBUTING.md
+include FEATURE_REQUESTS.md
+include REPORTING_BUGS.md
+recursive-include docs *.md
+include docs/build.py
+include docs/pages.json
+include docs/page.html
+include docs/requirements.txt
+recursive-include docs/assets *.css *.js *.ico *.svg
+prune docs/_build_html
+global-exclude *.pyx *.pxd *.pxi *.c *.h *.pyd *.so

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Model inspection, transformations, and decoding">
+<title>Model inspection, transformations, and decoding | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/transformations.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="transformations">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="active" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Interoperability</span><span aria-hidden="true">&gt;</span><span>Model inspection, transformations, and decoding</span></div><article class="doc-content"><h1 id="model-inspection-conversions-and-decoding">Model inspection, conversions, and decoding</h1>
+<h2 id="human-readable-model-inspection">Human-readable model inspection</h2>
+<p><code>summary()</code> returns concise text; <code>pretty_print()</code> displays and returns the same text. <code>max_constraints</code> limits only the displayed constraint list.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Binary</span><span class="p">,</span> <span class="n">Model</span>
+
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"x"</span><span class="p">),</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"y"</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"selection"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"capacity"</span><span class="p">)</span>
+
+<span class="n">summary</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">max_constraints</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">displayed_summary</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">pretty_print</span><span class="p">(</span><span class="n">max_constraints</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</code></pre></div>
+<p>Both values contain the detected problem class, variable-domain counts, objective, and named constraints. <code>repr(model)</code> remains a one-line identity view.</p>
+<h2 id="transformation-records">Transformation records</h2>
+<p>Operations that change representation record the applied variable maps, coefficients, penalties, offsets, and auxiliary variables.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">qubo</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to_qubo_dict</span><span class="p">(</span><span class="n">matrix_format</span><span class="o">=</span><span class="s2">"upper"</span><span class="p">)</span>
+<span class="n">steps</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">transformations</span><span class="p">()</span>
+<span class="n">latest_step</span> <span class="o">=</span> <span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</code></pre></div>
+<p>Records can describe domain encodings, source-to-binary weights, sense and offset normalization, constraint penalties, slack and auxiliary variables, piecewise SOS2 formulation, QP curvature validation, QUBO/Ising substitution, and OMMX variable IDs. <code>transformations()</code> returns a detached copy; changing the returned dictionaries does not change the model.</p>
+<h2 id="conversion-map">Conversion map</h2>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Target</th>
+<th>Operation</th>
+<th>Returned value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Model</code></td>
+<td>QUBO</td>
+<td><code>model.to_qubo_dict()</code></td>
+<td><code>(qubo_dict, offset)</code>; decoding remains on <code>model</code></td>
+</tr>
+<tr>
+<td><code>Model</code></td>
+<td>HUBO</td>
+<td><code>model.to_hubo_dict()</code></td>
+<td>polynomial dictionary including its constant</td>
+</tr>
+<tr>
+<td><code>Model</code></td>
+<td>Ising</td>
+<td><code>model.to_ising_dict()</code></td>
+<td><code>dict</code></td>
+</tr>
+<tr>
+<td><code>Model</code></td>
+<td>LP/MPS</td>
+<td><code>model.to_lp_string()</code>, <code>model.to_mps_string()</code></td>
+<td>solver-neutral text</td>
+</tr>
+<tr>
+<td><code>Model</code></td>
+<td>canonical IR</td>
+<td><code>to_ir(model)</code></td>
+<td>JSON-compatible dictionary</td>
+</tr>
+<tr>
+<td><code>Model</code> or <code>HUBOProblem</code></td>
+<td>qubit Hamiltonian</td>
+<td><code>convert(value, "QUBIT_HAMILTONIAN")</code></td>
+<td><code>QubitHamiltonian</code></td>
+</tr>
+<tr>
+<td><code>Model</code></td>
+<td>OMMX</td>
+<td><code>to_ommx(model)</code></td>
+<td>OMMX <code>Instance</code></td>
+</tr>
+<tr>
+<td>HUBO</td>
+<td>Ising</td>
+<td><code>hubo_to_ising()</code></td>
+<td><code>HUBOToIsingConvert</code></td>
+</tr>
+<tr>
+<td>qubit Hamiltonian</td>
+<td>QUBO or IR</td>
+<td><code>convert(value, "QUBO")</code>, <code>convert(value, "IR")</code></td>
+<td><code>IsingToQUBOConvert</code> or IR dictionary</td>
+</tr>
+<tr>
+<td>HUBO</td>
+<td>QUBO</td>
+<td><code>hubo_to_qubo()</code></td>
+<td><code>HUBOToQUBOConvert</code></td>
+</tr>
+<tr>
+<td>QUBO</td>
+<td>MILP</td>
+<td><code>qubo_to_milp()</code></td>
+<td><code>QUBOToMILPConvert</code></td>
+</tr>
+<tr>
+<td>MILP <code>Model</code></td>
+<td>QUBO</td>
+<td><code>milp_to_qubo()</code></td>
+<td><code>MILPToQUBOConvert</code></td>
+</tr>
+<tr>
+<td>QUBO</td>
+<td>Ising</td>
+<td><code>qubo_to_ising()</code></td>
+<td><code>QUBOToIsingConvert</code></td>
+</tr>
+<tr>
+<td>Ising</td>
+<td>QUBO</td>
+<td><code>ising_to_qubo()</code> or <code>ising.to_qubo()</code></td>
+<td><code>IsingToQUBOConvert</code></td>
+</tr>
+</tbody>
+</table>
+<p>A conversion object carries the transformed representation and the information needed to decode a target assignment. Preserve that object until the target result has been interpreted.</p>
+<h2 id="hubo-to-qubo">HUBO to QUBO</h2>
+<p><code>hubo_to_qubo()</code> replaces higher-order products with shared binary auxiliaries and a validated product penalty.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">hubo_to_qubo</span>
+
+<span class="n">source_hubo</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">():</span> <span class="mf">3.0</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">"x"</span><span class="p">,):</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">):</span> <span class="mf">5.0</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">reduced</span> <span class="o">=</span> <span class="n">hubo_to_qubo</span><span class="p">(</span>
+    <span class="n">source_hubo</span><span class="p">,</span>
+    <span class="n">sense</span><span class="o">=</span><span class="s2">"MIN"</span><span class="p">,</span>
+    <span class="n">matrix_format</span><span class="o">=</span><span class="s2">"upper"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">source_sample</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+<span class="n">full_sample</span> <span class="o">=</span> <span class="n">reduced</span><span class="o">.</span><span class="n">complete_sample</span><span class="p">(</span><span class="n">source_sample</span><span class="p">)</span>
+
+<span class="n">auxiliaries_valid</span> <span class="o">=</span> <span class="n">reduced</span><span class="o">.</span><span class="n">verify_auxiliaries</span><span class="p">(</span><span class="n">full_sample</span><span class="p">)</span>
+<span class="n">source_value</span> <span class="o">=</span> <span class="n">reduced</span><span class="o">.</span><span class="n">original_objective</span><span class="p">(</span><span class="n">full_sample</span><span class="p">)</span>
+<span class="n">target_value</span> <span class="o">=</span> <span class="n">reduced</span><span class="o">.</span><span class="n">qubo_energy</span><span class="p">(</span><span class="n">full_sample</span><span class="p">)</span>
+<span class="n">decoded</span> <span class="o">=</span> <span class="n">reduced</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">full_sample</span><span class="p">)</span>
+</code></pre></div>
+<p><code>full_sample</code> follows <code>reduced.variable_names</code> and includes implied auxiliary bits. For a valid auxiliary assignment, <code>target_value</code> equals the sense-normalized source energy and <code>decoded</code> contains only <code>x</code>, <code>y</code>, and <code>z</code>. <code>strength=None</code> chooses the minimum safe penalty. An explicit strength below that value raises <code>ModelCompilationError</code>.</p>
+<p>For <code>sense="MAX"</code>, the returned QUBO is a minimizing representation of the negated source polynomial. <code>reduced.original_sense</code> records <code>"MAX"</code> and <code>reduced.original_objective(sample)</code> evaluates the original, unnegated polynomial.</p>
+<h2 id="qubo-to-milp">QUBO to MILP</h2>
+<p><code>qubo_to_milp()</code> replaces every off-diagonal binary product with one auxiliary binary variable and exact linear product constraints.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">qubo_to_milp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">solve</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"QPIAI_OPT_API_KEY"</span><span class="p">])</span>
+
+<span class="n">source_qubo</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="o">-</span><span class="mf">3.0</span><span class="p">,</span>
+    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="mf">4.0</span><span class="p">,</span>
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">linearized</span> <span class="o">=</span> <span class="n">qubo_to_milp</span><span class="p">(</span>
+    <span class="n">source_qubo</span><span class="p">,</span>
+    <span class="n">num_variables</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">variable_names</span><span class="o">=</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">),</span>
+    <span class="n">constant</span><span class="o">=</span><span class="mf">7.0</span><span class="p">,</span>
+    <span class="n">sense</span><span class="o">=</span><span class="s2">"MIN"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">milp_result</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">linearized</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+<span class="n">source_sample</span> <span class="o">=</span> <span class="n">linearized</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">milp_result</span><span class="o">.</span><span class="n">solution</span><span class="p">)</span>
+</code></pre></div>
+<p>The input is a direct polynomial dictionary: store each off-diagonal interaction once, or split it equally across mirrored keys. The returned model preserves the constant and <code>MIN</code>/<code>MAX</code> direction. <code>decode()</code> removes product variables and returns the original binary names.</p>
+<h2 id="milp-to-qubo">MILP to QUBO</h2>
+<p><code>milp_to_qubo()</code> supports linear objectives and relations over binary, bounded integer, fixed-point, and explicitly discretized bounded continuous variables. SOS, indicators, semi domains, and mixed domains are rejected.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Binary</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">milp_to_qubo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">solve</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers.qubo</span><span class="w"> </span><span class="kn">import</span> <span class="n">QUBOProblem</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"x"</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"y"</span><span class="p">)</span>
+
+<span class="n">source_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"binary_selection"</span><span class="p">)</span>
+<span class="n">source_model</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">source_model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"capacity"</span><span class="p">)</span>
+
+<span class="n">compiled</span> <span class="o">=</span> <span class="n">milp_to_qubo</span><span class="p">(</span><span class="n">source_model</span><span class="p">,</span> <span class="n">matrix_format</span><span class="o">=</span><span class="s2">"upper"</span><span class="p">)</span>
+
+<span class="n">target_problem</span> <span class="o">=</span> <span class="n">QUBOProblem</span><span class="p">(</span>
+    <span class="n">num_variables</span><span class="o">=</span><span class="n">compiled</span><span class="o">.</span><span class="n">num_variables</span><span class="p">,</span>
+    <span class="n">qubo_dict</span><span class="o">=</span><span class="n">compiled</span><span class="o">.</span><span class="n">qubo</span><span class="p">,</span>
+    <span class="n">matrix_format</span><span class="o">=</span><span class="s2">"upper"</span><span class="p">,</span>
+    <span class="n">offset</span><span class="o">=</span><span class="n">compiled</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span>
+    <span class="n">sense</span><span class="o">=</span><span class="s2">"MIN"</span><span class="p">,</span>
+    <span class="n">variable_names</span><span class="o">=</span><span class="n">compiled</span><span class="o">.</span><span class="n">variable_names</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">qubo_result</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">target_problem</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+<span class="n">source_solution</span> <span class="o">=</span> <span class="n">compiled</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">qubo_result</span><span class="o">.</span><span class="n">solution</span><span class="p">)</span>
+<span class="n">source_feasible</span> <span class="o">=</span> <span class="n">source_model</span><span class="o">.</span><span class="n">is_feasible</span><span class="p">(</span><span class="n">source_solution</span><span class="p">)</span>
+<span class="n">source_objective</span> <span class="o">=</span> <span class="n">source_model</span><span class="o">.</span><span class="n">evaluate_objective</span><span class="p">(</span><span class="n">source_solution</span><span class="p">)</span>
+</code></pre></div>
+<p><code>compiled.qubo</code> is always the minimizing target energy. The conversion records the source direction in <code>compiled.original_sense</code>; use the retained <code>source_model</code> or <code>compiled.model</code> to evaluate the decoded source objective. <code>source_feasible</code> must be true before using the decoded candidate.</p>
+<h2 id="qubo-to-ising">QUBO to Ising</h2>
+<p><code>qubo_to_ising()</code> applies <code>x = (1 + s) / 2</code> and preserves the constant, variable count, and names.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">qubo_to_ising</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller.formats</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_qubo_energy</span>
+
+<span class="n">upper_qubo</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="o">-</span><span class="mf">3.0</span><span class="p">,</span>
+    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="mf">4.0</span><span class="p">,</span>
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">ising</span> <span class="o">=</span> <span class="n">qubo_to_ising</span><span class="p">(</span>
+    <span class="n">upper_qubo</span><span class="p">,</span>
+    <span class="n">num_variables</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">constant</span><span class="o">=</span><span class="mf">7.0</span><span class="p">,</span>
+    <span class="n">variable_names</span><span class="o">=</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">binary_sample</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+<span class="n">spin_sample</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">value</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">binary_sample</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+<span class="n">qubo_value</span> <span class="o">=</span> <span class="n">calculate_qubo_energy</span><span class="p">(</span><span class="n">upper_qubo</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">constant</span><span class="o">=</span><span class="mf">7.0</span><span class="p">)</span>
+<span class="n">ising_value</span> <span class="o">=</span> <span class="n">ising</span><span class="o">.</span><span class="n">energy</span><span class="p">(</span><span class="n">spin_sample</span><span class="p">)</span>
+</code></pre></div>
+<p><code>qubo_value</code> and <code>ising_value</code> are equal, subject only to floating-point roundoff. A symmetric QUBO input must contain half of each direct interaction on both mirrored keys.</p>
+<h2 id="ising-to-qubo">Ising to QUBO</h2>
+<p><code>ising_to_qubo()</code> and <code>QUBOToIsingConvert.to_qubo()</code> apply <code>s = 2x - 1</code>.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">round_trip</span> <span class="o">=</span> <span class="n">ising</span><span class="o">.</span><span class="n">to_qubo</span><span class="p">(</span><span class="n">matrix_format</span><span class="o">=</span><span class="s2">"upper"</span><span class="p">)</span>
+
+<span class="n">round_trip_value</span> <span class="o">=</span> <span class="n">round_trip</span><span class="o">.</span><span class="n">energy</span><span class="p">(</span><span class="n">binary_sample</span><span class="p">)</span>
+<span class="n">binary_assignment</span> <span class="o">=</span> <span class="n">round_trip</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">binary_sample</span><span class="p">)</span>
+<span class="n">source_value</span> <span class="o">=</span> <span class="n">round_trip</span><span class="o">.</span><span class="n">source_objective</span><span class="p">(</span><span class="n">binary_sample</span><span class="p">)</span>
+</code></pre></div>
+<p><code>round_trip_value</code> equals <code>ising_value</code>. <code>binary_assignment</code> uses the original Ising names. <code>source_objective()</code> returns the original objective direction: it equals the energy for <code>MIN</code> and its negation for <code>MAX</code>.</p>
+<h2 id="high-level-conversion">High-level conversion</h2>
+<p><code>qpiai_opt.opt_solvers.convert()</code> provides the same supported routes when a workflow selects a representation by name.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert</span>
+
+<span class="n">model_ir</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">source_model</span><span class="p">,</span> <span class="s2">"IR"</span><span class="p">)</span>
+<span class="n">qubo_data</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">source_model</span><span class="p">,</span> <span class="s2">"QUBO"</span><span class="p">,</span> <span class="n">matrix_format</span><span class="o">=</span><span class="s2">"upper"</span><span class="p">)</span>
+<span class="n">hubo_data</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">source_model</span><span class="p">,</span> <span class="s2">"HUBO"</span><span class="p">)</span>
+<span class="n">ising_model</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">target_problem</span><span class="p">,</span> <span class="s2">"ISING"</span><span class="p">)</span>
+<span class="n">restored_qubo</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">ising_model</span><span class="p">,</span> <span class="s2">"QUBO"</span><span class="p">,</span> <span class="n">matrix_format</span><span class="o">=</span><span class="s2">"upper"</span><span class="p">)</span>
+</code></pre></div>
+<p>Targets are case-insensitive. Supported <code>Model</code> targets are <code>"IR"</code>, <code>"QUBO"</code>, <code>"HUBO"</code>, <code>"ISING"</code>, <code>"LP"</code>, <code>"MPS"</code>, <code>"QUBIT_HAMILTONIAN"</code>, and <code>"OMMX"</code>. Hamiltonian export requires the gate-based optimization integration. A <code>QUBOProblem</code> converts to Ising, a <code>HUBOProblem</code> converts to QUBO, and an <code>IsingProblem</code> converts to QUBO. Unsupported source/target pairs and options raise <code>ValueError</code>. The <a href="api-solvers.html#conversion-routes">conversion reference</a> lists all native-problem routes and options.</p>
+<h2 id="specialized-exact-qubo-penalties">Specialized exact QUBO penalties</h2>
+<p>The QUBO compiler recognizes three slack-free binary structures:</p>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">x &lt;= y                 -&gt; x(1-y)
+sum(x[i]) &lt;= 1         -&gt; sum(i&lt;j, x[i]x[j])
+sum(x[i]) &gt;= n-1       -&gt; sum(i&lt;j, (1-x[i])(1-x[j]))
+</code></pre></div>
+<p>Each penalty is zero exactly on feasible binary assignments and positive on every infeasible assignment. Other inequalities use the general slack encoding.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Binary</span><span class="p">,</span> <span class="n">Model</span>
+
+<span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"a"</span><span class="p">),</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"b"</span><span class="p">),</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"c"</span><span class="p">)</span>
+<span class="n">penalty_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"at_most_one"</span><span class="p">)</span>
+<span class="n">penalty_model</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="o">-</span><span class="n">a</span> <span class="o">-</span> <span class="n">b</span> <span class="o">-</span> <span class="n">c</span><span class="p">)</span>
+<span class="n">penalty_model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">+</span> <span class="n">c</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">penalty_model</span><span class="o">.</span><span class="n">to_qubo_dict</span><span class="p">(</span><span class="n">matrix_format</span><span class="o">=</span><span class="s2">"upper"</span><span class="p">)</span>
+<span class="n">step</span> <span class="o">=</span> <span class="n">penalty_model</span><span class="o">.</span><span class="n">transformations</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">rewrite</span> <span class="o">=</span> <span class="n">step</span><span class="p">[</span><span class="s2">"rewrite"</span><span class="p">]</span>
+<span class="n">auxiliary_variables</span> <span class="o">=</span> <span class="n">step</span><span class="p">[</span><span class="s2">"auxiliary_variables"</span><span class="p">]</span>
+</code></pre></div>
+<p>For this at-most-one relation, the rewrite uses pairwise products and <code>auxiliary_variables</code> is empty.</p>
+<h2 id="decode-compiled-model-samples">Decode compiled model samples</h2>
+<p>A <code>Model</code> compiled directly to QUBO or HUBO retains its encoder map.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">source_values</span> <span class="o">=</span> <span class="n">source_model</span><span class="o">.</span><span class="n">decode_qubo_sample</span><span class="p">(</span><span class="n">qubo_result</span><span class="o">.</span><span class="n">solution</span><span class="p">)</span>
+<span class="n">objective</span> <span class="o">=</span> <span class="n">source_model</span><span class="o">.</span><span class="n">evaluate_objective</span><span class="p">(</span><span class="n">source_values</span><span class="p">)</span>
+<span class="n">violations</span> <span class="o">=</span> <span class="n">source_model</span><span class="o">.</span><span class="n">constraint_violations</span><span class="p">(</span><span class="n">source_values</span><span class="p">)</span>
+<span class="n">feasible</span> <span class="o">=</span> <span class="n">source_model</span><span class="o">.</span><span class="n">is_feasible</span><span class="p">(</span><span class="n">source_values</span><span class="p">)</span>
+</code></pre></div>
+<p>Use <code>feasible</code> and <code>violations</code> before accepting a heuristic candidate. <code>objective</code> is always evaluated in the source <code>MIN</code>/<code>MAX</code> direction.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="interoperability.html"><span>Previous</span><strong>External solver interoperability</strong></a><a class="pager-card next" href="platform-client.html"><span>Next</span><strong>Platform client</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#human-readable-model-inspection">Human-readable model inspection</a><a class="toc-level-2" href="#transformation-records">Transformation records</a><a class="toc-level-2" href="#conversion-map">Conversion map</a><a class="toc-level-2" href="#hubo-to-qubo">HUBO to QUBO</a><a class="toc-level-2" href="#qubo-to-milp">QUBO to MILP</a><a class="toc-level-2" href="#milp-to-qubo">MILP to QUBO</a><a class="toc-level-2" href="#qubo-to-ising">QUBO to Ising</a><a class="toc-level-2" href="#ising-to-qubo">Ising to QUBO</a><a class="toc-level-2" href="#high-level-conversion">High-level conversion</a><a class="toc-level-2" href="#specialized-exact-qubo-penalties">Specialized exact QUBO penalties</a><a class="toc-level-2" href="#decode-compiled-model-samples">Decode compiled model samples</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

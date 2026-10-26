@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Automation and agent workflows">
+<title>Automation and agent workflows | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/automation.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="automation">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="active" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Platform</span><span aria-hidden="true">&gt;</span><span>Automation and agent workflows</span></div><article class="doc-content"><h1 id="automation-and-agent-workflows">Automation and agent workflows</h1>
+<p>Use the SDK's Python operations to prepare a model, select an execution route, verify a result, and manage platform jobs. This guide covers workflow decisions; the linked references define signatures, options, fields, and mathematical contracts.</p>
+<h2 id="before-executing-a-task">Before executing a task</h2>
+<ol>
+<li>Define the objective, sense, variable domains, constraints, and required output. Choose encoding resolution, penalty controls, feasibility tolerance, solution guarantee, and execution budget where needed.</li>
+<li>Install with <code>python -m pip install qpiai-opt</code> and select the relevant guide below. Check the installed version with <code>importlib.metadata.version("qpiai-opt")</code>.</li>
+<li>Restore canonical IR with <code>from_ir(problem_ir)</code> when necessary, then inspect the problem before execution. Keep the source model and compiled representation for verification and result retrieval.</li>
+<li>Select local or platform execution. Platform jobs and paid fallback require the caller's authorization and resource budget.</li>
+</ol>
+<p>Obtain a free Opt API key at <a href="https://opt.qpiai.tech/">QpiAI Opt</a> for calls using <code>Client</code>, or a free QCloud API key at <a href="https://qcloud.qpiai.tech/">QpiAI QCloud</a> for gate-based optimization. Load credentials from the application's secret store. Modelling, inspection, conversion, and result evaluation require no credentials; local solving verifies the appropriate key online before computation.</p>
+<h2 id="choose-the-right-guide">Choose the right guide</h2>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Install or navigate the SDK</td>
+<td><a href="getting-started.html">Getting started</a>, <a href="manual.html">user manual</a></td>
+</tr>
+<tr>
+<td>Build or update a model</td>
+<td><a href="modelling-workflows.html">Modelling workflows</a>, <a href="milp-modeller.html">MILP</a>, <a href="qp-modeller.html">QP</a>, <a href="qubo-modeller.html">QUBO</a>, <a href="hubo-modeller.html">HUBO</a>, <a href="ising-modeller.html">Ising</a></td>
+</tr>
+<tr>
+<td>Run gate-based optimization</td>
+<td><a href="quantum-optimization.html">Gate-based optimization workflow</a>, <a href="api-quantum.html">gate-based optimization API</a></td>
+</tr>
+<tr>
+<td>Select execution and options</td>
+<td><a href="local-solving.html">Local and platform routing</a></td>
+</tr>
+<tr>
+<td>Exchange models or retain source coordinates</td>
+<td><a href="model-ir.html">Canonical IR</a>, <a href="api-solvers.html#conversion-routes">conversions</a>, <a href="interoperability.html">interoperability and OMMX</a></td>
+</tr>
+<tr>
+<td>Interpret results</td>
+<td><a href="local-solving.html#completed-result-contract">Result contract</a>, <a href="quantum-optimization.html#results-and-automation">gate-based optimization results</a></td>
+</tr>
+<tr>
+<td>Manage platform jobs, resources, or credits</td>
+<td><a href="platform-client.html">Platform client</a>, <a href="platform-client.html#credit-usage-and-allocations">credit usage and quotas</a></td>
+</tr>
+<tr>
+<td>Look up imports, schemas, or failures</td>
+<td><a href="public-api.html">Public API index</a>, <a href="api-solvers.html">solver API</a>, <a href="api-solvers.html#schema-inventory">schema inventory</a>, <a href="exceptions.html">exceptions</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="inspection-operations">Inspection operations</h2>
+<p>Call <code>inspect(problem)</code> to validate the representation and obtain <code>problem_class</code>, <code>representation</code>, <code>metrics</code>, and <code>valid=True</code>; invalid inputs raise. Metrics vary by problem class. Inspection does not prove feasibility or guarantee that a problem fits local limits.</p>
+<p>For gate-based optimization, compile an algebraic model first with <code>model.compile(target="QUBO", **compile_options)</code> or <code>model.compile(target="ISING", **compile_options)</code>, choosing its encoding options explicitly. Construct the algorithm and call <code>inspect(problem, algorithm=algorithm)</code> to check compatibility and circuit metrics. Hamiltonian inputs and higher-order models follow the <a href="quantum-optimization.html#hamiltonian-conversion-and-circuit-inspection">gate-based optimization input and conversion rules</a>.</p>
+<p>Use <code>classify(problem)</code> for identification, <code>provider_capabilities()</code> for execution capabilities, and <code>LOCAL_LIMITS</code> for local capacity. These operations do not solve or submit work. See the <a href="api-solvers.html#function-inspect">inspection API</a> and <a href="local-solving.html#structural-limits">local limits</a>.</p>
+<h2 id="deterministic-decision-procedure">Deterministic decision procedure</h2>
+<p>Import operations from <code>qpiai_opt.opt_solvers</code>, modelling and IR functions from <code>qpiai_opt.opt_modeller</code>, and gate-based optimization algorithms and configuration from <code>qpiai_opt.quantum</code>.</p>
+<p>For gate-based optimization, authenticate with <code>QpiAIQuantumAuth.login(api_key=QCLOUD_API_KEY)</code> and construct <code>execution = QuantumRun()</code>, setting execution options as needed. For calls without <code>algorithm</code>, construct <code>client = Client(api_key=OPT_API_KEY)</code>. Assign the result of the selected call below to <code>solve_result</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Call</th>
+<th>Execution scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Local gate-based optimization</td>
+<td><code>solve(problem, algorithm=algorithm, execution=execution)</code></td>
+<td>Authenticated QpiAI local quantum simulator.</td>
+</tr>
+<tr>
+<td>Gate-based optimization on QCloud</td>
+<td><code>solve(problem, mode="platform", algorithm=algorithm, execution=execution)</code></td>
+<td>QCloud circuit execution; can consume credits.</td>
+</tr>
+<tr>
+<td>Local</td>
+<td><code>solve(problem, client=client)</code></td>
+<td>Default route; free authenticated local computation.</td>
+</tr>
+<tr>
+<td>Platform</td>
+<td><code>solve(problem, mode="platform", client=client)</code></td>
+<td>Explicit platform job; can consume credits.</td>
+</tr>
+<tr>
+<td>Local-first</td>
+<td><code>solve(problem, mode="auto", client=client)</code></td>
+<td>Local only unless <code>allow_platform=True</code> also authorizes fallback.</td>
+</tr>
+</tbody>
+</table>
+<p>Gate-based optimization rejects <code>mode="auto"</code>, <code>allow_platform=True</code>, and the Opt <code>Client</code>. Configure QCloud device selection through <code>QuantumRun</code>; use the <a href="quantum-optimization.html">gate-based optimization guide</a> for supported settings.</p>
+<p>QP is local-only. Automatic fallback occurs only after <code>LocalLimitExceeded</code>. Authentication, validation, transport, and solver failures do not trigger fallback. Omit options whose value is <code>None</code>; options for the wrong class raise. Use the <a href="local-solving.html#modes">routing modes and option reference</a> before selecting fallback or class-specific controls.</p>
+<h2 id="blocking-solve">Blocking solve</h2>
+<p>Read <code>solve_result.info()</code> before accepting an optimization candidate. Check <code>has_usable_solution</code>, <code>solution_feasible</code>, and <code>optimality_proven</code> against the application's required guarantee; a heuristic candidate is not an optimality proof.</p>
+<p>When a usable candidate and source <code>Model</code> are available, call <code>feasibility(model, solve_result.variable_assignment)</code> for QUBO/HUBO/Ising, or <code>feasibility(model, solve_result.solution)</code> for LP/MILP/QP. When no usable candidate exists, report the termination and guarantee and skip assignment evaluation. Generic Hamiltonian results provide <code>eigenvalue</code> without a variable assignment.</p>
+<p>Serialize results with <code>model_dump(mode="json")</code>, retaining <code>solve_info</code>. Restore them with the corresponding result class's <code>model_validate()</code> method. Validate stored <code>solve_info</code> with <code>QuantumSolveInfo</code> for <code>QuantumResult</code>, or <code>SolveInfo</code> for other result types. Full fields, guarantees, timings, and serialization are defined in the <a href="local-solving.html#completed-result-contract">result contract</a> and <a href="api-quantum.html#class-quantumresult">gate-based optimization result reference</a>.</p>
+<h2 id="nonblocking-platform-lifecycle">Nonblocking platform lifecycle</h2>
+<p>Use the optimization job lifecycle for platform calls without <code>algorithm</code>. Gate-based optimization algorithms use the blocking workflow above.</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>submit(problem, client=client, **options)</code></td>
+<td>Submit once; preserve the returned identifiers and original problem.</td>
+</tr>
+<tr>
+<td><code>status(client, job_id)</code></td>
+<td>Read the existing job's state without resubmitting.</td>
+</tr>
+<tr>
+<td><code>result(client, job_id, problem=original_problem)</code></td>
+<td>Retrieve a completed job as a typed result with source restoration.</td>
+</tr>
+<tr>
+<td><code>cancel(client, job_id)</code></td>
+<td>Request cancellation of a job owned by the workflow; check its state afterward.</td>
+</tr>
+</tbody>
+</table>
+<p>Retain the original problem and decoding metadata until retrieval. Omitting <code>problem</code> from <code>result()</code> returns the raw extracted payload. After an ambiguous submission failure, reconcile existing jobs before retrying. See the <a href="api-solvers.html#function-submit">submission</a>, <a href="api-solvers.html#function-status">status</a>, <a href="api-solvers.html#function-result">retrieval</a>, and <a href="api-solvers.html#function-cancel">cancellation</a> contracts, including exact return fields and failure conditions.</p>
+<h2 id="conversion-and-verification">Conversion and verification</h2>
+<p>Use <code>convert(problem, target, **options)</code> for an explicit representation change. The <a href="api-solvers.html#conversion-routes">conversion reference</a> lists every supported source/target pair, return type, option, and mathematical restriction. Retain conversion records and source metadata for decoding and source-objective interpretation.</p>
+<p><code>feasibility(model, values, tolerance=1e-6)</code> requires a complete source-name assignment and returns <code>feasible</code>, <code>objective</code>, <code>violations</code>, and <code>tolerance</code>. It also accepts the model's deterministic auxiliary columns. Use its <a href="api-solvers.html#function-feasibility">input and return contract</a> for domain diagnostics, tolerance rules, and rejected assignments.</p>
+<h2 id="schemas-and-cross-process-requests">Schemas and cross-process requests</h2>
+<p>Use <code>schemas()</code> to obtain JSON schemas for request envelopes, problems, configurations, results, and platform records:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">schemas</span>
+
+<span class="n">schema_map</span> <span class="o">=</span> <span class="n">schemas</span><span class="p">()</span>
+<span class="n">request_schema</span> <span class="o">=</span> <span class="n">schema_map</span><span class="p">[</span><span class="s2">"solve_request"</span><span class="p">]</span>
+<span class="n">result_schema</span> <span class="o">=</span> <span class="n">schema_map</span><span class="p">[</span><span class="s2">"solve_result"</span><span class="p">]</span>
+</code></pre></div>
+<p>The <a href="api-solvers.html#schema-inventory">schema inventory</a> defines the available keys. Request envelopes reject unknown outer fields. Validate the selected request schema before dispatch. Use <code>from_ir()</code> to restore <code>problem_ir</code> for inspection, solve, or submission requests, or <code>model_ir</code> for feasibility requests. Pass feasibility <code>values</code> and its optional <code>tolerance</code>; job requests carry <code>job_id</code>. Supply an Opt <code>Client</code> separately for <code>solve()</code> calls without <code>algorithm</code> and for job operations. Inspection and feasibility need no client. Credentials and client/session state stay outside IR, request data, results, and logs.</p>
+<p><code>solve_request</code> does not include <code>algorithm</code> or <code>execution</code>. A gate-based optimization integration selects and constructs its algorithm through the Python API, validates settings with <code>QuantumRun</code>, and supplies QCloud authentication separately; algorithm instances, callbacks, and circuits are not serialized by these request schemas.</p>
+<h2 id="failure-handling">Failure handling</h2>
+<table>
+<thead>
+<tr>
+<th>Failure</th>
+<th>Workflow action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Invalid types, domains, coefficients, or options</td>
+<td>Correct the input using the relevant API contract; rescale values outside supported numerical ranges.</td>
+</tr>
+<tr>
+<td><code>LocalLimitExceeded</code></td>
+<td>Reduce the problem or select an authorized execution route.</td>
+</tr>
+<tr>
+<td><code>CapabilityError</code></td>
+<td>Read <code>compatible_alternatives</code> and select a supported representation or route within the execution policy.</td>
+</tr>
+<tr>
+<td><code>AuthenticationError</code></td>
+<td>Correct the credential or connectivity; do not switch execution routes.</td>
+</tr>
+<tr>
+<td>Ambiguous transport or submission failure</td>
+<td>Reconcile the existing job before retrying; avoid duplicate submissions.</td>
+</tr>
+<tr>
+<td>Failed or cancelled job</td>
+<td>Retain its identifiers and error; treat it as having no completed solution.</td>
+</tr>
+</tbody>
+</table>
+<p>Use the <a href="exceptions.html">exception reference</a>, <a href="local-solving.html#structured-failures">structured local failures</a>, and <a href="platform-client.html#failure-and-retry-policy">platform retry policy</a> for specific recovery rules.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="platform-client.html"><span>Previous</span><strong>Platform client</strong></a><a class="pager-card next" href="public-api.html"><span>Next</span><strong>Public Python API</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#before-executing-a-task">Before executing a task</a><a class="toc-level-2" href="#choose-the-right-guide">Choose the right guide</a><a class="toc-level-2" href="#inspection-operations">Inspection operations</a><a class="toc-level-2" href="#deterministic-decision-procedure">Deterministic decision procedure</a><a class="toc-level-2" href="#blocking-solve">Blocking solve</a><a class="toc-level-2" href="#nonblocking-platform-lifecycle">Nonblocking platform lifecycle</a><a class="toc-level-2" href="#conversion-and-verification">Conversion and verification</a><a class="toc-level-2" href="#schemas-and-cross-process-requests">Schemas and cross-process requests</a><a class="toc-level-2" href="#failure-handling">Failure handling</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

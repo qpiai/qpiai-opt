@@ -1,0 +1,30 @@
+name: Feature request
+description: Propose a focused modelling or interoperability capability
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Workflow and user value
+    validations:
+      required: true
+  - type: textarea
+    id: gap
+    attributes:
+      label: Why current representations or adapters are insufficient
+    validations:
+      required: true
+  - type: textarea
+    id: api
+    attributes:
+      label: Smallest proposed API and mathematical semantics
+    validations:
+      required: true
+  - type: dropdown
+    id: payment
+    attributes:
+      label: Can this operation create paid platform work?
+      options: ["No", "Yes", "Unknown"]
+    validations:
+      required: true

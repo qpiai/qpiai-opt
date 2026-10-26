@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="MILP solver">
+<title>MILP solver | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/milp-solver.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="milp-solver">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="active" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Solving</span><span aria-hidden="true">&gt;</span><span>MILP solver</span></div><article class="doc-content"><h1 id="milp-solver">MILP solver</h1>
+<p><code>MILPSolver</code> uploads an LP or MPS file, creates a platform problem, submits the job, and validates the solver response. It accepts <code>.lp</code>, <code>.mps</code>, <code>.lp.gz</code>, and <code>.mps.gz</code> files, case-insensitively. Paths may contain Unicode characters on Linux, macOS, and Windows.</p>
+<p>Use the <a href="milp-modeller.html">MILP modeller</a> to create a file from an SDK model, or submit a compatible file produced elsewhere.</p>
+<h2 id="client-and-solver-construction">Client and solver construction</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers.milp</span><span class="w"> </span><span class="kn">import</span> <span class="n">MILPSolver</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"QPIAI_OPT_API_KEY"</span><span class="p">])</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">MILPSolver</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+</code></pre></div>
+<p>The solver can instead construct its own client from <code>api_key=...</code>, <code>url=...</code>, <code>experiment_id=...</code>, or <code>experiment_name=...</code>.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">available</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">health</span><span class="p">()</span>
+</code></pre></div>
+<p><code>health() -&gt; bool</code> delegates to <code>Client.health()</code>. It performs an authenticated account request with a five-second timeout, creates no problem or job, and returns <code>False</code> on request or API failure.</p>
+<h2 id="solver-configuration">Solver configuration</h2>
+<p>Only set parameters whose defaults you intend to override:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers.milp</span><span class="w"> </span><span class="kn">import</span> <span class="n">MILPSolverConfig</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">MILPSolverConfig</span><span class="p">(</span>
+    <span class="n">time_limit</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span>
+    <span class="n">mip_rel_gap</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+    <span class="n">threads</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">presolve</span><span class="o">=</span><span class="s2">"choose"</span><span class="p">,</span>
+    <span class="n">solver_algorithm</span><span class="o">=</span><span class="s2">"choose"</span><span class="p">,</span>
+    <span class="n">output_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Unknown fields are forbidden. Booleans are not accepted as numeric values, all floating-point parameters must be finite, and integer fields marked as strict do not accept floats.</p>
+<h3 id="termination">Termination</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th style="text-align: right;">Default</th>
+<th>Valid values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>time_limit</code></td>
+<td style="text-align: right;"><code>300.0</code></td>
+<td>Finite seconds greater than or equal to zero; zero requests no solver limit.</td>
+</tr>
+<tr>
+<td><code>mip_max_nodes</code></td>
+<td style="text-align: right;"><code>-1</code></td>
+<td>Strict integer at least <code>-1</code>; <code>-1</code> means unlimited.</td>
+</tr>
+<tr>
+<td><code>solution_limit</code></td>
+<td style="text-align: right;"><code>-1</code></td>
+<td>Stop after this many feasible MIP solutions; <code>-1</code> means unlimited and positive integers set the limit.</td>
+</tr>
+<tr>
+<td><code>objective_bound</code></td>
+<td style="text-align: right;"><code>None</code></td>
+<td>Optional finite dual-bound stopping threshold; for MIN, stop when the lower bound reaches or exceeds it.</td>
+</tr>
+<tr>
+<td><code>objective_target</code></td>
+<td style="text-align: right;"><code>None</code></td>
+<td>Optional finite incumbent target; stop when a feasible solution reaches this value or better.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="gaps-and-feasibility-tolerances">Gaps and feasibility tolerances</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th style="text-align: right;">Default</th>
+<th>Valid values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mip_rel_gap</code></td>
+<td style="text-align: right;"><code>1e-4</code></td>
+<td>Finite non-negative relative incumbent-to-bound stopping gap; <code>1e-4</code> is 0.01%.</td>
+</tr>
+<tr>
+<td><code>mip_abs_gap</code></td>
+<td style="text-align: right;"><code>1e-6</code></td>
+<td>Finite non-negative absolute incumbent-to-bound stopping gap.</td>
+</tr>
+<tr>
+<td><code>primal_feasibility_tolerance</code></td>
+<td style="text-align: right;"><code>1e-7</code></td>
+<td>Finite positive tolerance for primal constraint feasibility.</td>
+</tr>
+<tr>
+<td><code>dual_feasibility_tolerance</code></td>
+<td style="text-align: right;"><code>1e-7</code></td>
+<td>Finite positive tolerance for LP dual feasibility.</td>
+</tr>
+<tr>
+<td><code>mip_feasibility_tolerance</code></td>
+<td style="text-align: right;"><code>1e-6</code></td>
+<td>Finite positive integrality tolerance: accepted integer values satisfy <code>abs(x - round(x)) &lt;= tolerance</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="algorithm-and-output">Algorithm and output</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th style="text-align: right;">Default</th>
+<th>Valid values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>threads</code></td>
+<td style="text-align: right;"><code>0</code></td>
+<td>Strict non-negative integer; zero delegates selection to the solver.</td>
+</tr>
+<tr>
+<td><code>presolve</code></td>
+<td style="text-align: right;"><code>"choose"</code></td>
+<td><code>"on"</code> enables presolve, <code>"off"</code> disables it, and <code>"choose"</code> lets the selected solver decide. Input is case-insensitive.</td>
+</tr>
+<tr>
+<td><code>solver_algorithm</code></td>
+<td style="text-align: right;"><code>"choose"</code></td>
+<td><code>"simplex"</code> selects a simplex method, <code>"ipm"</code> selects an interior-point method, and <code>"choose"</code> lets the selected solver decide. Input is case-insensitive.</td>
+</tr>
+<tr>
+<td><code>mip_heuristic_effort</code></td>
+<td style="text-align: right;"><code>0.05</code></td>
+<td>Controls solver effort spent on MIP heuristics; finite value from zero through one.</td>
+</tr>
+<tr>
+<td><code>output_flag</code></td>
+<td style="text-align: right;"><code>False</code></td>
+<td>Strict Boolean; enables solver console output when <code>True</code>.</td>
+</tr>
+<tr>
+<td><code>log_file</code></td>
+<td style="text-align: right;"><code>None</code></td>
+<td>Optional solver-side log path string.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="optional-result-features">Optional result features</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th style="text-align: right;">Default</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>include_dual_info</code></td>
+<td style="text-align: right;"><code>False</code></td>
+<td>Requests dual values and reduced costs.</td>
+</tr>
+<tr>
+<td><code>compute_ranging</code></td>
+<td style="text-align: right;"><code>False</code></td>
+<td>Requests sensitivity ranges.</td>
+</tr>
+<tr>
+<td><code>compute_iis</code></td>
+<td style="text-align: right;"><code>True</code></td>
+<td>Requests an IIS when the model is infeasible.</td>
+</tr>
+<tr>
+<td><code>collect_solution_pool</code></td>
+<td style="text-align: right;"><code>False</code></td>
+<td>Requests improving MIP solutions.</td>
+</tr>
+</tbody>
+</table>
+<p>These four fields require strict booleans. Whether a requested feature is available depends on the selected platform solver and the problem class. The SDK validates the shape of returned optional data; it does not manufacture missing solver diagnostics.</p>
+<h2 id="warm-starts">Warm starts</h2>
+<p>A partial incumbent supplies variable values:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers.milp</span><span class="w"> </span><span class="kn">import</span> <span class="n">WarmStart</span>
+
+<span class="n">warm_start</span> <span class="o">=</span> <span class="n">WarmStart</span><span class="p">(</span>
+    <span class="n">col_values</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">"produce"</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>
+        <span class="s2">"overtime"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">"open"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Names must be non-empty strings and values must be finite real numbers. Booleans and numeric strings are rejected before Pydantic can coerce them; use <code>1.0</code>, not <code>True</code> or <code>"1"</code>. A partial value start is allowed.</p>
+<p>A basis start must include both row and column status arrays:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">basis_start</span> <span class="o">=</span> <span class="n">WarmStart</span><span class="p">(</span>
+    <span class="n">col_basis_status</span><span class="o">=</span><span class="p">[</span><span class="s2">"basic"</span><span class="p">,</span> <span class="s2">"lower"</span><span class="p">,</span> <span class="s2">"upper"</span><span class="p">],</span>
+    <span class="n">row_basis_status</span><span class="o">=</span><span class="p">[</span><span class="s2">"basic"</span><span class="p">,</span> <span class="s2">"lower"</span><span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Allowed status strings are <code>lower</code>, <code>basic</code>, <code>upper</code>, <code>zero</code>, and <code>nonbasic</code>; input is normalized to lowercase. Providing only one basis array is invalid. A <code>WarmStart</code> with neither values nor a complete basis is also invalid.</p>
+<h2 id="blocking-solve">Blocking solve</h2>
+<p>Blocking solves read the current job state, then wait through Server-Sent Events (SSE) by default. If the stream cannot complete monitoring, the waiter falls back to polling; <code>poll_interval</code> controls that fallback interval in seconds.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">result</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+    <span class="s2">"production.lp"</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"Production planning"</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="n">warm_start</span><span class="o">=</span><span class="n">warm_start</span><span class="p">,</span>
+    <span class="n">experiment_name</span><span class="o">=</span><span class="s2">"Benchmarks"</span><span class="p">,</span>
+    <span class="n">workspace_id</span><span class="o">=</span><span class="s2">"workspace-id"</span><span class="p">,</span>
+    <span class="n">project_id</span><span class="o">=</span><span class="s2">"project-id"</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="mi">1800</span><span class="p">,</span>
+    <span class="n">request_timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+    <span class="n">poll_interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><code>solve()</code>:</p>
+<ol>
+<li>validates the local path and file suffix, then reads its class and objective sense;</li>
+<li>uploads the file to platform storage;</li>
+<li>creates a MILP problem referencing that storage object;</li>
+<li>submits the job;</li>
+<li>waits for a terminal job state;</li>
+<li>retrieves an inline or storage-backed result and validates it.</li>
+</ol>
+<p><code>timeout</code> is the waiting budget after submission and defaults to 600 seconds; upload, problem creation, submission, and final result retrieval are outside that budget. <code>request_timeout</code> supplies their per-request connection/read timeout and defaults to the client's timeout. Status reads use the client's timeout within the waiter's remaining budget. HTTP timeouts bound connection and read inactivity rather than total transfer duration; an in-flight request can overrun the waiting budget. <code>poll_interval</code> must be positive and finite. A local timeout stops monitoring without cancelling the platform job; resume with the same job ID. See the <a href="platform-client.html#timeouts">timeout contract</a>.</p>
+<p><code>workspace_id</code> and <code>project_id</code> are passed only to the storage upload. Experiment and compute-resource selection affect job submission.</p>
+<h2 id="nonblocking-lifecycle">Nonblocking lifecycle</h2>
+<p>This solver-instance <code>submit()</code> method is explicitly platform-only. Supplying its <code>Client</code> and calling it is the caller's choice to create one potentially paid platform job.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">submission</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+    <span class="s2">"production.lp"</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"Production planning"</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><code>submit()</code> performs upload, problem creation, and job submission, then returns:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>job_id</code></td>
+<td>Platform job identifier.</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>Normalized initial state.</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td>Platform acknowledgement.</td>
+</tr>
+<tr>
+<td><code>problem_id</code></td>
+<td>Created platform problem identifier.</td>
+</tr>
+<tr>
+<td><code>storage_id</code></td>
+<td>Uploaded model-file identifier.</td>
+</tr>
+</tbody>
+</table>
+<p>It does not wait for execution. Its <code>timeout</code> is the per-request timeout used during the submission sequence.</p>
+<p>Retrieve state and output later:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">status</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">get_status</span><span class="p">(</span><span class="n">submission</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">"completed"</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">result</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+<p>For a completed job, <code>get_status()</code> also downloads and validates its result. For other states, <code>result</code> is <code>None</code>.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">result</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">get_result</span><span class="p">(</span><span class="n">submission</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<span class="n">solution</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">get_solution</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">)</span>
+</code></pre></div>
+<p><code>get_result()</code> raises <code>RuntimeError</code> unless the job is completed. <code>get_solution(job_id=...)</code> retrieves a result first; pass an existing <code>result=...</code> to avoid another request. If a valid result has no incumbent, <code>get_solution()</code> returns <code>None</code>.</p>
+<p>The solver retains the submitted file's problem class and objective sense for later calls made through the same solver instance. When retrieving a job from a new instance or process, supply the original file explicitly:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">result</span> <span class="o">=</span> <span class="n">MILPSolver</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span><span class="o">.</span><span class="n">get_result</span><span class="p">(</span>
+    <span class="n">submission</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+    <span class="n">model_path</span><span class="o">=</span><span class="s2">"production.lp"</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><code>get_status(..., model_path="production.lp")</code> provides the same restoration. The automation API accepts the equivalent <code>result(client, job_id, problem="production.lp")</code> form. If neither the current solver instance nor the retrieval call has the source file and the platform response omits this metadata, <code>sense</code> can be <code>None</code>. <code>result.info().source_objective</code> is then also <code>None</code>; the SDK does not label a value as source-coordinate data without the source objective direction.</p>
+<h2 id="result-interpretation">Result interpretation</h2>
+<p><code>solve()</code> and <code>get_result()</code> return <code>SolveResult</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>job_id</code></td>
+<td><code>str | None</code></td>
+<td>Platform job identifier retained by blocking and retrieval workflows.</td>
+</tr>
+<tr>
+<td><code>problem_id</code></td>
+<td><code>str | None</code></td>
+<td>Platform problem identifier associated with the job.</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>str</code></td>
+<td>Non-empty solver execution status.</td>
+</tr>
+<tr>
+<td><code>model_status</code></td>
+<td><code>str</code></td>
+<td>Non-empty mathematical model status. Interpret this before optional solution fields.</td>
+</tr>
+<tr>
+<td><code>objective</code></td>
+<td><code>float | None</code></td>
+<td>Finite incumbent objective, when one exists.</td>
+</tr>
+<tr>
+<td><code>problem_class</code></td>
+<td><code>"LP" | "MILP"</code></td>
+<td>Identified mathematical class.</td>
+</tr>
+<tr>
+<td><code>execution_mode</code></td>
+<td><code>"local" | "platform"</code></td>
+<td>Execution location.</td>
+</tr>
+<tr>
+<td><code>sense</code></td>
+<td><code>"MIN" | "MAX" | None</code></td>
+<td><code>"MIN"</code> means the source objective is minimized; <code>"MAX"</code> means it is maximized. File-based solve and source-aware retrieval preserve it; otherwise it is <code>None</code>.</td>
+</tr>
+<tr>
+<td><code>compute_time_s</code>, <code>solver_time_s</code></td>
+<td><code>float | None</code></td>
+<td>Compute and algorithm durations in seconds, or <code>None</code> when unavailable.</td>
+</tr>
+<tr>
+<td><code>compute_time_ms</code>, <code>compute_time_us</code>, <code>solver_time_ms</code>, <code>solver_time_us</code></td>
+<td><code>float | None</code></td>
+<td>Runtime in milliseconds and microseconds; omitted from default serialization.</td>
+</tr>
+<tr>
+<td><code>num_nodes</code></td>
+<td><code>int | None</code></td>
+<td>Non-negative branch-and-bound node count, or <code>None</code> when the backend reports <code>-1</code> as unavailable.</td>
+</tr>
+<tr>
+<td><code>best_bound</code></td>
+<td><code>float | None</code></td>
+<td>Finite best bound in source sense and offset coordinates, when reported. With an LP source file and returned <code>status="optimal"</code>, the adapter uses the incumbent objective as its bound. Without source metadata, an <code>optimal</code> result with a nonzero incumbent, unavailable MIP nodes, zero backend bound, and no gap treats that bound as unavailable.</td>
+</tr>
+<tr>
+<td><code>optimality_gap</code></td>
+<td><code>float | None</code></td>
+<td>Source-coordinate relative gap, or <code>None</code> when undefined/unavailable.</td>
+</tr>
+<tr>
+<td><code>iteration_count</code></td>
+<td><code>int</code></td>
+<td>Non-negative LP iteration count.</td>
+</tr>
+<tr>
+<td><code>error_message</code></td>
+<td><code>str | None</code></td>
+<td>Solver diagnostic text.</td>
+</tr>
+<tr>
+<td><code>solution</code></td>
+<td><code>dict[str, float] | None</code></td>
+<td>Finite variable values for a returned incumbent.</td>
+</tr>
+<tr>
+<td><code>dual_values</code></td>
+<td><code>dict[str, float] | None</code></td>
+<td>Finite constraint duals, if requested and available.</td>
+</tr>
+<tr>
+<td><code>reduced_costs</code></td>
+<td><code>dict[str, float] | None</code></td>
+<td>Finite variable reduced costs, if requested and available.</td>
+</tr>
+<tr>
+<td><code>basis</code></td>
+<td>basis record or <code>None</code></td>
+<td>Validated row and column basis statuses.</td>
+</tr>
+<tr>
+<td><code>ranging</code></td>
+<td>ranging record or <code>None</code></td>
+<td>Named variable and constraint sensitivity dictionaries; range endpoints may be infinite.</td>
+</tr>
+<tr>
+<td><code>solution_pool</code></td>
+<td>list of solution records or <code>None</code></td>
+<td>Finite objectives and finite value arrays.</td>
+</tr>
+<tr>
+<td><code>iis</code></td>
+<td>IIS record or <code>None</code></td>
+<td>Parallel row/column index, name, and bound-code arrays.</td>
+</tr>
+</tbody>
+</table>
+<p>Nested result records have these exact fields:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Fields and invariants</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Basis record</td>
+<td><code>col_status: list[str]</code>, <code>row_status: list[str]</code>; each value is <code>lower</code>, <code>basic</code>, <code>upper</code>, <code>zero</code>, or <code>nonbasic</code>.</td>
+</tr>
+<tr>
+<td>Solution-pool record</td>
+<td><code>objective: float</code>, <code>values: list[float]</code>; every number is finite. Values follow solver column order.</td>
+</tr>
+<tr>
+<td>IIS record</td>
+<td><code>row_indices: list[int]</code>, <code>row_names: list[str]</code>, <code>row_bounds: list[int]</code>, plus the corresponding <code>col_indices</code>, <code>col_names</code>, and <code>col_bounds</code>; index/name/bound arrays have equal lengths within each axis and indices are non-negative.</td>
+</tr>
+<tr>
+<td>Ranging record</td>
+<td><code>variables: dict[str, dict[str, float | "+Inf" | "-Inf" | None]]</code>, <code>constraints: dict[str, dict[str, float | "+Inf" | "-Inf" | None]]</code>; outer keys are model names. Variable measures include <code>cost_down</code>, <code>cost_up</code>, <code>bound_down</code>, and <code>bound_up</code>; constraint measures include <code>bound_down</code> and <code>bound_up</code>. Endpoints use finite numbers, the <code>"+Inf"</code>/<code>"-Inf"</code> sentinels, or <code>None</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>A completed transport job is not necessarily a mathematically optimal model. Always inspect <code>model_status</code>, then test whether <code>solution</code> and <code>objective</code> are present before using them. Infeasible, unbounded, limited, and solver-error outcomes can legitimately omit an incumbent.</p>
+<p>For code that handles several problem classes, use the normalized common view:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">info</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">has_usable_solution</span><span class="p">:</span>
+    <span class="n">candidate</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">solution</span>
+<span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">optimality_proven</span><span class="p">:</span>
+    <span class="n">proven_objective</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">objective</span>
+</code></pre></div>
+<p><code>info.termination</code> uses the mathematical model outcome, so a platform transport <code>status</code> of <code>ok</code> with <code>model_status="optimal"</code> is reported as <code>optimal</code>. The original class-specific fields remain available and unchanged.</p>
+<p>When a file was produced from an in-memory SDK model, validate any incumbent against that source model:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">solution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">source_feasible</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">is_feasible</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">solution</span><span class="p">)</span>
+    <span class="n">source_objective</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate_objective</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">solution</span><span class="p">)</span>
+</code></pre></div>
+<p><code>source_feasible</code> must be true before using the incumbent. Use an application-appropriate tolerance when comparing <code>source_objective</code> with <code>result.objective</code>.</p>
+<p>The result tables in this guide define the response schema, including basis, ranging, solution-pool, and IIS fields.</p>
+<h2 id="names-experiments-and-resources">Names, experiments, and resources</h2>
+<p>Problem names need not be unique. If <code>name</code> is omitted, the SDK creates a UTC timestamped name containing the uploaded filename.</p>
+<p>Ordinary calls omit <code>compute_resource_id</code>; the platform automatically chooses an eligible MILP resource. Advanced callers may pin a discovered resource ID. Discover the opaque ID and place it on a submission as follows:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">resources</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_solvers</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">"MILP"</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">resource</span> <span class="o">=</span> <span class="n">resources</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">pinned_submission</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+    <span class="s2">"production.lp"</span><span class="p">,</span>
+    <span class="n">compute_resource_id</span><span class="o">=</span><span class="n">resource</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Pass the same value to <code>MILPSolver(..., compute_resource_id=resource.id)</code> to make it the default for that solver instance. Per-call <code>experiment_id</code> and exact <code>experiment_name</code> override solver/client defaults. If neither an experiment ID nor an explicit name is configured, the client resolves <code>Default Experiment</code>.</p>
+<h2 id="failure-and-cleanup-behavior">Failure and cleanup behavior</h2>
+<p>Local failures occur before chargeable submission where possible:</p>
+<ul>
+<li>a missing model path raises <code>FileNotFoundError</code>;</li>
+<li>an unsupported suffix raises <code>ValueError</code>;</li>
+<li>wrong configuration or warm-start object types raise <code>TypeError</code>;</li>
+<li>invalid Pydantic field values raise <code>pydantic.ValidationError</code>;</li>
+<li>invalid identifiers and timeouts raise <code>ValueError</code>.</li>
+</ul>
+<p>Authentication, API, transport, job failure, cancellation, and wait-timeout behavior is shared with the other solver adapters.</p>
+<p>If problem creation receives a definitive non-transient 4xx rejection, the SDK attempts to delete its uploaded storage object. If job submission receives such a rejection, it attempts to delete the created problem and then the storage object. Cleanup failures are attached to the original exception as notes.</p>
+<p>Timeout-like status codes, server failures, and transport errors have ambiguous acceptance. The SDK retains created records and attaches reconciliation instructions to the exception instead of risking deletion of accepted work. Inspect storage, problems, and jobs before retrying.</p>
+<p>See the shared <a href="platform-client.html">platform client guide</a> and <a href="automation.html#failure-handling">automation failure reference</a>. <a href="#blocking-solve">Blocking solve</a> demonstrates submission of a linear model file; platform execution remains explicit.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="hubo-solver.html"><span>Previous</span><strong>HUBO solver</strong></a><a class="pager-card next" href="quantum-optimization.html"><span>Next</span><strong>Gate-based optimization</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#client-and-solver-construction">Client and solver construction</a><a class="toc-level-2" href="#solver-configuration">Solver configuration</a><a class="toc-level-3" href="#termination">Termination</a><a class="toc-level-3" href="#gaps-and-feasibility-tolerances">Gaps and feasibility tolerances</a><a class="toc-level-3" href="#algorithm-and-output">Algorithm and output</a><a class="toc-level-3" href="#optional-result-features">Optional result features</a><a class="toc-level-2" href="#warm-starts">Warm starts</a><a class="toc-level-2" href="#blocking-solve">Blocking solve</a><a class="toc-level-2" href="#nonblocking-lifecycle">Nonblocking lifecycle</a><a class="toc-level-2" href="#result-interpretation">Result interpretation</a><a class="toc-level-2" href="#names-experiments-and-resources">Names, experiments, and resources</a><a class="toc-level-2" href="#failure-and-cleanup-behavior">Failure and cleanup behavior</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Getting started">
+<title>Getting started | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/getting-started.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="getting-started">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="active" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Getting started</span><span aria-hidden="true">&gt;</span><span>Getting started</span></div><article class="doc-content"><h1 id="getting-started">Getting started</h1>
+<h2 id="installation">Installation</h2>
+<p>QpiAI Opt supports CPython 3.10–3.14 on Linux, macOS, and Windows.</p>
+<div class="code-shell"><div class="code-toolbar"><span>bash</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-bash">python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>qpiai-opt
+</code></pre></div>
+<p>The base install can solve LP, MILP, continuous QP, QUBO, HUBO, and Ising problems locally. Optional integrations are installed separately:</p>
+<div class="code-shell"><div class="code-toolbar"><span>bash</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-bash">python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"qpiai-opt[quantum]"</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"qpiai-opt[ommx]"</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"qpiai-opt[all]"</span>
+</code></pre></div>
+<p>The <code>quantum</code> extra installs the pinned <code>qpiai-quantum==0.3.0</code> integration; <code>ommx</code> installs the OMMX bridge; <code>all</code> installs both. Gate-based optimization requires QCloud authentication. Obtain a free QCloud API key at <a href="https://qcloud.qpiai.tech/">QpiAI QCloud</a>. Installing the extra does not change default solve routing. Optional packages follow their own wheel support. See <a href="package-metadata.html">package support</a>.</p>
+<h2 id="build-a-first-model">Build a first model</h2>
+<p>Create variables, a model, an objective, and constraints. Variables are instances: use <code>Continuous("x", 0, 10)</code>, not the <code>Continuous</code> class itself.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Continuous</span><span class="p">,</span> <span class="n">Model</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">Continuous</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">Continuous</span><span class="p">(</span><span class="s2">"y"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"production"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">maximize</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">&lt;=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"capacity"</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="inspect-before-solving">Inspect before solving</h2>
+<p><code>summary()</code> is for people. <code>classify()</code> and <code>inspect()</code> return deterministic programmatic descriptions.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">classify</span><span class="p">,</span> <span class="n">inspect</span>
+
+<span class="n">human_summary</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+<span class="n">problem_class</span> <span class="o">=</span> <span class="n">classify</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>  <span class="c1"># "LP"</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">inspect</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="n">inspection_valid</span> <span class="o">=</span> <span class="n">report</span><span class="p">[</span><span class="s2">"valid"</span><span class="p">]</span>
+</code></pre></div>
+<p><code>human_summary</code> contains the objective, domains, and named constraints. <code>inspection_valid is True</code> for this valid small LP.</p>
+<h2 id="solve-locally">Solve locally</h2>
+<p>Local execution is the default and cannot consume platform credits. Register for a free Opt API key at <a href="https://opt.qpiai.tech/">QpiAI Opt</a> and supply it through <code>Client</code>; each solve verifies it online before computing locally. The code below reads the key explicitly from the application's <code>QPIAI_OPT_API_KEY</code> environment variable. A disconnected or rejected verification stops execution. Inspection and modelling do not need credentials.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">solve</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"QPIAI_OPT_API_KEY"</span><span class="p">])</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+<span class="n">result</span><span class="o">.</span><span class="n">problem_class</span>  <span class="c1"># "LP"</span>
+<span class="n">result</span><span class="o">.</span><span class="n">execution_mode</span>  <span class="c1"># "local"</span>
+<span class="n">result</span><span class="o">.</span><span class="n">status</span>  <span class="c1"># "optimal"</span>
+<span class="n">result</span><span class="o">.</span><span class="n">objective</span>  <span class="c1"># 19.0, including the source constant and MAX sense</span>
+<span class="n">result</span><span class="o">.</span><span class="n">solution</span>  <span class="c1"># {"x": 4.0, "y": 1.0}</span>
+<span class="n">result</span><span class="o">.</span><span class="n">compute_time_s</span>  <span class="c1"># default runtime unit</span>
+<span class="n">result</span><span class="o">.</span><span class="n">runtime</span><span class="p">(</span><span class="s2">"ms"</span><span class="p">)</span>  <span class="c1"># explicit millisecond view</span>
+<span class="n">result</span><span class="o">.</span><span class="n">runtime</span><span class="p">(</span><span class="s2">"us"</span><span class="p">)</span>  <span class="c1"># explicit microsecond view</span>
+
+<span class="n">info</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+<span class="n">info</span><span class="o">.</span><span class="n">method</span>  <span class="c1"># "linear-programming"</span>
+<span class="n">info</span><span class="o">.</span><span class="n">termination</span>  <span class="c1"># "optimal"</span>
+<span class="n">info</span><span class="o">.</span><span class="n">guarantee</span>  <span class="c1"># "global_optimum"</span>
+</code></pre></div>
+<p>Results identify the problem class and execution mode, with <code>None</code> job/problem IDs for local execution. Durations are stored in seconds; <code>runtime()</code> provides millisecond and microsecond views. The <code>solve_info</code> field serializes the method and guarantee returned by <code>info()</code>. See the <a href="local-solving.html#completed-result-contract">result contract</a> for all fields and timing definitions.</p>
+<h2 id="running-a-job-on-platform">Running a job on platform</h2>
+<p>Supplying credentials alone does not submit work. Choosing platform mode does.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">solve</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"QPIAI_OPT_API_KEY"</span><span class="p">])</span>
+<span class="n">platform_result</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"platform"</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+</code></pre></div>
+<p>Selecting platform mode with an authenticated client authorizes submission. Continue with <a href="local-solving.html">local and platform routing</a>, then the <a href="local-solving.html#completed-result-contract">completed result contract</a>.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="manual.html"><span>Previous</span><strong>QpiAI Opt user manual</strong></a><a class="pager-card next" href="modelling-workflows.html"><span>Next</span><strong>Indexed variables, updates, and parameters</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#installation">Installation</a><a class="toc-level-2" href="#build-a-first-model">Build a first model</a><a class="toc-level-2" href="#inspect-before-solving">Inspect before solving</a><a class="toc-level-2" href="#solve-locally">Solve locally</a><a class="toc-level-2" href="#running-a-job-on-platform">Running a job on platform</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Common solver API reference">
+<title>Common solver API reference | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/api-solvers.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="api-solvers">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="active" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Reference</span><span aria-hidden="true">&gt;</span><span>Common solver API reference</span></div><article class="doc-content"><h1 id="common-solver-api-reference">Common solver API reference</h1>
+<p>Import routing, local execution, platform records, and automation operations from <code>qpiai_opt.opt_solvers</code>. Solver-specific classes use their problem-class subpackages.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">classify</span><span class="p">,</span> <span class="n">inspect</span><span class="p">,</span> <span class="n">solve</span>
+</code></pre></div>
+<h2 id="module-milp">Module: <code>milp</code></h2>
+<p>Solver-specific namespace <code>qpiai_opt.opt_solvers.milp</code>. See the <a href="api-milp.html">MILP solver API</a>, <a href="milp-modeller.html">LP/MILP modelling guide</a>, and <a href="qp-modeller.html">QP modelling guide</a>.</p>
+<h2 id="module-qubo">Module: <code>qubo</code></h2>
+<p>Solver-specific namespace <code>qpiai_opt.opt_solvers.qubo</code>. See the <a href="api-qubo.html">QUBO solver API</a> and <a href="qubo-modeller.html">QUBO modelling guide</a>.</p>
+<h2 id="module-hubo">Module: <code>hubo</code></h2>
+<p>Solver-specific namespace <code>qpiai_opt.opt_solvers.hubo</code>. See the <a href="api-hubo.html">HUBO solver API</a> and <a href="hubo-modeller.html">HUBO modelling guide</a>.</p>
+<h2 id="module-ising">Module: <code>ising</code></h2>
+<p>Native spin-problem namespace <code>qpiai_opt.opt_solvers.ising</code>. It exports <code>IsingProblem</code>; see its constructor and methods below and the <a href="ising-modeller.html">Ising workflow</a>.</p>
+<h2 id="class-client">Class: <code>Client</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">Client(*, api_key: 'Optional[str]' = None, experiment_id: 'Optional[str]' = None, experiment_name: 'Optional[str]' = None, base_url: 'str' = 'https://opt-server.qpiai.tech/api', timeout: 'float' = 60.0, session: 'Optional[requests.Session]' = None) -&gt; 'None'
+</code></pre></div>
+<p>Authenticated client for QpiAI Platform resources, jobs, and storage.</p>
+<p>Public class attributes: <code>DEFAULT_URL = "https://opt-server.qpiai.tech/api"</code> and <code>DEFAULT_EXPERIMENT_NAME = "Default Experiment"</code>.</p>
+<p>Construction is keyword-only and performs no HTTP request. <code>api_key</code> must be a nonempty string despite its <code>None</code> signature default; it is stripped and stored. The SDK does not load a key from an environment variable automatically. <code>base_url</code>, optional experiment selectors, and the positive finite non-Boolean <code>timeout</code> are validated locally. <code>experiment_name=None</code> selects the default name. <code>session</code> is an optional <code>requests.Session</code>; a supplied session remains caller-owned. See <a href="platform-client.html#construction">construction and transport</a>.</p>
+<h3 id="shared-argument-and-failure-rules">Shared argument and failure rules</h3>
+<p>These rules apply to the client methods below unless a method states a narrower contract:</p>
+<ul>
+<li>IDs inserted into URL paths are nonempty stripped strings using only ASCII letters, digits, <code>.</code>, <code>_</code>, <code>-</code>, and <code>~</code>; <code>.</code> and <code>..</code> are rejected. Other names, role strings, email selectors, and search strings must be nonempty after stripping. Email syntax and allowed roles remain server policy.</li>
+<li><code>description</code> accepts any string, including <code>""</code>; it is not stripped. Pagination takes positive non-Boolean integral values and normalizes them to Python integers. Boolean options require Python <code>bool</code> values.</li>
+<li>Optional request <code>timeout=None</code> uses the client default; a supplied scalar must be finite and positive. Request timeouts control connection/read waits, not total elapsed download time. Job monitoring has a separate budget; see <a href="platform-client.html#timeouts">timeouts</a>.</li>
+<li>Invalid SDK arguments raise <code>ValueError</code>. HTTP <code>401</code> raises <code>AuthenticationError</code>; other HTTP error responses raise <code>APIError</code>. Transport exceptions from Requests propagate. Invalid JSON or the wrong top-level object/array shape raises <code>APIError</code>; malformed typed records raise Pydantic validation errors. Server authorization applies to every operation.</li>
+<li>Methods returning <code>dict[str, Any]</code> preserve the endpoint's acknowledgement or raw record; keys are not a uniform schema. Typed returns use the <a href="#platform-record-conventions">platform record contracts</a>. The client has no automatic write retry or server-side idempotency guarantee.</li>
+</ul>
+<p>All methods below use the configured platform transport. Local-solver authentication is a separate runtime operation and does not inherit a custom client <code>base_url</code> or session.</p>
+<h3 id="methods-and-properties">Methods and properties</h3>
+<h4 id="method-validate_identifier">Method: <code>validate_identifier</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">validate_identifier(value: 'str', name: 'str') -&gt; 'str'
+</code></pre></div>
+<p>Return <code>value</code> stripped of surrounding whitespace. <code>value</code> must be a non-empty string; <code>name</code> identifies the argument in the <code>ValueError</code> message.</p>
+<h4 id="method-validate_base_url">Method: <code>validate_base_url</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">validate_base_url(value: 'str') -&gt; 'str'
+</code></pre></div>
+<p>Return an HTTP(S) base URL without trailing slashes. Empty values, URLs without a network location, other schemes, queries, and fragments raise <code>ValueError</code>.</p>
+<h4 id="method-validate_pagination">Method: <code>validate_pagination</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">validate_pagination(page: 'int', page_size: 'int') -&gt; 'tuple[int, int]'
+</code></pre></div>
+<p>Return <code>(page, page_size)</code> as Python integers. Both inputs must be positive integral values; booleans are rejected.</p>
+<h4 id="method-validate_boolean">Method: <code>validate_boolean</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">validate_boolean(value: 'bool', name: 'str') -&gt; 'bool'
+</code></pre></div>
+<p>Return a strict Boolean input. Other values raise <code>ValueError</code> using <code>name</code> to identify the argument.</p>
+<h4 id="method-validate_scheduled_at">Method: <code>validate_scheduled_at</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">validate_scheduled_at(value: 'str') -&gt; 'str'
+</code></pre></div>
+<p>Return the stripped ISO 8601 timestamp string after verifying that it contains a timezone offset. A trailing <code>Z</code> is accepted; empty, malformed, or timezone-naive values raise <code>ValueError</code>.</p>
+<h4 id="method-validate_timeout">Method: <code>validate_timeout</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">validate_timeout(value: 'float', name: 'str' = 'timeout') -&gt; 'float'
+</code></pre></div>
+<p>Return a positive finite timeout as <code>float</code>. Booleans, non-real values, zero, negative values, and non-finite values raise <code>ValueError</code>.</p>
+<h4 id="property-headers">Property: <code>headers</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">headers</span>
+</code></pre></div>
+<p>Return a new <code>dict[str, str]</code> containing <code>{"X-Secret-Token": client.api_key}</code>. Treat the returned value as secret material; modifying it does not change the client.</p>
+<h4 id="method-verify_api_key">Method: <code>verify_api_key</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">verify_api_key(api_key: 'Optional[str]' = None) -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Verify the supplied nonempty stripped key, or <code>self.api_key</code> when omitted, and return the raw verification <code>dict</code>. This read does not replace the stored credential. The request uses <code>self.timeout</code>; malformed or rejected responses follow the shared error rules.</p>
+<h4 id="method-me">Method: <code>me</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">me(*, timeout: 'Optional[float]' = None) -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Return the authenticated user's raw <code>dict</code>. <code>timeout</code> optionally overrides the request timeout; no fixed user-field schema is imposed by this method.</p>
+<h4 id="method-get_api_key">Method: <code>get_api_key</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">get_api_key() -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Return the current raw access-token <code>dict</code>; it can contain secret material. No local credential value is changed.</p>
+<h4 id="method-regenerate_api_key">Method: <code>regenerate_api_key</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">regenerate_api_key() -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Request token regeneration and return its raw <code>dict</code>. This changes server state but does not automatically replace <code>client.api_key</code>; read the returned record through trusted application code before making further authenticated calls. Do not log the record.</p>
+<h4 id="method-get_user_credit_usage">Method: <code>get_user_credit_usage</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">get_user_credit_usage(user_id: 'Optional[str]' = None, *, period: 'str' = 'monthly', by_resource: 'bool' = False, timeout: 'Optional[float]' = None) -&gt; 'Union[CreditUsage, CreditUsageByResource]'
+</code></pre></div>
+<p>Return <code>CreditUsage</code> by default or <code>CreditUsageByResource</code> for <code>by_resource=True</code>. Omitted <code>user_id</code> is resolved through <code>me()</code>. <code>period</code> is stripped/lowercased and must be <code>daily</code>, <code>weekly</code>, <code>monthly</code>, or <code>yearly</code>; <code>by_resource</code> must be Boolean. <code>timeout</code> applies to each required request. A current-user record without an ID raises <code>APIError</code>.</p>
+<h4 id="method-get_workspace_credit_usage">Method: <code>get_workspace_credit_usage</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">get_workspace_credit_usage(workspace_id: 'str', *, period: 'str' = 'monthly', by_resource: 'bool' = False, timeout: 'Optional[float]' = None) -&gt; 'Union[CreditUsage, CreditUsageByResource]'
+</code></pre></div>
+<p>Return usage for the supplied workspace ID. Return type, period choices, <code>by_resource</code>, and per-request timeout rules match <code>get_user_credit_usage()</code>; workspace access is enforced by the server.</p>
+<h4 id="method-get_organization_credit_usage">Method: <code>get_organization_credit_usage</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">get_organization_credit_usage(organization_id: 'Optional[str]' = None, *, period: 'str' = 'monthly', by_resource: 'bool' = False, timeout: 'Optional[float]' = None) -&gt; 'Union[CreditUsage, CreditUsageByResource]'
+</code></pre></div>
+<p>Return usage for the supplied organization ID, or resolve the authenticated organization through <code>me()</code> when omitted. Return type, period choices, grouping, and timeout rules match <code>get_user_credit_usage()</code>. Missing current-organization metadata raises <code>APIError</code>.</p>
+<h4 id="method-get_user_quotas">Method: <code>get_user_quotas</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">get_user_quotas(user_id: 'Optional[str]' = None, *, timeout: 'Optional[float]' = None) -&gt; 'List[CreditQuota]'
+</code></pre></div>
+<p>Return <code>list[CreditQuota]</code>. Omitted <code>user_id</code> is resolved through <code>me()</code>; the platform must return a JSON array. <code>timeout</code> applies to each request. Capacity and remaining-credit formulas are defined by <code>CreditQuota</code>.</p>
+<h4 id="method-get_workspace_quotas">Method: <code>get_workspace_quotas</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">get_workspace_quotas(workspace_id: 'str', *, timeout: 'Optional[float]' = None) -&gt; 'List[CreditQuota]'
+</code></pre></div>
+<p>Return <code>list[CreditQuota]</code> for the workspace ID. The platform response must contain a <code>quotas</code> list; a missing or malformed collection raises <code>APIError</code>. <code>timeout</code> overrides each request timeout.</p>
+<h4 id="method-get_organization_quotas">Method: <code>get_organization_quotas</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">get_organization_quotas(organization_id: 'Optional[str]' = None, *, timeout: 'Optional[float]' = None) -&gt; 'List[CreditQuota]'
+</code></pre></div>
+<p>Return <code>list[CreditQuota]</code> for the organization ID, resolving the current organization through <code>me()</code> if omitted. The response must contain a <code>quotas</code> list. Missing current-organization metadata or a malformed collection raises <code>APIError</code>.</p>
+<h4 id="method-get_organization">Method: <code>get_organization</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">get_organization(organization_id: 'str') -&gt; 'Organization'
+</code></pre></div>
+<p>Return an organization by ID.</p>
+<h4 id="method-update_organization">Method: <code>update_organization</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">update_organization(organization_id: 'str', *, name: 'str') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Rename an organization and return the platform confirmation.</p>
+<h4 id="method-delete_organization">Method: <code>delete_organization</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">delete_organization(organization_id: 'str') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Delete an organization and return the platform confirmation.</p>
+<h4 id="method-invite_member">Method: <code>invite_member</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">invite_member(organization_id: 'str', *, email: 'str', role: 'str') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Invite one organization member with the requested role.</p>
+<h4 id="method-invite_members">Method: <code>invite_members</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">invite_members(organization_id: 'str', users: 'List[Dict[str, str]]') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Accept an actual nonempty <code>list[dict]</code>; each dictionary must contain nonempty stripped <code>email</code> and <code>role</code> strings and no other keys. Validate the full batch before sending it and return the server's acknowledgement <code>dict</code>. This does not establish a per-member outcome beyond the returned payload.</p>
+<h4 id="method-list_invitations">Method: <code>list_invitations</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">list_invitations(organization_id: 'str') -&gt; 'List[Invitation]'
+</code></pre></div>
+<p>Return invitations for an organization.</p>
+<h4 id="method-cancel_invitation">Method: <code>cancel_invitation</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">cancel_invitation(invitation_id: 'str') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Cancel an invitation and return the platform confirmation.</p>
+<h4 id="method-update_member_role">Method: <code>update_member_role</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">update_member_role(organization_id: 'str', user_id: 'str', *, role: 'str') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Update an organization member's role.</p>
+<h4 id="method-can_invite_members">Method: <code>can_invite_members</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">can_invite_members(organization_id: 'str') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Return invitation capacity and permission data.</p>
+<h4 id="method-get_organization_statistics">Method: <code>get_organization_statistics</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">get_organization_statistics(organization_id: 'str') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Return aggregate organization statistics.</p>
+<h4 id="method-get_organization_compute_resources">Method: <code>get_organization_compute_resources</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">get_organization_compute_resources(organization_id: 'str') -&gt; 'List[ComputeResource]'
+</code></pre></div>
+<p>Return compute resources visible to an organization.</p>
+<h4 id="method-create_workspace">Method: <code>create_workspace</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">create_workspace(organization_id: 'str', *, name: 'str', description: 'str' = '') -&gt; 'Workspace'
+</code></pre></div>
+<p>Create a workspace using the supplied organization ID, required name, and string description. Resolve the owner from <code>me()</code> and return <code>Workspace</code>; missing owner metadata raises <code>APIError</code>. The default description is empty.</p>
+<h4 id="method-get_workspace">Method: <code>get_workspace</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">get_workspace(workspace_id: 'str') -&gt; 'Workspace'
+</code></pre></div>
+<p>Return a workspace by ID.</p>
+<h4 id="method-update_workspace">Method: <code>update_workspace</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">update_workspace(workspace_id: 'str', *, name: 'str', description: 'str' = '') -&gt; 'Workspace'
+</code></pre></div>
+<p>Fetch the current workspace, send the supplied name and description, merge returned fields into the current record, and return validated <code>Workspace</code>. Omitting <code>description</code> sends <code>""</code>, not the old description. This is a server write preceded by a read, not an atomic read/modify/write transaction.</p>
+<h4 id="method-delete_workspace">Method: <code>delete_workspace</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">delete_workspace(workspace_id: 'str') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Delete a workspace and return the platform confirmation.</p>
+<h4 id="method-list_workspaces">Method: <code>list_workspaces</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">list_workspaces(organization_id: 'str', *, page: 'int' = 1, page_size: 'int' = 10) -&gt; 'WorkspaceList'
+</code></pre></div>
+<p>Return a page of workspaces for an organization.</p>
+<h4 id="method-list_my_workspaces">Method: <code>list_my_workspaces</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">list_my_workspaces(*, page: 'int' = 1, page_size: 'int' = 10, search: 'Optional[str]' = None) -&gt; 'WorkspaceList'
+</code></pre></div>
+<p>Return a page of workspaces visible to the authenticated user.</p>
+<h4 id="method-list_workspace_members">Method: <code>list_workspace_members</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">list_workspace_members(workspace_id: 'str') -&gt; 'List[UserSummary]'
+</code></pre></div>
+<p>Return members of a workspace.</p>
+<h4 id="method-add_workspace_member">Method: <code>add_workspace_member</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">add_workspace_member(workspace_id: 'str', *, user_id: 'Optional[str]' = None, email: 'Optional[str]' = None) -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Require exactly one of <code>user_id</code> or <code>email</code>; both/none raise <code>ValueError</code>. Validate the workspace ID and selected nonempty selector, then return the server acknowledgement <code>dict</code>. User IDs use path-ID validation; email selectors use stripped nonempty-string validation.</p>
+<h4 id="method-remove_workspace_member">Method: <code>remove_workspace_member</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">remove_workspace_member(workspace_id: 'str', user_id: 'str') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Remove one workspace member.</p>
+<h4 id="method-add_workspace_members">Method: <code>add_workspace_members</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">add_workspace_members(workspace_id: 'str', emails: 'List[str]') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Accept an actual nonempty <code>list[str]</code> of nonempty stripped email selectors. Validate every entry before the request and return the server acknowledgement <code>dict</code>; the server determines individual membership outcomes.</p>
+<h4 id="method-create_project">Method: <code>create_project</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">create_project(workspace_id: 'str', *, name: 'str', description: 'str' = '') -&gt; 'Project'
+</code></pre></div>
+<p>Create a project with the supplied workspace ID, required name, and string description; return <code>Project</code>. The default description is empty, and the server assigns ownership.</p>
+<h4 id="method-get_project">Method: <code>get_project</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">get_project(project_id: 'str') -&gt; 'Project'
+</code></pre></div>
+<p>Return a project by ID.</p>
+<h4 id="method-update_project">Method: <code>update_project</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">update_project(project_id: 'str', *, name: 'str', description: 'str' = '') -&gt; 'Project'
+</code></pre></div>
+<p>Fetch the project, send name and description, merge returned fields into the current record, and return validated <code>Project</code>. Omitting <code>description</code> sends the empty string. Concurrency behaviour matches <code>update_workspace()</code>.</p>
+<h4 id="method-delete_project">Method: <code>delete_project</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">delete_project(project_id: 'str') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Delete a project and return the platform confirmation.</p>
+<h4 id="method-list_projects">Method: <code>list_projects</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">list_projects(workspace_id: 'str', *, page: 'int' = 1, page_size: 'int' = 10, search: 'Optional[str]' = None) -&gt; 'ProjectList'
+</code></pre></div>
+<p>Return a page of projects in a workspace.</p>
+<h4 id="method-list_my_projects">Method: <code>list_my_projects</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">list_my_projects(*, page: 'int' = 1, page_size: 'int' = 10) -&gt; 'ProjectList'
+</code></pre></div>
+<p>Return a page of projects visible to the authenticated user.</p>
+<h4 id="method-list_project_members">Method: <code>list_project_members</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">list_project_members(project_id: 'str') -&gt; 'List[UserSummary]'
+</code></pre></div>
+<p>Return members of a project.</p>
+<h4 id="method-add_project_member">Method: <code>add_project_member</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">add_project_member(project_id: 'str', *, user_id: 'Optional[str]' = None, email: 'Optional[str]' = None) -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Require exactly one of <code>user_id</code> or <code>email</code> and return the server acknowledgement <code>dict</code>. Selector validation and both/none errors match <code>add_workspace_member()</code>.</p>
+<h4 id="method-remove_project_member">Method: <code>remove_project_member</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">remove_project_member(project_id: 'str', user_id: 'str') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Remove one project member.</p>
+<h4 id="method-create_experiment">Method: <code>create_experiment</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">create_experiment(project_id: 'str', *, name: 'str', description: 'str' = '') -&gt; 'Experiment'
+</code></pre></div>
+<p>Create an experiment using the project ID, required name, and string description. Resolve its owner through <code>me()</code> and return <code>Experiment</code>; missing owner metadata raises <code>APIError</code>. The default description is empty.</p>
+<h4 id="method-get_experiment">Method: <code>get_experiment</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">get_experiment(experiment_id: 'str') -&gt; 'Experiment'
+</code></pre></div>
+<p>Return an experiment by ID.</p>
+<h4 id="method-update_experiment">Method: <code>update_experiment</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">update_experiment(experiment_id: 'str', *, name: 'str', description: 'str' = '') -&gt; 'Experiment'
+</code></pre></div>
+<p>Fetch the experiment, send name and description, merge returned fields into the current record, and return validated <code>Experiment</code>. Omitting <code>description</code> sends the empty string. Concurrency behaviour matches <code>update_workspace()</code>.</p>
+<h4 id="method-delete_experiment">Method: <code>delete_experiment</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">delete_experiment(experiment_id: 'str') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Delete an experiment and return the platform confirmation.</p>
+<h4 id="method-list_experiments">Method: <code>list_experiments</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">list_experiments(project_id: 'str', *, page: 'int' = 1, page_size: 'int' = 10, search: 'Optional[str]' = None) -&gt; 'ExperimentList'
+</code></pre></div>
+<p>Return a page of experiments in a project.</p>
+<h4 id="method-list_my_experiments">Method: <code>list_my_experiments</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">list_my_experiments(*, page: 'int' = 1, page_size: 'int' = 10) -&gt; 'ExperimentList'
+</code></pre></div>
+<p>Return a page of experiments visible to the authenticated user.</p>
+<h4 id="method-list_workspace_experiments">Method: <code>list_workspace_experiments</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">list_workspace_experiments(workspace_id: 'str', *, page: 'int' = 1, page_size: 'int' = 10) -&gt; 'ExperimentList'
+</code></pre></div>
+<p>Return a page of experiments in a workspace.</p>
+<h4 id="method-list_experiment_members">Method: <code>list_experiment_members</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">list_experiment_members(experiment_id: 'str') -&gt; 'List[UserSummary]'
+</code></pre></div>
+<p>Return members of an experiment.</p>
+<h4 id="method-add_experiment_member">Method: <code>add_experiment_member</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">add_experiment_member(experiment_id: 'str', user_id: 'str') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Add one experiment member by user ID.</p>
+<h4 id="method-remove_experiment_member">Method: <code>remove_experiment_member</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">remove_experiment_member(experiment_id: 'str', user_id: 'str') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Remove one experiment member.</p>
+<h4 id="method-associate_compute_resource">Method: <code>associate_compute_resource</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">associate_compute_resource(experiment_id: 'str', compute_resource_id: 'str') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Associate an experiment with a discovered compute resource.</p>
+<h4 id="method-default_problem_name">Method: <code>default_problem_name</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">default_problem_name(method: 'str', detail: 'Optional[str]' = None) -&gt; 'str'
+</code></pre></div>
+<p>Return <code>SDK {METHOD} problem[: {detail}] - {timestamp}</code>, where <code>METHOD</code> is converted to uppercase and <code>timestamp</code> is the current UTC ISO 8601 time with millisecond precision and a trailing <code>Z</code>. <code>method</code> and a supplied <code>detail</code> must be non-empty strings after stripping.</p>
+<h4 id="method-resolve_experiment">Method: <code>resolve_experiment</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">resolve_experiment(name: 'str', *, timeout: 'Optional[float]' = None) -&gt; 'str'
+</code></pre></div>
+<p>Strip and validate <code>name</code>, resolve its exact match within the authenticated organization, and return the experiment ID as <code>str</code>. Successful lookups are cached per client/name; a cached lookup performs no new request. This method does not create an experiment. A response without an experiment ID raises <code>APIError</code>. <code>timeout</code> overrides an uncached request's timeout.</p>
+<h4 id="method-create_problem">Method: <code>create_problem</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">create_problem(payload: 'Dict[str, Any]', *, timeout: 'Optional[float]' = None) -&gt; 'Problem'
+</code></pre></div>
+<p>Require an actual <code>dict</code> containing nonempty <code>name</code> and <code>method</code> strings. Copy the payload, normalize those two fields, pass other fields to the platform, and return <code>Problem</code>. This method does not validate a problem-class payload as fully as its high-level solver; prefer the solver's <code>submit()</code> when creating solver work.</p>
+<h4 id="method-get_problem">Method: <code>get_problem</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">get_problem(problem_id: 'str', *, timeout: 'Optional[float]' = None) -&gt; 'Problem'
+</code></pre></div>
+<p>Return a platform problem by ID.</p>
+<h4 id="method-list_problems">Method: <code>list_problems</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">list_problems(*, page: 'int' = 1, page_size: 'int' = 10) -&gt; 'ProblemList'
+</code></pre></div>
+<p>Return a page of platform problems.</p>
+<h4 id="method-update_problem">Method: <code>update_problem</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">update_problem(problem_id: 'str', payload: 'Dict[str, Any]') -&gt; 'Problem'
+</code></pre></div>
+<p>Require a nonempty payload <code>dict</code>; copy it and normalize <code>name</code> and <code>method</code> if supplied. Other fields are passed to the service. Return the validated <code>Problem</code> from the update response. Invalid IDs or payloads raise <code>ValueError</code> before the write request.</p>
+<h4 id="method-delete_problem">Method: <code>delete_problem</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">delete_problem(problem_id: 'str', *, timeout: 'Optional[float]' = None) -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Delete a problem and return the platform confirmation.</p>
+<h4 id="method-submit_job">Method: <code>submit_job</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">submit_job(problem_id: 'str', *, experiment_id: 'Optional[str]' = None, experiment_name: 'Optional[str]' = None, compute_resource_id: 'Optional[str]' = None, method: 'Optional[str]' = None, scheduled_at: 'Optional[str]' = None, timeout: 'Optional[float]' = None) -&gt; 'JobSubmission'
+</code></pre></div>
+<p>Submit the existing problem ID and return <code>JobSubmission</code>. Optional experiment selectors follow <a href="platform-client.html#experiment-selection">experiment precedence</a>; a supplied ID takes precedence over a name. Optional <code>compute_resource_id</code> pins a platform resource; <code>method</code> is a nonempty string passed to the service. <code>scheduled_at</code> requires a timezone-aware ISO 8601 string and requests scheduled submission. <code>timeout</code> applies independently to experiment lookup and job creation. This operation can consume credits and is not retried automatically.</p>
+<h4 id="method-schedule_job">Method: <code>schedule_job</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">schedule_job(problem_id: 'str', scheduled_at: 'str', *, experiment_id: 'Optional[str]' = None, experiment_name: 'Optional[str]' = None, compute_resource_id: 'Optional[str]' = None, method: 'Optional[str]' = None) -&gt; 'JobSubmission'
+</code></pre></div>
+<p>Schedule an existing problem and return <code>JobSubmission</code>. <code>scheduled_at</code> is required and follows <code>validate_scheduled_at()</code>. Experiment precedence, resource pinning, method validation, and paid-work implications match <code>submit_job()</code>; this method uses the client request timeout and the dedicated scheduling operation.</p>
+<h4 id="method-get_job">Method: <code>get_job</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">get_job(job_id: 'str', *, timeout: 'Optional[float]' = None) -&gt; 'Job'
+</code></pre></div>
+<p>Return a platform job by ID.</p>
+<h4 id="method-cancel_job">Method: <code>cancel_job</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">cancel_job(job_id: 'str') -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Request job cancellation and return the platform confirmation.</p>
+<h4 id="method-list_jobs">Method: <code>list_jobs</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">list_jobs(*, page: 'int' = 1, page_size: 'int' = 10, period: 'Optional[str]' = None, status: 'Optional[JobStatus | str]' = None, compute_resource_id: 'Optional[str]' = None) -&gt; 'JobList'
+</code></pre></div>
+<p>Return <code>JobList</code> for the authenticated user. <code>page</code>/<code>page_size</code> are positive integers. Optional <code>period</code> and <code>compute_resource_id</code> are nonempty stripped strings. <code>status</code> accepts the five non-unknown <code>JobStatus</code> members or exactly their lowercase values, with surrounding whitespace ignored; uppercase strings and <code>"unknown"</code> raise <code>ValueError</code>.</p>
+<p><code>period</code> recognizes <code>daily</code>, <code>weekly</code>, and <code>monthly</code>; <code>None</code> leaves dates unrestricted. Other nonempty strings are forwarded but apply no time filter. See <a href="platform-client.html#reading-and-filtering-jobs">Reading and filtering jobs</a> for time boundaries and resource-filter scope.</p>
+<h4 id="method-list_problem_jobs">Method: <code>list_problem_jobs</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">list_problem_jobs(problem_id: 'str', **params: 'Any') -&gt; 'JobList'
+</code></pre></div>
+<p>Return <code>JobList</code> for the supplied problem ID. Accepted <code>params</code> are only <code>page</code>, <code>page_size</code>, <code>period</code>, <code>status</code>, and <code>compute_resource_id</code>; unknown names raise <code>ValueError</code>. Pagination uses positive integers; period/resource filters are nonempty strings. Status and period choices match <code>list_jobs()</code>. The platform problem-job endpoint ignores <code>compute_resource_id</code>.</p>
+<h4 id="method-list_experiment_jobs">Method: <code>list_experiment_jobs</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">list_experiment_jobs(experiment_id: 'Optional[str]' = None, *, experiment_name: 'Optional[str]' = None, **params: 'Any') -&gt; 'JobList'
+</code></pre></div>
+<p>Resolve the experiment using the standard ID/name precedence and return <code>JobList</code>. Accepted <code>params</code> and validation match <code>list_problem_jobs()</code>; lookup can use the per-client experiment-name cache.</p>
+<h4 id="method-list_solvers">Method: <code>list_solvers</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">list_solvers(*, method: 'Optional[str]' = None, active_only: 'bool' = False) -&gt; 'List[ComputeResource]'
+</code></pre></div>
+<p>Return <code>list[ComputeResource]</code>. <code>active_only</code> requires a Boolean. A supplied <code>method</code> is split into uppercase alphanumeric tokens and matched as a prefix of the resource's <code>type</code>, or its <code>backend_name</code> when type is absent. A method with no alphanumeric token raises <code>ValueError</code>. <code>active_only=True</code> keeps status <code>active</code> ignoring case. Discovery does not reserve a resource.</p>
+<h4 id="method-get_solver">Method: <code>get_solver</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">get_solver(resource_id: 'str') -&gt; 'ComputeResource'
+</code></pre></div>
+<p>Return one compute resource by ID.</p>
+<h4 id="method-upload_file">Method: <code>upload_file</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">upload_file(path: 'Path', *, user_id: 'Optional[str]' = None, organization_id: 'Optional[str]' = None, workspace_id: 'Optional[str]' = None, project_id: 'Optional[str]' = None, timeout: 'Optional[float]' = None) -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Accept a path convertible to <code>Path</code>, require an existing regular file, and upload its bytes under the basename. A missing file raises <code>FileNotFoundError</code>. Optional ownership IDs are validated; omitted user or organization IDs are resolved through <code>me()</code>, with <code>APIError</code> if unavailable. <code>timeout</code> applies independently to lookup and upload. The file handle is closed after the request.</p>
+<p>Return the raw nested <code>storage</code> dictionary. Missing/non-dictionary storage raises <code>APIError</code>; individual fields, including the conventional <code>ID</code>, are not validated here. Validate the storage identifier before using it in another operation.</p>
+<h4 id="method-download_result">Method: <code>download_result</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">download_result(s3_path: 'str', *, timeout: 'Optional[float]' = None) -&gt; 'Any'
+</code></pre></div>
+<p>Accept a nonempty stripped S3-path string, obtain its presigned download URL, fetch the object, and return the decoded JSON value (<code>Any</code>). <code>timeout</code> applies separately to the platform request and storage GET. Missing URL metadata or non-JSON content raises <code>APIError</code>; transport errors propagate. The client does not save a local file.</p>
+<h4 id="method-download_result_by_id">Method: <code>download_result_by_id</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">download_result_by_id(storage_id: 'str', *, timeout: 'Optional[float]' = None) -&gt; 'Any'
+</code></pre></div>
+<p>Resolve the storage ID to a presigned URL and return the downloaded JSON value (<code>Any</code>). Request timing, malformed URL metadata, JSON failures, and transport behaviour match <code>download_result()</code>.</p>
+<h4 id="method-delete_storage">Method: <code>delete_storage</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">delete_storage(storage_id: 'str', *, timeout: 'Optional[float]' = None) -&gt; 'Dict[str, Any]'
+</code></pre></div>
+<p>Delete a storage record and return the platform confirmation.</p>
+<h4 id="method-stream_job">Method: <code>stream_job</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">stream_job(job_id: 'str', *, connect_timeout: 'Optional[float]' = None, read_timeout: 'float' = 30.0) -&gt; 'Iterator[SSEEvent]'
+</code></pre></div>
+<p>Return a generator of <code>SSEEvent</code> for the job ID. Validation and HTTP connection occur when iteration starts. <code>connect_timeout=None</code> uses the client timeout; both timeout values must be positive finite non-Boolean real numbers. The iterator decodes UTF-8 and dispatches blank-line-delimited events; JSON data becomes any decoded JSON value and other data remains text. See <a href="platform-client.html#server-sent-events-and-waiting">SSE parsing and closure</a>. Close the generator if iteration stops early.</p>
+<h4 id="method-wait_for_job">Method: <code>wait_for_job</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">wait_for_job(job_id: 'str', *, timeout: 'float' = 5400.0, poll_interval: 'float' = 5.0, use_sse: 'bool' = True) -&gt; 'Job'
+</code></pre></div>
+<p>Monitor the existing job and return its completed <code>Job</code>. <code>timeout</code> and <code>poll_interval</code> require positive finite non-Boolean real values; <code>use_sse</code> requires Boolean. Read current state first, optionally make up to three SSE connection attempts, then poll. Transient HTTP statuses and transport exceptions can trigger monitoring retries; no job is resubmitted.</p>
+<p>Failed/cancelled states raise <code>JobFailedError</code>/<code>JobCancelledError</code>; unknown states raise <code>APIError</code>; exhausted monitoring budget raises <code>TimeoutError</code>. The budget does not cancel the server job or guarantee that in-flight requests finish within that wall time. See <a href="platform-client.html#server-sent-events-and-waiting">waiting</a> and <a href="platform-client.html#timeouts">timeouts</a>.</p>
+<h4 id="method-extract_result">Method: <code>extract_result</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">extract_result(job: 'Job', *, timeout: 'Optional[float]' = None) -&gt; 'Any'
+</code></pre></div>
+<p>Require <code>Job</code>, otherwise raise <code>TypeError</code>. Read inline <code>server_response</code>, or fetch <code>server_response_id</code> when inline data is <code>None</code>; an inline <code>s3://</code> string is downloaded, while other strings are parsed as JSON when possible. Unparseable non-S3 text remains text. Unwrap a dictionary/list under <code>result</code> or <code>results</code> and return it; otherwise return the decoded value unchanged, including <code>None</code> when no payload exists.</p>
+<p>This low-level method does not itself check the job's lifecycle state or validate a class-specific result. High-level solver retrieval performs those checks. <code>timeout</code> applies separately to any required download requests.</p>
+<h4 id="method-health">Method: <code>health</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">health() -&gt; 'bool'
+</code></pre></div>
+<p>Request the authenticated user endpoint with a five-second Requests timeout and return <code>True</code> for a successful HTTP status. Return <code>False</code> on a Requests transport exception or <code>APIError</code>. The method does not parse or validate the response's user JSON.</p>
+<h2 id="platform-record-conventions">Platform record conventions</h2>
+<p>The following platform records are Pydantic models. Constructors use keyword arguments; <code>model_validate()</code>, <code>model_validate_json()</code>, <code>model_dump()</code>, <code>model_dump_json()</code>, and <code>model_json_schema()</code> follow the Pydantic API. Platform records preserve unknown service fields as model extras. They are mutable; construction validation does not imply validation of subsequent field assignment.</p>
+<p>Required identifiers and required descriptive names/statuses are nonempty strings, stripped where their validators specify. Datetime fields accept Pydantic's supported datetime inputs. Optional fields default to <code>None</code> unless their signatures state otherwise. List defaults create a separate empty list for each record. Credit fields declared as integer counts are nonnegative integral values and reject Boolean values; durations and rates are finite nonnegative non-Boolean real numbers normalized to <code>float</code>.</p>
+<p>Entity records and <code>CreditQuota</code> accept either <code>id</code> or <code>ID</code>; <code>ComputeResource</code> also normalizes those aliases to public <code>id</code>. Supplying both with different stripped values raises validation error. Timing aliases from service payloads are normalized only for declared duration fields: <code>execution_time</code> to <code>compute_time_s</code>, <code>solver_time</code> to <code>solver_time_s</code>, and <code>total_execution_time</code> to <code>total_compute_time_s</code>. Conflicting duplicate durations raise validation error.</p>
+<h3 id="collection-and-submission-records">Collection and submission records</h3>
+<p>These return types are importable from <code>qpiai_opt.opt_solvers.platform_models</code>. All constructors are keyword-only and retain unknown service fields. Every collection below defaults to a separate empty list; <code>pagination</code> defaults to a new <code>Pagination()</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Fields, types, and defaults</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Pagination</code></td>
+<td><code>current_page: int = 1</code>, <code>page_size: int = 10</code>, <code>total: int = 0</code>. Strict positive integers for page/size; strict nonnegative integer for total.</td>
+</tr>
+<tr>
+<td><code>ProblemList</code></td>
+<td><code>problems: list[Problem] = []</code>, <code>pagination: Pagination</code>.</td>
+</tr>
+<tr>
+<td><code>JobList</code></td>
+<td><code>jobs: list[Job] = []</code>, <code>pagination: Pagination</code>, <code>total_compute_time_s: float | None = None</code>, <code>total_credits_used: float | None = None</code>. Supplied totals must be finite and nonnegative.</td>
+</tr>
+<tr>
+<td><code>WorkspaceList</code></td>
+<td><code>workspaces: list[Workspace] = []</code>, <code>pagination: Pagination</code>, <code>summary: Any = None</code>.</td>
+</tr>
+<tr>
+<td><code>ProjectList</code></td>
+<td><code>projects: list[Project] = []</code>, <code>pagination: Pagination</code>.</td>
+</tr>
+<tr>
+<td><code>ExperimentList</code></td>
+<td><code>experiments: list[Experiment] = []</code>, <code>pagination: Pagination</code>.</td>
+</tr>
+<tr>
+<td><code>JobSubmission</code></td>
+<td>Required <code>job: Job</code>; <code>message: str = "Job submitted"</code> (nonempty, stripped); <code>expected_run_at: datetime | None = None</code>. This is the direct <code>Client</code> acknowledgement; high-level solver submission responses have their own flat fields.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="class-problem">Class: <code>Problem</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">Problem(*, id: str, name: str, method: str, created_at: Optional[datetime.datetime] = None, updated_at: Optional[datetime.datetime] = None, **extra_data: Any) -&gt; None
+</code></pre></div>
+<p>Platform problem record.</p>
+<p>Fields: <code>id</code>, <code>name</code>, <code>method</code>, <code>created_at</code>, <code>updated_at</code>.</p>
+<h2 id="class-job">Class: <code>Job</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">Job(*, id: str, status: str, method: Optional[str] = None, problem_id: Optional[str] = None, experiment_id: Optional[str] = None, server_response: Any = None, server_response_id: Optional[str] = None, error: Optional[str] = None, compute_time_s: Optional[float] = None, solver_time_s: Optional[float] = None, created_at: Optional[datetime.datetime] = None, updated_at: Optional[datetime.datetime] = None, cancelled_at: Optional[datetime.datetime] = None, cancellation_reason: Optional[str] = None, credits_used: Optional[int] = None, credits_reserved: Optional[int] = None, **extra_data: Any) -&gt; None
+</code></pre></div>
+<p>Platform job record and lifecycle metadata.</p>
+<p>Fields: <code>id</code>, <code>status</code>, <code>method</code>, <code>problem_id</code>, <code>experiment_id</code>, <code>server_response</code>, <code>server_response_id</code>, <code>error</code>, <code>compute_time_s</code>, <code>solver_time_s</code>, <code>created_at</code>, <code>updated_at</code>, <code>cancelled_at</code>, <code>cancellation_reason</code>, <code>credits_used</code>, <code>credits_reserved</code>.</p>
+<h3 id="methods-and-properties_1">Methods and properties</h3>
+<h4 id="property-normalized_status">Property: <code>normalized_status</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">normalized_status</span>
+</code></pre></div>
+<p>Return the platform status as a stable SDK lifecycle state.</p>
+<h2 id="enum-jobstatus">Enum: <code>JobStatus</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">JobStatus(value: str) -&gt; JobStatus
+</code></pre></div>
+<p>Normalized lifecycle states used by SDK job operations. Construct from an exact lowercase value listed below; an unrecognized value raises <code>ValueError</code>. Use <code>normalize()</code> for platform aliases.</p>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JobStatus.PENDING</code></td>
+<td><code>"pending"</code></td>
+<td>Accepted but not yet executing.</td>
+</tr>
+<tr>
+<td><code>JobStatus.RUNNING</code></td>
+<td><code>"running"</code></td>
+<td>Execution is in progress.</td>
+</tr>
+<tr>
+<td><code>JobStatus.COMPLETED</code></td>
+<td><code>"completed"</code></td>
+<td>Execution ended and a result may be retrieved.</td>
+</tr>
+<tr>
+<td><code>JobStatus.FAILED</code></td>
+<td><code>"failed"</code></td>
+<td>Execution ended with an error.</td>
+</tr>
+<tr>
+<td><code>JobStatus.CANCELLED</code></td>
+<td><code>"cancelled"</code></td>
+<td>The job was cancelled.</td>
+</tr>
+<tr>
+<td><code>JobStatus.UNKNOWN</code></td>
+<td><code>"unknown"</code></td>
+<td>The platform state is absent or unrecognized.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="methods-and-properties_2">Methods and properties</h3>
+<h4 id="method-normalize">Method: <code>normalize</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">normalize(value: 'Any') -&gt; "'JobStatus'"
+</code></pre></div>
+<p>Class method returning a <code>JobStatus</code>. Normalize via lowercase text with surrounding whitespace and underscores removed. <code>pending</code>/<code>queued</code>/<code>scheduled</code> map to pending; <code>running</code>/<code>cancelrequested</code>/<code>inprogress</code> to running; <code>success</code>/<code>completed</code>/<code>complete</code>/<code>succeeded</code> to completed; <code>failed</code>/<code>failure</code>/<code>error</code> to failed; <code>cancelled</code>/<code>canceled</code> to cancelled. Other or absent values return unknown. This is response normalization; list-operation status filters accept a narrower set.</p>
+<h2 id="class-computeresource">Class: <code>ComputeResource</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">ComputeResource(*, ID: str, backend_name: Optional[str] = None, type: Optional[str] = None, device_name: Optional[str] = None, status: Optional[str] = None, usage_rate: Optional[float] = None, **extra_data: Any) -&gt; None
+</code></pre></div>
+<p>Discoverable solver deployment for advanced resource pinning.</p>
+<p>The generated constructor signature uses the platform validation alias <code>ID</code>; <code>id</code> is also accepted. Both forms populate the public <code>id</code> field. Remaining fields: <code>backend_name</code>, <code>type</code>, <code>device_name</code>, <code>status</code>, and non-negative finite <code>usage_rate</code>.</p>
+<h2 id="class-creditquota">Class: <code>CreditQuota</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">CreditQuota(*, id: str, compute_resource_id: str, allocated_credits: int, used_credits: int = 0, reserved_credits: int = 0, total_credits: Optional[int] = None, top_up_credits: int = 0, top_up_expiry_date: Optional[datetime.datetime] = None, from_date: Optional[datetime.datetime] = None, to_date: Optional[datetime.datetime] = None, user_id: Optional[str] = None, workspace_id: Optional[str] = None, organization_id: Optional[str] = None, compute_resource: Optional[dict[str, Any]] = None, **extra_data: Any) -&gt; None
+</code></pre></div>
+<p>A current credit allocation and its remaining capacity.</p>
+<p>Fields: <code>id</code>, <code>compute_resource_id</code>, <code>allocated_credits</code>, <code>used_credits</code>, <code>reserved_credits</code>, <code>total_credits</code>, <code>top_up_credits</code>, <code>top_up_expiry_date</code>, <code>from_date</code>, <code>to_date</code>, <code>user_id</code>, <code>workspace_id</code>, <code>organization_id</code>, <code>compute_resource</code>.</p>
+<p>Supplied credit fields are nonnegative integers, excluding Boolean values. <code>used_credits</code> cannot exceed <code>total_credits</code> when present, otherwise <code>allocated_credits</code>. If both period endpoints are present, <code>to_date &gt;= from_date</code>. <code>compute_resource</code> must be a dictionary or <code>None</code>. Optional ownership IDs normalize an empty string to <code>None</code> and otherwise require nonempty text.</p>
+<h3 id="methods-and-properties_3">Methods and properties</h3>
+<h4 id="property-capacity_credits">Property: <code>capacity_credits</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">capacity_credits</span>
+</code></pre></div>
+<p>Return <code>int</code>: <code>total_credits</code> when supplied, otherwise <code>allocated_credits</code>.</p>
+<h4 id="property-remaining_credits">Property: <code>remaining_credits</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">remaining_credits</span>
+</code></pre></div>
+<p>Return <code>int</code>: <code>capacity_credits - used_credits</code>. This property does not subtract reservations or independently add top-ups.</p>
+<h2 id="class-creditresourceusage">Class: <code>CreditResourceUsage</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">CreditResourceUsage(*, compute_resource_id: str, used_credits: int, job_count: int, compute_backend: Optional[str] = None, **extra_data: Any) -&gt; None
+</code></pre></div>
+<p>Credit consumption for one compute resource in a usage report.</p>
+<p>Fields: <code>compute_resource_id</code>, <code>used_credits</code>, <code>job_count</code>, <code>compute_backend</code>.</p>
+<p>The identifier is nonempty and stripped. Both counts are nonnegative integers, excluding Boolean values. An absent or empty backend string becomes <code>None</code>; other backend values must be nonempty text.</p>
+<h2 id="class-creditusage">Class: <code>CreditUsage</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">CreditUsage(*, used_credits: int, start_date: datetime.datetime, end_date: datetime.datetime, jobs: List[qpiai_opt.opt_solvers.platform_models.CreditUsageJob] = &lt;factory&gt;, **extra_data: Any) -&gt; None
+</code></pre></div>
+<p>Credit consumption for one user, workspace, or organization period.</p>
+<p>Fields: <code>used_credits</code>, <code>start_date</code>, <code>end_date</code>, <code>jobs</code>.</p>
+<p><code>used_credits</code> must be a nonnegative integer, excluding Boolean values; <code>end_date</code> cannot precede <code>start_date</code>. This model does not require the listed job credits to sum to the total.</p>
+<h2 id="class-creditusagebyresource">Class: <code>CreditUsageByResource</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">CreditUsageByResource(*, used_credits: int, start_date: datetime.datetime, end_date: datetime.datetime, compute_resource_usages: List[qpiai_opt.opt_solvers.platform_models.CreditResourceUsage] = &lt;factory&gt;, **extra_data: Any) -&gt; None
+</code></pre></div>
+<p>Credit consumption grouped by compute resource for one period.</p>
+<p>Fields: <code>used_credits</code>, <code>start_date</code>, <code>end_date</code>, <code>compute_resource_usages</code>.</p>
+<p>Count and period validation match <code>CreditUsage</code>. Additionally, <code>sum(item.used_credits for item in compute_resource_usages)</code> must equal <code>used_credits</code>; inconsistent grouped reports raise validation error.</p>
+<h2 id="class-creditusagejob">Class: <code>CreditUsageJob</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">CreditUsageJob(*, job_id: str, credits_used: int, name: Optional[str] = None, user_name: Optional[str] = None, device_name: Optional[str] = None, method: Optional[str] = None, status: Optional[str] = None, compute_resource_id: Optional[str] = None, compute_backend: Optional[str] = None, executed_at: Optional[datetime.datetime] = None, **extra_data: Any) -&gt; None
+</code></pre></div>
+<p>One job included in a credit-usage report.</p>
+<p>Fields: <code>job_id</code>, <code>credits_used</code>, <code>name</code>, <code>user_name</code>, <code>device_name</code>, <code>method</code>, <code>status</code>, <code>compute_resource_id</code>, <code>compute_backend</code>, <code>executed_at</code>.</p>
+<h2 id="class-organization">Class: <code>Organization</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">Organization(*, id: str, organization_name: str, billing_details: Optional[str] = None, min_booking_minutes: Annotated[Optional[int], Strict(strict=True), Ge(ge=0)] = None, max_booking_minutes: Annotated[Optional[int], Strict(strict=True), Ge(ge=0)] = None, max_daily_minutes: Annotated[Optional[int], Strict(strict=True), Ge(ge=0)] = None, current_seat_count: Annotated[Optional[int], Strict(strict=True), Ge(ge=0)] = None, users: List[qpiai_opt.opt_solvers.platform_models.UserSummary] = &lt;factory&gt;, created_at: Optional[datetime.datetime] = None, updated_at: Optional[datetime.datetime] = None, **extra_data: Any) -&gt; None
+</code></pre></div>
+<p>Organization, limits, and member summaries.</p>
+<p>Fields: <code>id</code>, <code>organization_name</code>, <code>billing_details</code>, <code>min_booking_minutes</code>, <code>max_booking_minutes</code>, <code>max_daily_minutes</code>, <code>current_seat_count</code>, <code>users</code>, <code>created_at</code>, <code>updated_at</code>.</p>
+<p>Booking limits and seat count are strict nonnegative integers when present. If both booking endpoints are present, <code>min_booking_minutes &lt;= max_booking_minutes</code>. <code>users</code> contains parsed <code>UserSummary</code> records and defaults to an empty list.</p>
+<h2 id="class-workspace">Class: <code>Workspace</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">Workspace(*, id: str, owner_id: Optional[str] = None, name: str, description: str = '', organization_id: str, is_default: bool = False, created_at: Optional[datetime.datetime] = None, updated_at: Optional[datetime.datetime] = None, **extra_data: Any) -&gt; None
+</code></pre></div>
+<p>Workspace record.</p>
+<p>Fields: <code>id</code>, <code>owner_id</code>, <code>name</code>, <code>description</code>, <code>organization_id</code>, <code>is_default</code>, <code>created_at</code>, <code>updated_at</code>.</p>
+<p><code>owner_id</code> may be omitted; supplied owner, name, and organization values must be nonempty stripped text. <code>is_default</code> requires an actual Boolean value. <code>description</code> defaults to the empty string.</p>
+<h2 id="class-project">Class: <code>Project</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">Project(*, id: str, owner_id: str, name: str, description: str = '', workspace_id: str, is_default: bool = False, created_at: Optional[datetime.datetime] = None, updated_at: Optional[datetime.datetime] = None, **extra_data: Any) -&gt; None
+</code></pre></div>
+<p>Project record.</p>
+<p>Fields: <code>id</code>, <code>owner_id</code>, <code>name</code>, <code>description</code>, <code>workspace_id</code>, <code>is_default</code>, <code>created_at</code>, <code>updated_at</code>.</p>
+<p>Owner, name, and workspace identifiers are required nonempty stripped strings. <code>is_default</code> requires a Boolean; <code>description</code> defaults to the empty string.</p>
+<h2 id="class-experiment">Class: <code>Experiment</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">Experiment(*, id: str, owner_id: str, name: str, description: str = '', project_id: str, workspace_id: Optional[str] = None, compute_resource_id: Optional[str] = None, is_default: bool = False, total_compute_time_s: float = 0.0, total_credits_used: int = 0, created_at: Optional[datetime.datetime] = None, updated_at: Optional[datetime.datetime] = None, **extra_data: Any) -&gt; None
+</code></pre></div>
+<p>Experiment record and aggregate usage.</p>
+<p>Fields: <code>id</code>, <code>owner_id</code>, <code>name</code>, <code>description</code>, <code>project_id</code>, <code>workspace_id</code>, <code>compute_resource_id</code>, <code>is_default</code>, <code>total_compute_time_s</code>, <code>total_credits_used</code>, <code>created_at</code>, <code>updated_at</code>.</p>
+<p>Required owner, name, and project values are nonempty stripped strings. Optional <code>workspace_id</code> accepts <code>None</code> or an empty string as absent. <code>is_default</code> requires a Boolean. Total compute time is finite and nonnegative; total credits are a nonnegative integer excluding Boolean values.</p>
+<h2 id="class-invitation">Class: <code>Invitation</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">Invitation(*, id: str, organization_id: str, email: str, role: str, status: str, invitation_type: Optional[str] = None, invited_by: Optional[str] = None, expires_at: Optional[datetime.datetime] = None, created_at: Optional[datetime.datetime] = None, updated_at: Optional[datetime.datetime] = None, **extra_data: Any) -&gt; None
+</code></pre></div>
+<p>Organization invitation record.</p>
+<p>Fields: <code>id</code>, <code>organization_id</code>, <code>email</code>, <code>role</code>, <code>status</code>, <code>invitation_type</code>, <code>invited_by</code>, <code>expires_at</code>, <code>created_at</code>, <code>updated_at</code>.</p>
+<h2 id="class-usersummary">Class: <code>UserSummary</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">UserSummary(*, id: str, name: Optional[str] = None, email: Optional[str] = None, role: Optional[str] = None, status: Optional[str] = None, organization_id: Optional[str] = None, is_revoked: Optional[bool] = None, **extra_data: Any) -&gt; None
+</code></pre></div>
+<p>User membership summary returned inside collaboration records.</p>
+<p>Fields: <code>id</code>, <code>name</code>, <code>email</code>, <code>role</code>, <code>status</code>, <code>organization_id</code>, <code>is_revoked</code>.</p>
+<p>Optional <code>name</code>, <code>email</code>, and <code>role</code> must be nonempty stripped text when present. Optional <code>status</code> and <code>organization_id</code> normalize an empty string to <code>None</code>. <code>is_revoked</code> accepts only Boolean values or <code>None</code>.</p>
+<h2 id="class-sseevent">Class: <code>SSEEvent</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">SSEEvent(*, event: str, data: Any, **extra_data: Any) -&gt; None
+</code></pre></div>
+<p>One decoded server-sent job event.</p>
+<p>Fields: <code>event</code>, <code>data</code>.</p>
+<p><code>event</code> must be a nonempty string without CR/LF; it is retained without stripping. <code>data</code> is the decoded event payload and may have any JSON-compatible shape supplied by the service.</p>
+<h2 id="exception-platformerror">Exception: <code>PlatformError</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">PlatformError</span>
+</code></pre></div>
+<p>Base exception for SDK solver and platform-client errors.</p>
+<h2 id="exception-apierror">Exception: <code>APIError</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">APIError(message: 'str', *, status_code: 'Optional[int]' = None, code: 'Optional[str]' = None, details: 'Any' = None) -&gt; 'None'
+</code></pre></div>
+<p>Subclass of <code>PlatformError</code>. Stores <code>status_code: int | None</code>, <code>code: str | None</code>, and <code>details: Any</code> unchanged; <code>str(error)</code> is the supplied message. HTTP and response-shape failures can supply a status, while locally detected malformed metadata may leave it <code>None</code>.</p>
+<h2 id="exception-authenticationerror">Exception: <code>AuthenticationError</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">AuthenticationError(message: 'str', *, status_code: 'Optional[int]' = None, code: 'Optional[str]' = None, details: 'Any' = None) -&gt; 'None'
+</code></pre></div>
+<p>Subclass of <code>APIError</code> with the same constructor and attributes. Used for unverifiable local credentials and the platform client's HTTP <code>401</code> responses; other HTTP errors from <code>Client</code> remain <code>APIError</code>. A <code>401</code> with code <code>ACCOUNT_REVOKED</code> preserves the service message; other <code>401</code> responses use the SDK's API-key guidance. Obtain a free Opt API key at <a href="https://opt.qpiai.tech/">QpiAI Opt</a> or a free QCloud API key at <a href="https://qcloud.qpiai.tech/">QpiAI QCloud</a>, according to the execution route.</p>
+<h2 id="exception-capabilityerror">Exception: <code>CapabilityError</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">CapabilityError(problem_class: 'str', *, requested_mode: 'str', available_providers: 'Mapping[str, tuple[str, ...]]', reason: 'str | None' = None, compatible_alternatives: 'tuple[str, ...]' = ()) -&gt; 'None'
+</code></pre></div>
+<p>Raised when no available provider can solve the detected problem class.</p>
+<h3 id="methods-and-properties_4">Methods and properties</h3>
+<h4 id="method-as_dict">Method: <code>as_dict</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">as_dict() -&gt; 'dict[str, Any]'
+</code></pre></div>
+<p>Return a <code>dict</code> with <code>error="capability_error"</code>, <code>problem_class: str</code>, <code>requested_mode: str</code>, <code>reason: str</code>, <code>available_providers: dict[str, tuple[str, ...]]</code>, and <code>compatible_alternatives: list[str]</code>. Construction copies the supplied capabilities mapping and normalizes alternatives to a tuple; a missing/falsey reason gets the default unsupported-provider explanation.</p>
+<h2 id="exception-jobfailederror">Exception: <code>JobFailedError</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">JobFailedError(job_id: 'str', message: 'str') -&gt; 'None'
+</code></pre></div>
+<p>Subclass of <code>PlatformError</code>; stores <code>job_id</code> and formats the message as <code>Job {job_id} failed: {message}</code>.</p>
+<h2 id="exception-jobcancellederror">Exception: <code>JobCancelledError</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">JobCancelledError(job_id: 'str', message: 'str' = 'cancelled') -&gt; 'None'
+</code></pre></div>
+<p>Subclass of <code>PlatformError</code>; stores <code>job_id</code> and formats the message as <code>Job {job_id} was cancelled: {message}</code>.</p>
+<h2 id="exception-locallimitexceeded">Exception: <code>LocalLimitExceeded</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">LocalLimitExceeded(problem_class: 'str', *, observed: 'Mapping[str, int | float | str]', limits: 'Mapping[str, int | float]', explanation: 'str', next_action: 'str') -&gt; 'None'
+</code></pre></div>
+<p>A structured refusal when a problem exceeds a documented local limit.</p>
+<h3 id="methods-and-properties_5">Methods and properties</h3>
+<h4 id="method-as_dict_1">Method: <code>as_dict</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">as_dict() -&gt; 'dict[str, Any]'
+</code></pre></div>
+<p>Return a <code>dict</code> with <code>error="local_limit_exceeded"</code>, <code>problem_class: str</code>, <code>observed: dict[str, int | float | str]</code>, <code>limits: dict[str, int | float]</code>, <code>explanation: str</code>, and <code>next_action: str</code>. Construction copies the two supplied mappings and retains the descriptive fields as exception attributes.</p>
+<h2 id="type-alias-solveresult">Type alias: <code>SolveResult</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">SolveResult = QUBOSolveResult | HUBOSolveResult | MILPSolveResult | IsingSolveResult | QPSolveResult
+</code></pre></div>
+<p>Union of completed LP, MILP, QP, QUBO, HUBO, and Ising result types. Gate-based optimization algorithms return <code>QuantumResult</code> from <code>qpiai_opt.quantum</code>; that type is not part of this Python alias. The machine-readable <code>schemas()["solve_result"]</code> union also includes <code>QuantumResult</code>.</p>
+<h2 id="class-solveinfo">Class: <code>SolveInfo</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">SolveInfo(*, problem_class: Literal['LP', 'MILP', 'QP', 'QUBO', 'HUBO', 'ISING'], execution_mode: Literal['local', 'platform'], provider: str, solver: str | None = None, method: str | None = None, termination: Literal['optimal', 'completed', 'limit_reached', 'infeasible', 'unbounded', 'failed', 'unknown'], has_usable_solution: bool, solution_feasible: bool | None, optimality_proven: bool | None, guarantee: Literal['global_optimum', 'best_found', 'best_bound', 'feasible_only', 'infeasibility_proven', 'unboundedness_proven', 'none', 'unknown'], source_objective: float | None = None, transformed: bool | None = None, settings: dict[str, int | float | str | bool] = &lt;factory&gt;) -&gt; None
+</code></pre></div>
+<p>Common validated interpretation returned by <code>result.info()</code> and carried in ordinary result dumps as <code>solve_info</code>. Field meanings are defined in <a href="local-solving.html#common-solve-information">common solve information</a>.</p>
+<p><code>provider</code> and non-null <code>solver</code>/<code>method</code> values are stripped nonempty strings. Literal fields use the exact values in the signature. <code>source_objective</code> is <code>None</code> or a finite non-Boolean real normalized to <code>float</code>. <code>settings</code> is an actual dictionary with nonempty string keys and Boolean, integer, finite floating-point, or string values; the default is a separate empty dictionary for each instance. Unknown fields and invalid values raise <code>pydantic.ValidationError</code>. Field assignment is frozen; the nested settings dictionary remains mutable.</p>
+<p>Construction enforces these relationships:</p>
+<ul>
+<li><code>has_usable_solution</code> is true exactly when <code>solution_feasible</code> is true.</li>
+<li><code>termination="optimal"</code>, <code>optimality_proven=True</code>, and <code>guarantee="global_optimum"</code> must occur together.</li>
+<li><code>termination="infeasible"</code> requires <code>guarantee="infeasibility_proven"</code> and no usable solution; <code>termination="unbounded"</code> requires <code>guarantee="unboundedness_proven"</code>. Each proof guarantee also requires its corresponding termination.</li>
+<li><code>guarantee="best_found"</code> or <code>"feasible_only"</code> requires a usable solution.</li>
+</ul>
+<p>When attached to a result, the information must match its problem class and execution mode. A non-null <code>source_objective</code> must equal the result's objective, and a usable solution requires a non-null result solution. These checks validate the record's consistency; they do not execute a solver or independently verify its mathematical claims.</p>
+<p>Fields: <code>problem_class</code>, <code>execution_mode</code>, <code>provider</code>, <code>solver</code>, <code>method</code>, <code>termination</code>, <code>has_usable_solution</code>, <code>solution_feasible</code>, <code>optimality_proven</code>, <code>guarantee</code>, <code>source_objective</code>, <code>transformed</code>, <code>settings</code>.</p>
+<h2 id="class-isingsolveresult">Class: <code>IsingSolveResult</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">IsingSolveResult(*, problem_class: Literal['ISING'] = 'ISING', execution_mode: Literal['local', 'platform'], job_id: str | None = None, problem_id: str | None = None, solver_time_s: typing.Annotated[float | None, Ge(ge=0)] = None, compute_time_s: typing.Annotated[float | None, Ge(ge=0)] = None, solve_info: qpiai_opt.opt_solvers.result_base.SolveInfo | None = None, num_variables: typing.Annotated[int, Strict(strict=True), Ge(ge=0)], objective: float, variable_assignment: Dict[str, Union[int, float]], solution: List[int]) -&gt; None
+</code></pre></div>
+<p>Completed Ising result. <code>num_variables</code> is a strict nonnegative integer; <code>solution</code> is a list/tuple of exactly that many finite real -1/+1 spins, excluding Booleans, normalized to Python integers. <code>objective</code> is finite and non-Boolean. <code>variable_assignment</code> maps nonempty names to finite non-Boolean numeric values and may contain decoded binary or numeric source variables. These shape checks do not independently verify the objective or source feasibility. Unknown fields and invalid values raise <code>pydantic.ValidationError</code>. Identity and timing use the <a href="local-solving.html#completed-result-contract">common result contract</a>.</p>
+<p>Fields: <code>problem_class</code>, <code>execution_mode</code>, <code>job_id</code>, <code>problem_id</code>, <code>solver_time_s</code>, <code>compute_time_s</code>, <code>solve_info</code>, <code>num_variables</code>, <code>objective</code>, <code>variable_assignment</code>, <code>solution</code>.</p>
+<h3 id="methods-and-properties_6">Methods and properties</h3>
+<h4 id="method-runtime">Method: <code>runtime</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">runtime(unit: 'str' = 's', *, kind: 'str' = 'compute') -&gt; 'float | None'
+</code></pre></div>
+<p>Return the compute or solver duration in seconds, milliseconds, or microseconds. <code>kind="compute"</code> is the default; unknown durations return <code>None</code>.</p>
+<h4 id="method-info">Method: <code>info</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">info() -&gt; 'SolveInfo'
+</code></pre></div>
+<p>Return the common provider, method, termination, feasibility, proof, guarantee, source-objective, transformation, and settings view.</p>
+<h2 id="class-qpsolveresult">Class: <code>QPSolveResult</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">QPSolveResult(*, problem_class: Literal['QP'] = 'QP', execution_mode: Literal['local'] = 'local', job_id: str | None = None, problem_id: str | None = None, solver_time_s: typing.Annotated[float | None, Ge(ge=0)] = None, compute_time_s: typing.Annotated[float | None, Ge(ge=0)] = None, solve_info: qpiai_opt.opt_solvers.result_base.SolveInfo | None = None, sense: Literal['MIN', 'MAX'], status: str, model_status: str, objective: Optional[float] = None, solution: Optional[Dict[str, float]] = None, iteration_count: typing.Annotated[int, Strict(strict=True), Ge(ge=0)] = 0) -&gt; None
+</code></pre></div>
+<p>Continuous quadratic-program result, with <code>execution_mode="local"</code>. <code>sense</code> is the exact <code>MIN</code>/<code>MAX</code> literal; <code>status</code> is stripped/lowercased, while <code>model_status</code> is stripped without changing case. Both status fields must be nonempty. Optional objective and solution values are finite non-Boolean reals; solution keys are nonempty strings. <code>iteration_count</code> is a strict nonnegative integer. No incumbent is represented by <code>objective=None</code> and/or <code>solution=None</code>; inspect <code>info()</code> before using values. Unknown fields and invalid values raise <code>pydantic.ValidationError</code>. Identity and timing use the <a href="local-solving.html#completed-result-contract">common result contract</a>.</p>
+<p>Fields: <code>problem_class</code>, <code>execution_mode</code>, <code>job_id</code>, <code>problem_id</code>, <code>solver_time_s</code>, <code>compute_time_s</code>, <code>solve_info</code>, <code>sense</code>, <code>status</code>, <code>model_status</code>, <code>objective</code>, <code>solution</code>, <code>iteration_count</code>.</p>
+<h3 id="methods-and-properties_7">Methods and properties</h3>
+<h4 id="method-runtime_1">Method: <code>runtime</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">runtime(unit: 'str' = 's', *, kind: 'str' = 'compute') -&gt; 'float | None'
+</code></pre></div>
+<p>Return the compute or solver duration in seconds, milliseconds, or microseconds. <code>kind="compute"</code> is the default; unknown durations return <code>None</code>.</p>
+<h4 id="method-info_1">Method: <code>info</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">info() -&gt; 'SolveInfo'
+</code></pre></div>
+<p>Return the common provider, method, termination, feasibility, proof, guarantee, source-objective, transformation, and settings view.</p>
+<h2 id="class-localprovider">Class: <code>LocalProvider</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">LocalProvider(client: 'Client | None' = None)
+</code></pre></div>
+<p>Execute supported problem classes locally with a registered Opt credential. A missing client raises <code>AuthenticationError</code> at construction; a non-<code>Client</code> value raises <code>TypeError</code>. The compiled runtime verifies the key online before each solve; local computation remains free. Prefer the high-level <code>solve()</code> entry point when automatic classification, normalization, and complete compute timing are required.</p>
+<p>The public <code>capabilities</code> class attribute is a <code>ProviderCapabilities</code> record. It has <code>name: str</code>, <code>mode: str</code>, <code>problem_classes: tuple[str,...]</code>, aggregate <code>exact: bool</code> and <code>heuristic: bool</code>, <code>requires_authentication: bool</code>, <code>diagnostics: tuple[str,...]</code>, and <code>problem_capabilities: dict[str,dict[str,bool]]</code> with class-specific exact/heuristic flags. <code>capabilities.as_dict()</code> returns a new dictionary with tuple fields converted to lists and nested capability dictionaries copied. These flags describe available methods, not a guarantee for an individual solve.</p>
+<h3 id="methods-and-properties_8">Methods and properties</h3>
+<h4 id="method-solve">Method: <code>solve</code></h4>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">solve(problem: 'Any', *, problem_class: 'str', time_limit: 'float | None' = None, mip_rel_gap: 'float | None' = None, node_limit: 'int | None' = None, num_reads: 'int | None' = None, num_sweeps: 'int | None' = None, seed: 'int | None' = None, **options: 'Any') -&gt; 'SolveResult'
+</code></pre></div>
+<p>Execute the supplied problem using its explicit canonical <code>problem_class</code>: <code>LP</code>, <code>MILP</code>, <code>QP</code>, <code>QUBO</code>, <code>HUBO</code>, or <code>ISING</code>. This direct provider call does not perform the high-level classification/normalization step. Options use the <a href="local-solving.html#local-options">local option contracts</a>; unsupported options, invalid models, authentication failures, and structural limits propagate as documented there. Return the class-specific result. An unavailable compiled runtime raises <code>ImportError</code> with installation instructions. Direct provider timing does not add the high-level end-to-end <code>compute_time_s</code> measurement.</p>
+<h2 id="constant-local_limits">Constant: <code>LOCAL_LIMITS</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">LOCAL_LIMITS</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
+</code></pre></div>
+<p>Read-only class-to-limit mapping, including read-only nested metric mappings. Keys and inclusive integer thresholds are listed in <a href="local-solving.html#structural-limits">structural limits</a>. Assigning entries raises <code>TypeError</code>. Limits govern local execution; inspection reports structural metrics without refusing a model solely because it exceeds them.</p>
+<h2 id="function-classify">Function: <code>classify</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">classify(problem: 'Any') -&gt; 'str'
+</code></pre></div>
+<p>Return <code>LP</code>, <code>MILP</code>, <code>QP</code>, <code>QUBO</code>, <code>HUBO</code>, <code>ISING</code>, or <code>QUBIT_HAMILTONIAN</code> without solving or authenticating. Accept the documented <code>Model</code>, native problem, LP/MPS path, and dictionary inputs; native <code>MILPProblem</code> returns its declared class. Hamiltonian classification requires the optional QpiAI Quantum SDK and its <code>QubitHamiltonian</code> type. A file is read to determine integrality; missing files or unsupported suffixes raise.</p>
+<p>Classification identifies a representation; it does not fully revalidate already constructed native problems or every coefficient in a raw dictionary. Use <code>inspect()</code> for normalization and structural validation. Models use <code>Model.validate()</code> and normalize its <code>MIP</code> label to <code>MILP</code>. Conflicting or unsupported dictionary markers and ambiguous low-degree tuple-key polynomials raise <code>ValueError</code>; unsupported objects raise <code>TypeError</code>.</p>
+<h2 id="function-inspect">Function: <code>inspect</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">inspect(problem: 'Any', *, algorithm: 'Any' = None) -&gt; 'dict[str, Any]'
+</code></pre></div>
+<p>Normalize and validate the representation, then return <code>dict</code> with <code>problem_class: str</code>, <code>representation: str</code>, <code>metrics: dict[str,int]</code>, and <code>valid=True</code>. Invalid inputs raise their validation errors rather than returning <code>valid=False</code>. <code>representation</code> names the normalized input type; the metric inventory and <a href="automation.html#inspection-operations">inspection procedure</a> vary by class. Native problem inputs are revalidated; in-memory linear matrices and QP curvature are checked. Inspection does not require authentication or enforce all local size limits, and <code>valid=True</code> is not proof of feasibility or local eligibility.</p>
+<p><code>algorithm=None</code> selects structural inspection. An explicit gate-based optimization algorithm configuration adds the validated <code>quantum</code> report, including compatibility and statically available circuit metrics. Unsupported algorithm/problem combinations raise before execution. Inspection can compile a <code>Model</code> and update its encoding/transformation state, but performs no solve or platform submission.</p>
+<h2 id="function-provider_capabilities">Function: <code>provider_capabilities</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">provider_capabilities(*, include_platform: 'bool' = True) -&gt; 'list[dict[str, Any]]'
+</code></pre></div>
+<p>Return a new list containing the local capability dictionary and, by default, the platform dictionary. <code>include_platform</code> must be an actual Boolean; other values raise <code>TypeError</code>. Each dictionary has <code>name</code>, <code>mode</code>, <code>problem_classes</code>, aggregate <code>exact</code>/<code>heuristic</code>, <code>requires_authentication</code>, <code>diagnostics</code>, and the per-class <code>problem_capabilities</code> map described above. Use class-specific flags when selecting a method. No client, authentication, resource query, or solve is needed.</p>
+<h2 id="function-solve">Function: <code>solve</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">solve(problem: 'Any', *, mode: 'str' = 'local', client: 'Client | None' = None, allow_platform: 'bool' = False, **options: 'Any') -&gt; 'SolveResult | QuantumResult'
+</code></pre></div>
+<p>Classify, normalize, and execute a supported problem, returning its class-specific completed result. <code>mode</code> is case-insensitive <code>local</code>, <code>platform</code>, or <code>auto</code>, without whitespace stripping; invalid values raise <code>ValueError</code>. <code>allow_platform</code> must be Boolean or raises <code>TypeError</code>. Without <code>algorithm</code>, local/auto execution requires an Opt <code>Client</code> and fresh online Opt verification; platform execution also requires an Opt <code>Client</code> and can consume credits. Auto fallback occurs only after <code>LocalLimitExceeded</code> and only with <code>allow_platform=True</code>; authentication, validation, infeasibility, and transport failures do not trigger it.</p>
+<p>Accepted representations, class-specific options, limits, result semantics, and failure handling are defined in <a href="local-solving.html">local solving and routing</a>. Local <code>compute_time_s</code> includes this entry point's normalization and result processing; platform durations remain service-reported. An explicit <code>algorithm</code> selects the gate-based optimization route with <code>execution</code> configuration and independent QCloud authentication; it rejects <code>algorithm=None</code>, Opt <code>Client</code>, auto mode, paid fallback, and solver-call options such as <code>time_limit</code> or <code>num_reads</code>. Obtain a free QCloud API key at <a href="https://qcloud.qpiai.tech/">QpiAI QCloud</a>. <code>execution</code> without <code>algorithm</code> raises <code>ValueError</code>. See the <a href="quantum-optimization.html">gate-based optimization workflow</a>.</p>
+<h2 id="function-convert">Function: <code>convert</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">convert(problem: 'Any', target: 'str', **options: 'Any') -&gt; 'Any'
+</code></pre></div>
+<p>Accept a supported model/problem/dictionary or canonical IR and a case-insensitive target string. Return the representation-specific object listed below. Targets include <code>IR</code>, <code>QUBO</code>, <code>HUBO</code>, <code>ISING</code>, <code>LP</code>, <code>MPS</code>, <code>QUBIT_HAMILTONIAN</code>, and <code>OMMX</code>; support depends on the source type. Whitespace is not stripped.</p>
+<p>A non-string target raises <code>TypeError</code>; unsupported routes or options raise <code>ValueError</code>, or the relevant exporter/compiler's typed error. Conversions do not solve or authenticate. Preserve conversion records for decoding, and distinguish raw minimization QUBO/HUBO exports from source-coordinate Ising dictionaries. The optional gate-based optimization and OMMX targets require their integrations.</p>
+<h3 id="conversion-routes">Conversion routes</h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Target</th>
+<th>Return</th>
+<th>Accepted conversion options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>supported object</td>
+<td><code>IR</code></td>
+<td>Canonical JSON-safe <code>dict</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td>canonical IR</td>
+<td>reconstructed object's target</td>
+<td>Same as that native object</td>
+<td>same as reconstructed object</td>
+</tr>
+<tr>
+<td><code>Model</code></td>
+<td><code>QUBO</code></td>
+<td><code>(qubo_dict, offset)</code></td>
+<td>Model QUBO compilation options</td>
+</tr>
+<tr>
+<td><code>Model</code></td>
+<td><code>HUBO</code></td>
+<td>canonical polynomial <code>dict</code></td>
+<td>Model HUBO compilation options</td>
+</tr>
+<tr>
+<td><code>Model</code></td>
+<td><code>ISING</code></td>
+<td><code>dict</code></td>
+<td>Model QUBO compilation options for a binary model; none for a native spin model</td>
+</tr>
+<tr>
+<td><code>Model</code></td>
+<td><code>LP</code>, <code>MPS</code></td>
+<td>model text <code>str</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>Model</code></td>
+<td><code>QUBIT_HAMILTONIAN</code></td>
+<td><code>QubitHamiltonian</code></td>
+<td>none for native spin models; Model HUBO compilation options otherwise</td>
+</tr>
+<tr>
+<td><code>Model</code></td>
+<td><code>OMMX</code></td>
+<td>OMMX <code>Instance</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>MILPProblem</code></td>
+<td>A supported <code>Model</code> target above</td>
+<td>Same as its in-memory or parsed model</td>
+<td>same as the model target</td>
+</tr>
+<tr>
+<td><code>QUBOProblem</code></td>
+<td><code>ISING</code></td>
+<td><code>dict</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>HUBOProblem</code></td>
+<td><code>QUBO</code></td>
+<td><code>HUBOToQUBOConvert</code></td>
+<td><code>strength</code>, <code>auxiliary_prefix</code>, <code>matrix_format</code></td>
+</tr>
+<tr>
+<td><code>HUBOProblem</code></td>
+<td><code>ISING</code></td>
+<td>source-coordinate Ising <code>dict</code> after exact quadratization</td>
+<td><code>strength</code>, <code>auxiliary_prefix</code>, <code>matrix_format</code></td>
+</tr>
+<tr>
+<td><code>HUBOProblem</code></td>
+<td><code>QUBIT_HAMILTONIAN</code></td>
+<td>higher-locality diagonal <code>QubitHamiltonian</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>IsingProblem</code></td>
+<td><code>QUBO</code></td>
+<td><code>IsingToQUBOConvert</code></td>
+<td><code>matrix_format</code></td>
+</tr>
+<tr>
+<td><code>IsingProblem</code></td>
+<td><code>ISING</code></td>
+<td>source-coordinate Ising <code>dict</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>QUBOProblem</code> or <code>IsingProblem</code></td>
+<td><code>QUBIT_HAMILTONIAN</code></td>
+<td><code>QubitHamiltonian</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td>compatible identity/Z/ZZ <code>QubitHamiltonian</code></td>
+<td><code>ISING</code></td>
+<td><code>dict</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td>compatible identity/Z/ZZ <code>QubitHamiltonian</code></td>
+<td><code>QUBO</code></td>
+<td><code>IsingToQUBOConvert</code></td>
+<td><code>matrix_format</code></td>
+</tr>
+</tbody>
+</table>
+<p>Polynomial dictionaries use the same conversion routes as their normalized native problem objects. <code>MILPProblem</code> file parsing remains limited to its documented model-domain scope; unsupported semantics raise. HUBO-to-Hamiltonian conversion uses the exact substitution <span class="arithmatex">\(x=(1-Z)/2\)</span> and retains higher-locality terms without auxiliary qubits. Its expansion-work estimate, the sum of <code>2**len(term)</code> over stored polynomial terms, cannot exceed 100,000; an oversized expansion raises <code>ModelCompilationError</code> and requires explicit quadratization. Arbitrary real Pauli Hamiltonians can convert to canonical <code>IR</code>; reverse Ising/QUBO conversion requires exactly identity/Z/ZZ terms.</p>
+<p>Typed conversions preserve the source <code>MIN</code> or <code>MAX</code> objective. Conversion objects expose <code>original_sense</code>, with <code>source_objective()</code> or <code>original_objective()</code> reporting source coordinates; the <code>dict</code> returned by an <code>ISING</code> conversion instead carries source coefficients and a <code>sense</code> field. QUBO/Ising to qubit-Hamiltonian conversion uses the exact <span class="arithmatex">\(s=2x-1\)</span>, <span class="arithmatex">\(z=-s\)</span> map. Reverse conversion rejects X/Y terms, terms above locality two, and every other structure that is not exactly identity/Z/ZZ. HUBO to QUBO additionally exposes <code>complete_sample()</code>, <code>decode()</code>, and <code>verify_auxiliaries()</code>. The <a href="transformations.html#conversion-map">conversion chapters</a> explain these objects beside their mathematical substitutions.</p>
+<p>Unsupported options raise rather than being ignored:</p>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">ValueError: IR conversion does not accept options: unknown_option
+ValueError: QUBOProblem to ISING does not accept options: matrix_format
+ValueError: HUBOProblem to QUBO contains unsupported options: sense
+ValueError: IsingProblem to QUBO contains unsupported options: strength
+</code></pre></div>
+<h2 id="function-feasibility">Function: <code>feasibility</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">feasibility(model: 'Model', values: 'dict[str, float]', *, tolerance: 'float' = 1e-06) -&gt; 'dict'
+</code></pre></div>
+<p>Require <code>Model</code> and an actual <code>dict</code> keyed by source variable names; other container/input types raise <code>TypeError</code>. Every source variable must be present, and unknown keys raise <code>ValueError</code>. Deterministic auxiliary column names from that model's linear reformulation are accepted. <code>tolerance</code> follows <code>Model.constraint_violations()</code> and defaults to <code>1e-6</code>.</p>
+<p>Return <code>{"feasible": bool, "objective": float, "violations": dict[str, float], "tolerance": tolerance}</code>. Hard-constraint and domain violations follow the <a href="api-modeller.html#method-constraint_violations">modeller verification contract</a>. The source objective is always evaluated; invalid or unrepresentable objective arithmetic raises instead of returning an incomplete report. No solve or authentication occurs.</p>
+<p>For a complete evaluable assignment, every evaluated hard constraint appears in <code>violations</code>, including zero residuals; domain keys appear for violated domains. <code>Model.constraint_violations()</code> can also diagnose incomplete or malformed assignments without evaluating constraints, whereas <code>feasibility()</code> requires complete source coordinates and an evaluable objective. Unknown source keys fail before evaluation:</p>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">ValueError: values are missing source variables: 'x'
+ValueError: values contain unknown source variables: 'unknown_name'
+</code></pre></div>
+<h2 id="function-submit">Function: <code>submit</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">submit(problem: 'Any', *, client: 'Client', **options: 'Any') -&gt; 'dict[str, Any]'
+</code></pre></div>
+<p>Require <code>client=Client(...)</code>, normalize a supported problem, and create platform work in one submission attempt. A missing/wrong client raises <code>TypeError</code>. LP/MILP accepts a <code>Model</code>, supported LP/MPS file path, or <code>MILPProblem</code>; local matrix dictionaries are not accepted by the platform. QUBO, HUBO, and Ising use their normalized native representations. QP and generic Hamiltonian submission raise <code>CapabilityError</code>; gate-based optimization uses the blocking algorithm route.</p>
+<p>Options follow the <a href="local-solving.html#local-options">platform option mapping</a> and the corresponding <a href="qubo-solver.html">QUBO</a>, <a href="hubo-solver.html">HUBO</a>, or <a href="milp-solver.html">MILP</a> submission contract. Return a JSON-safe <code>dict</code> containing <code>job_id: str</code>, normalized <code>status: str</code>, <code>message: str</code>, <code>problem_id: str | None</code>, <code>detected_class: str</code>, and <code>mode="platform"</code>. Linear submissions also contain <code>storage_id: str</code>. Ising is explicitly converted to QUBO for submission; retain the original problem for result decoding.</p>
+<p>This call can consume credits. It does not automatically retry an ambiguous failure; preserve identifiers and reconcile existing jobs before a manual retry. Validation, transport, and platform errors propagate. See the <a href="automation.html#nonblocking-platform-lifecycle">nonblocking procedure</a>.</p>
+<h2 id="function-status">Function: <code>status</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">status(client: 'Client', job_id: 'str') -&gt; 'dict[str, Any]'
+</code></pre></div>
+<p>Require a <code>Client</code> and nonempty <code>job_id: str</code> accepted by <code>Client.get_job()</code>. Return <code>dict</code> with <code>job_id: str</code>, <code>status</code> as one of <code>pending</code>, <code>running</code>, <code>completed</code>, <code>failed</code>, <code>cancelled</code>, or <code>unknown</code>, <code>raw_status: str</code>, and <code>error: str | None</code>. This is a single read; it neither waits for completion nor resubmits. Transport/API errors propagate; a wrong client type raises <code>TypeError</code>.</p>
+<h2 id="function-result">Function: <code>result</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">result(client: 'Client', job_id: 'str', *, problem: 'Any' = None) -&gt; 'Any'
+</code></pre></div>
+<p>Fetch one job using <code>Client</code>. Any normalized lifecycle state other than <code>completed</code> raises <code>RuntimeError</code>, including pending, failed, and cancelled jobs. Without <code>problem</code>, return the extracted platform payload (<code>Any</code>): inline or storage-backed data, with supported result wrappers removed. That raw value is not guaranteed to be an SDK <code>SolveResult</code>.</p>
+<p>With <code>problem</code>, normalize the same source representation used for submission and return its typed QUBO, HUBO, Ising, or linear result, restoring source coordinates and feasibility where the supplied representation retains them. Preserve the submitted model or compiled snapshot and its decoding information; passing an edited model can change result interpretation. Unsupported QP restoration raises <code>CapabilityError</code>. Wrong client types raise <code>TypeError</code>; parsing, transport, and platform errors propagate. This call retrieves existing work and does not submit a job.</p>
+<h2 id="function-cancel">Function: <code>cancel</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">cancel(client: 'Client', job_id: 'str') -&gt; 'dict[str, Any]'
+</code></pre></div>
+<p>Require <code>Client</code> and the nonempty job identifier accepted by <code>Client.cancel_job()</code>. Return that method's platform acknowledgement as <code>dict[str, Any]</code>. Cancellation acceptance does not prove terminal cancellation; call <code>status()</code> to observe the lifecycle state. Wrong client types raise <code>TypeError</code>; identifier, transport, and platform errors propagate. It does not submit replacement work.</p>
+<h2 id="function-schemas">Function: <code>schemas</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">schemas() -&gt; 'dict[str, Any]'
+</code></pre></div>
+<p>Return a fresh <code>dict[str, dict]</code> of JSON schemas for request envelopes, problem/configuration models, results, and platform records. Result schemas use <code>anyOf</code> and <code>$defs</code> where needed; request envelopes reject unknown outer fields. Callbacks and circuits are constructed through the Python API. Schema generation requires no credentials. See <a href="automation.html#schemas-and-cross-process-requests">cross-process request handling</a> for validation and execution.</p>
+<h3 id="schema-inventory">Schema inventory</h3>
+<ul>
+<li>requests: <code>inspect_request</code>, <code>solve_request</code>, <code>submit_request</code>, <code>job_request</code>, <code>feasibility_request</code>;</li>
+<li>outputs: <code>solve_result</code>, <code>solve_info</code>, <code>qubo_result</code>, <code>hubo_result</code>, <code>ising_result</code>, <code>qp_result</code>, <code>milp_result</code>, <code>quantum_result</code>, <code>quantum_solve_info</code>, <code>quantum_sample</code>, <code>quantum_logical_circuit</code>, <code>quantum_diagnostics</code>, <code>job</code>, <code>job_submission</code>, <code>credit_usage</code>, <code>credit_usage_by_resource</code>, <code>credit_usage_job</code>, <code>credit_resource_usage</code>, <code>credit_quota</code>;</li>
+<li>inputs/configuration: <code>qubo_problem</code>, <code>hubo_problem</code>, <code>ising_problem</code>, <code>milp_problem</code>, <code>milp_solver_config</code>, <code>milp_warm_start</code>, <code>quantum_run</code>, <code>quantum_cvar</code>, <code>quantum_warm_start</code>, <code>quantum_xy_mixer</code>.</li>
+</ul>
+<p><code>submit_request</code> contains <code>problem_ir</code>. <code>solve_request</code> does not contain <code>algorithm</code> or <code>execution</code>. Gate-based optimization configuration schemas validate <code>QuantumRun</code>, <code>CVaR</code>, <code>WarmStart</code>, and <code>XYMixer</code>; they do not serialize algorithm instances, custom callbacks, or circuits. The <code>solve_result</code> schema includes <code>QuantumResult</code> alongside the other result models; <code>solve_info</code> and <code>quantum_solve_info</code> describe their respective information models. Credentials and authenticated client/session state are excluded.</p>
+<h2 id="class-isingproblem">Class: <code>IsingProblem</code></h2>
+<p>Import from <code>qpiai_opt.opt_solvers.ising</code>.</p>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">IsingProblem(*, problem_type: Literal['ISING'] = 'ISING', num_variables: typing.Annotated[int, Strict(strict=True), Ge(ge=0)], sense: Literal['MIN', 'MAX'] = 'MIN', offset: float = 0.0, variable_names: tuple[str, ...] = (), linear: dict[int, float], quadratic: dict[tuple[int, int], float]) -&gt; None
+</code></pre></div>
+<p>Validated spin objective with coefficients in source coordinates. <code>num_variables</code> is a strict nonnegative integer; <code>linear</code> and <code>quadratic</code> are actual dictionaries with nonnegative non-Boolean integral indices below that count and finite non-Boolean real coefficients. Mirrored couplings aggregate, diagonal couplings contribute to <code>offset</code>, and zero coefficients disappear. Offset is finite and non-Boolean. Names are absent as <code>()</code> or contain one unique nonempty single-line string per spin. Sense and marker normalize case without stripping; unknown fields and malformed values raise <code>pydantic.ValidationError</code>. Construction copies coefficient dictionaries. <code>from_model()</code> retains an independent source/decoding snapshot.</p>
+<p>Fields: <code>problem_type</code>, <code>num_variables</code>, <code>sense</code>, <code>offset</code>, <code>variable_names</code>, <code>linear</code>, <code>quadratic</code>.</p>
+<h3 id="methods">Methods</h3>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">IsingProblem.from_model(model, **compile_options) -&gt; IsingProblem
+energy(sample) -&gt; float
+decode(sample) -&gt; dict[str, int | float]
+source_objective(sample) -&gt; float
+</code></pre></div>
+<p><code>from_model</code> requires a <code>Model</code>, compiles it to the Ising representation, and stores an independent source/decoding snapshot. Native spin models accept no encoding options; other supported source models accept the options of <code>Model.to_ising_dict</code>. A failed compilation leaves the model's previous compilation state intact.</p>
+<p>The three sample methods accept a complete spin sequence of length <code>num_variables</code>, a dictionary covering every integer index, or a dictionary covering every declared name. Mixed partial coverage is insufficient; if both complete views are present they must agree. Extra dictionary keys are ignored. Spins must be finite real -1/+1 values excluding Booleans. Invalid samples raise <code>ValueError</code>, and a noniterable sample raises <code>TypeError</code>. <code>energy</code> evaluates the stored source polynomial including its offset, without negating MAX coefficients; evaluation overflow raises <code>ValueError</code>. <code>decode</code> returns source coordinates when a model snapshot exists, otherwise declared names or generated <code>s[index]</code> names. <code>source_objective</code> evaluates the original model after decoding, or returns <code>energy(sample)</code> for direct construction. See <a href="ising-modeller.html#evaluate-and-decode">sample contracts</a>.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="api-formats.html"><span>Previous</span><strong>Representation utility API</strong></a><a class="pager-card next" href="api-qubo.html"><span>Next</span><strong>QUBO solver API reference</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#module-milp">Module: milp</a><a class="toc-level-2" href="#module-qubo">Module: qubo</a><a class="toc-level-2" href="#module-hubo">Module: hubo</a><a class="toc-level-2" href="#module-ising">Module: ising</a><a class="toc-level-2" href="#class-client">Class: Client</a><a class="toc-level-3" href="#shared-argument-and-failure-rules">Shared argument and failure rules</a><a class="toc-level-3" href="#methods-and-properties">Methods and properties</a><a class="toc-level-2" href="#platform-record-conventions">Platform record conventions</a><a class="toc-level-3" href="#collection-and-submission-records">Collection and submission records</a><a class="toc-level-2" href="#class-problem">Class: Problem</a><a class="toc-level-2" href="#class-job">Class: Job</a><a class="toc-level-3" href="#methods-and-properties_1">Methods and properties</a><a class="toc-level-2" href="#enum-jobstatus">Enum: JobStatus</a><a class="toc-level-3" href="#methods-and-properties_2">Methods and properties</a><a class="toc-level-2" href="#class-computeresource">Class: ComputeResource</a><a class="toc-level-2" href="#class-creditquota">Class: CreditQuota</a><a class="toc-level-3" href="#methods-and-properties_3">Methods and properties</a><a class="toc-level-2" href="#class-creditresourceusage">Class: CreditResourceUsage</a><a class="toc-level-2" href="#class-creditusage">Class: CreditUsage</a><a class="toc-level-2" href="#class-creditusagebyresource">Class: CreditUsageByResource</a><a class="toc-level-2" href="#class-creditusagejob">Class: CreditUsageJob</a><a class="toc-level-2" href="#class-organization">Class: Organization</a><a class="toc-level-2" href="#class-workspace">Class: Workspace</a><a class="toc-level-2" href="#class-project">Class: Project</a><a class="toc-level-2" href="#class-experiment">Class: Experiment</a><a class="toc-level-2" href="#class-invitation">Class: Invitation</a><a class="toc-level-2" href="#class-usersummary">Class: UserSummary</a><a class="toc-level-2" href="#class-sseevent">Class: SSEEvent</a><a class="toc-level-2" href="#exception-platformerror">Exception: PlatformError</a><a class="toc-level-2" href="#exception-apierror">Exception: APIError</a><a class="toc-level-2" href="#exception-authenticationerror">Exception: AuthenticationError</a><a class="toc-level-2" href="#exception-capabilityerror">Exception: CapabilityError</a><a class="toc-level-3" href="#methods-and-properties_4">Methods and properties</a><a class="toc-level-2" href="#exception-jobfailederror">Exception: JobFailedError</a><a class="toc-level-2" href="#exception-jobcancellederror">Exception: JobCancelledError</a><a class="toc-level-2" href="#exception-locallimitexceeded">Exception: LocalLimitExceeded</a><a class="toc-level-3" href="#methods-and-properties_5">Methods and properties</a><a class="toc-level-2" href="#type-alias-solveresult">Type alias: SolveResult</a><a class="toc-level-2" href="#class-solveinfo">Class: SolveInfo</a><a class="toc-level-2" href="#class-isingsolveresult">Class: IsingSolveResult</a><a class="toc-level-3" href="#methods-and-properties_6">Methods and properties</a><a class="toc-level-2" href="#class-qpsolveresult">Class: QPSolveResult</a><a class="toc-level-3" href="#methods-and-properties_7">Methods and properties</a><a class="toc-level-2" href="#class-localprovider">Class: LocalProvider</a><a class="toc-level-3" href="#methods-and-properties_8">Methods and properties</a><a class="toc-level-2" href="#constant-local_limits">Constant: LOCAL_LIMITS</a><a class="toc-level-2" href="#function-classify">Function: classify</a><a class="toc-level-2" href="#function-inspect">Function: inspect</a><a class="toc-level-2" href="#function-provider_capabilities">Function: provider_capabilities</a><a class="toc-level-2" href="#function-solve">Function: solve</a><a class="toc-level-2" href="#function-convert">Function: convert</a><a class="toc-level-3" href="#conversion-routes">Conversion routes</a><a class="toc-level-2" href="#function-feasibility">Function: feasibility</a><a class="toc-level-2" href="#function-submit">Function: submit</a><a class="toc-level-2" href="#function-status">Function: status</a><a class="toc-level-2" href="#function-result">Function: result</a><a class="toc-level-2" href="#function-cancel">Function: cancel</a><a class="toc-level-2" href="#function-schemas">Function: schemas</a><a class="toc-level-3" href="#schema-inventory">Schema inventory</a><a class="toc-level-2" href="#class-isingproblem">Class: IsingProblem</a><a class="toc-level-3" href="#methods">Methods</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

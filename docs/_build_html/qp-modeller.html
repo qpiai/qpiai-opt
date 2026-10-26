@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Continuous quadratic programming">
+<title>Continuous quadratic programming | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/qp-modeller.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="qp-modeller">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="active" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Modelling</span><span aria-hidden="true">&gt;</span><span>Continuous quadratic programming</span></div><article class="doc-content"><h1 id="continuous-quadratic-programming">Continuous quadratic programming</h1>
+<p>QpiAI Opt supports continuous quadratic objectives with linear constraints. Integer variables produce an unsupported MIQP, and quadratic constraints produce an unsupported QCQP.</p>
+<h2 id="mathematical-form">Mathematical form</h2>
+<div class="arithmatex">\[
+\begin{aligned}
+\min\;\text{or}\;\max\quad &amp;\tfrac12 x^TQx+c^Tx+c_0\\
+\text{subject to}\quad &amp;b_l\le Ax\le b_u,\\
+&amp;l\le x\le u,\quad x\in\mathbb R^n.
+\end{aligned}
+\]</div>
+<p>The Hessian <code>Q</code> is symmetric. See the <a href="#matrix-convention">matrix convention</a> for coefficients and storage.</p>
+<h2 id="build-a-convex-qp">Build a convex QP</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Continuous</span><span class="p">,</span> <span class="n">Model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller.utils.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelValidationError</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">Continuous</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">Continuous</span><span class="p">(</span><span class="s2">"y"</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"closest_feasible_point"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">minimize</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"half_space"</span><span class="p">)</span>
+
+<span class="n">problem_class</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>  <span class="c1"># "QP"</span>
+</code></pre></div>
+<p>Write a quadratic term as <code>x**2</code>. An expression such as <code>2**x</code> is exponential, not polynomial, and is outside this modeller's scope. Use an explicit piecewise-linear approximation when that is mathematically suitable.</p>
+<p>MIN requires a positive-semidefinite Hessian. MAX requires a negative-semidefinite Hessian. A wrong-curvature or nonconvex objective raises <code>ModelValidationError</code>. A numerically indeterminate curvature check raises <code>NumericalStabilityError</code>; rescale or reformulate the objective.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">bad</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"nonconvex"</span><span class="p">)</span>
+<span class="n">bad</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">bad</span><span class="o">.</span><span class="n">to_qp_matrix</span><span class="p">()</span>
+<span class="k">except</span> <span class="n">ModelValidationError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>  <span class="c1"># Nonconvex continuous QP ...</span>
+</code></pre></div>
+<h2 id="matrix-convention">Matrix convention</h2>
+<p><code>to_qp_matrix()</code> represents the objective as</p>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">0.5 * x.T @ Q @ x + c.T @ x + offset
+</code></pre></div>
+<p>Therefore a source term <code>a*x**2</code> becomes <code>Q[x,x] = 2*a</code>; a source term <code>a*x*y</code> becomes the symmetric pair <code>Q[x,y] = Q[y,x] = a</code>.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">matrix</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to_qp_matrix</span><span class="p">()</span>
+<span class="n">hessian</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="s2">"objective_hessian"</span><span class="p">]</span>
+<span class="n">linear</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="s2">"objective"</span><span class="p">]</span>
+<span class="n">offset</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="s2">"objective_offset"</span><span class="p">]</span>
+<span class="n">curvature_tolerance</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="s2">"convexity_tolerance"</span><span class="p">]</span>
+</code></pre></div>
+<p><code>hessian</code>, <code>linear</code>, and <code>offset</code> are the <code>Q</code>, <code>c</code>, and constant terms in the stated matrix convention. <code>curvature_tolerance</code> is the tolerance used for the reported convexity classification.</p>
+<p><code>to_qp_matrix(*, sparse_matrix=True)</code> returns the <a href="milp-modeller.html#matrix-representation">linear matrix dictionary</a> with the following changes and additions. <code>sparse_matrix</code> must be a Python <code>bool</code>. For <code>n</code> variables, <code>objective</code> has shape <code>(n,)</code> and <code>objective_hessian</code> has shape <code>(n, n)</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type and meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>problem_type</code></td>
+<td><code>"QP"</code>.</td>
+</tr>
+<tr>
+<td><code>solver</code></td>
+<td><code>str</code>: runtime adapter identifier.</td>
+</tr>
+<tr>
+<td><code>objective_hessian</code></td>
+<td>SciPy CSC <code>float64</code> matrix; NumPy <code>float64</code> array when <code>sparse_matrix=False</code>.</td>
+</tr>
+<tr>
+<td><code>objective_convention</code></td>
+<td><code>"0.5 * x.T @ Q @ x + c.T @ x + offset"</code>.</td>
+</tr>
+<tr>
+<td><code>convex</code></td>
+<td><code>True</code>, after successful source-sense curvature validation.</td>
+</tr>
+<tr>
+<td><code>global_optimum_if_optimal</code></td>
+<td><code>True</code>: a proven optimum is global for this validated problem.</td>
+</tr>
+<tr>
+<td><code>hessian_extreme_eigenvalue</code></td>
+<td><code>float</code>: smallest eigenvalue of <code>Q</code> for MIN or of <code>-Q</code> for MAX.</td>
+</tr>
+<tr>
+<td><code>convexity_tolerance</code></td>
+<td><code>float</code>: <code>1e-9 * max(1, ||Q||_inf)</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Coefficients and <code>sense</code> retain source coordinates; MAX objectives are not negated in the returned matrices. The constraint matrix remains CSR by default, or dense when requested. Successful export updates the model's transformation records with the Hessian convention and curvature check.</p>
+<p>The returned matrix records <code>convex=True</code> and <code>global_optimum_if_optimal=True</code>. The latter means that an optimal solver status is a global result for the validated convex problem; exporting a matrix does not claim that a solve has already succeeded. If the smallest computed eigenvalue is negative but within the numerical uncertainty band, conversion asks you to rescale or reformulate the objective instead of assigning it a convex classification.</p>
+<p>QpiAI Opt's local solver uses finite-precision feasibility and optimality tolerances. Very small curvature or objective differences can produce a materially different coordinate with a nearly identical objective. Scale the objective and verify the returned source coordinates when that distinction matters. The reported objective is recomputed from the source expression.</p>
+<p>The general local numeric limits also apply: every nonzero Hessian or constraint coefficient must satisfy <code>1e-9 &lt; abs(value) &lt; 1e15</code>, and each linear objective coefficient and finite bound must have magnitude below <code>1e20</code>. See <a href="local-solving.html#numeric-input-range">Numeric input range</a>.</p>
+<h2 id="solve-and-verify">Solve and verify</h2>
+<p>Continuous QP is local-only.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">solve</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"QPIAI_OPT_API_KEY"</span><span class="p">])</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">time_limit</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+<span class="n">solve_summary</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"problem_class"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">problem_class</span><span class="p">,</span>
+    <span class="s2">"execution_mode"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">execution_mode</span><span class="p">,</span>
+    <span class="s2">"status"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
+    <span class="s2">"source_feasible"</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">is_feasible</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">solution</span><span class="p">),</span>
+    <span class="s2">"optimality_proven"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span><span class="p">()</span><span class="o">.</span><span class="n">optimality_proven</span><span class="p">,</span>
+    <span class="s2">"objective"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">objective</span><span class="p">,</span>
+    <span class="s2">"solution"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">solution</span><span class="p">,</span>
+    <span class="s2">"compute_time_s"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">compute_time_s</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The optimum of this model is <code>x=2</code>, <code>y=-1</code>, with objective <code>3</code>. An optimal result reports <code>problem_class="QP"</code>, <code>execution_mode="local"</code>, <code>status="optimal"</code>, and <code>optimality_proven=True</code>. The SDK recomputes the objective from the source expression and returned coordinates. Check source feasibility and the result's termination before using the solution.</p>
+<p><code>mode="platform"</code> raises <code>CapabilityError</code> for QP because the current platform contract does not advertise that class.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="milp-modeller.html"><span>Previous</span><strong>MILP modeller</strong></a><a class="pager-card next" href="qubo-modeller.html"><span>Next</span><strong>QUBO modeller</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#mathematical-form">Mathematical form</a><a class="toc-level-2" href="#build-a-convex-qp">Build a convex QP</a><a class="toc-level-2" href="#matrix-convention">Matrix convention</a><a class="toc-level-2" href="#solve-and-verify">Solve and verify</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

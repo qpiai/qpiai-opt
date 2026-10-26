@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Local solving and automatic routing">
+<title>Local solving and automatic routing | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/local-solving.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="local-solving">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="active" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Solving</span><span aria-hidden="true">&gt;</span><span>Local solving and automatic routing</span></div><article class="doc-content"><h1 id="local-solving-and-automatic-routing">Local solving and automatic routing</h1>
+<p><code>qpiai_opt.opt_solvers.solve()</code> is the common blocking entry point. This chapter covers calls without <code>algorithm</code>: the SDK detects the problem class, normalizes the representation, chooses an execution mode, and returns <code>SolveResult</code>. Calls with <code>algorithm</code> follow the <a href="quantum-optimization.html">gate-based optimization workflow</a> and return <code>QuantumResult</code>.</p>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">solve(
+    problem,
+    *,
+    mode="local",
+    client=None,
+    allow_platform=False,
+    **options,
+) -&gt; SolveResult
+</code></pre></div>
+<h2 id="accepted-problem-inputs">Accepted problem inputs</h2>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Detected class</th>
+<th>Requirements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Model</code></td>
+<td><code>LP</code>, <code>MILP</code>, <code>QP</code>, <code>QUBO</code>, <code>HUBO</code>, or <code>ISING</code></td>
+<td><code>Model.validate()</code> must accept its structure; <code>MIP</code> is normalized to <code>MILP</code></td>
+</tr>
+<tr>
+<td><code>QUBOProblem</code></td>
+<td><code>QUBO</code></td>
+<td>validated indices, finite coefficients, declared matrix format</td>
+</tr>
+<tr>
+<td><code>HUBOProblem</code></td>
+<td><code>HUBO</code></td>
+<td>tuple-key polynomial with finite coefficients; empty and constant polynomials are accepted locally</td>
+</tr>
+<tr>
+<td><code>IsingProblem</code></td>
+<td><code>ISING</code></td>
+<td>indexed linear/quadratic fields and finite offset</td>
+</tr>
+<tr>
+<td><code>.lp</code>, <code>.mps</code>, <code>.lp.gz</code>, <code>.mps.gz</code> path</td>
+<td><code>LP</code> or <code>MILP</code></td>
+<td>existing readable file; file integrality determines the class; Unicode paths are accepted</td>
+</tr>
+<tr>
+<td>linear dictionary</td>
+<td><code>LP</code> or <code>MILP</code></td>
+<td>either the <code>to_lp_matrix()</code> keys or <code>c</code>, <code>A</code>, <code>b_l</code>, <code>b_u</code>; optional bounds, integrality, names, sense, offset</td>
+</tr>
+<tr>
+<td><code>{(i, j): coefficient}</code></td>
+<td><code>QUBO</code></td>
+<td>tuple keys of degree two; interpreted as upper/direct polynomial coefficients</td>
+</tr>
+<tr>
+<td><code>{term_tuple: coefficient}</code></td>
+<td><code>HUBO</code></td>
+<td>at least one term with degree above two</td>
+</tr>
+<tr>
+<td>marked dictionary</td>
+<td>declared class</td>
+<td><code>problem_type</code> or <code>method</code> equal to <code>LP</code>, <code>MILP</code>, <code>MIP</code>, <code>QUBO</code>, <code>HUBO</code>, or <code>ISING</code></td>
+</tr>
+</tbody>
+</table>
+<p>An empty raw QUBO dictionary cannot imply a variable count. Use <code>QUBOProblem(num_variables=..., qubo_dict={})</code> instead. Ambiguous or unsupported objects raise <code>TypeError</code>; malformed recognized inputs raise <code>ValueError</code>, a modeller exception, or <code>pydantic.ValidationError</code>.</p>
+<p>Linear and Ising dictionaries reject unknown fields. Linear arrays require actual finite numeric values rather than booleans or numeric strings; integrality codes are the integers <code>0</code>, <code>1</code>, <code>2</code>, or <code>3</code>. If both <code>problem_type</code> and <code>method</code> are present they must agree, and an LP/MILP marker must agree with the supplied integrality vector. <code>inspect()</code> and <code>solve()</code> apply the same structural checks.</p>
+<p>Duplicate coordinates in a supplied SciPy sparse constraint matrix represent one mathematical coefficient and are combined independently of storage order. Malformed or non-finite aggregates are rejected before solver execution.</p>
+<h2 id="modes">Modes</h2>
+<table>
+<thead>
+<tr>
+<th><code>mode</code></th>
+<th>Additional arguments</th>
+<th>Payment behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>"local"</code></td>
+<td><code>client=Client(...)</code></td>
+<td>free local computation; online Opt authentication only</td>
+</tr>
+<tr>
+<td><code>"platform"</code></td>
+<td><code>client=Client(...)</code></td>
+<td>explicitly creates platform work and can consume credits</td>
+</tr>
+<tr>
+<td><code>"auto"</code></td>
+<td><code>client=Client(...)</code></td>
+<td>authenticated local attempt; propagates local-limit failure</td>
+</tr>
+<tr>
+<td><code>"auto"</code></td>
+<td><code>allow_platform=True</code>, <code>client=Client(...)</code></td>
+<td>tries local; only a <code>LocalLimitExceeded</code> triggers paid fallback</td>
+</tr>
+</tbody>
+</table>
+<p><code>allow_platform</code> must be a Boolean. <code>auto</code> does not fall back after validation, programming, infeasibility, transport, or solver failures.</p>
+<p>Registration and local solving are free. Register for an Opt key at <a href="https://opt.qpiai.tech/">QpiAI Opt</a>, load it from your application's secret manager, and initialize <code>client = Client(api_key=OPT_API_KEY)</code>. The compiled runtime verifies the key with the Opt service before each solve. Missing, rejected, expired, revoked, rate-limited, or unreachable authentication raises <code>AuthenticationError</code> before computation. The local verifier uses the production authentication endpoint independently of the platform client's <code>base_url</code> and HTTP session.</p>
+<p>Direct provider use follows the same rule: <code>LocalProvider(client=client).solve(problem, problem_class="QUBO")</code>. Installing without a compatible runtime does not enable a Python fallback; local execution raises an installation error. Modelling, classification, inspection, validation, conversion, and mathematical result checks do not authenticate.</p>
+<p>Platform accepts a <code>Model</code> or LP/MPS path for <code>LP</code>/<code>MILP</code>; its API does not accept the local matrix dictionary. Attempting that combination raises <code>CapabilityError</code> with <code>reason</code> and <code>compatible_alternatives</code>.</p>
+<h2 id="local-solver">Local solver</h2>
+<p>The base installation solves linear, mixed-integer linear, convex continuous quadratic, QUBO, HUBO, and Ising problems. LP and MPS files, including gzip files, use the same <code>solve(path, client=client)</code> call on Linux, macOS, and Windows. See the <a href="qp-modeller.html">QP chapter</a> for the continuous-QP curvature contract.</p>
+<h3 id="numeric-input-range">Numeric input range</h3>
+<p>For local LP, MILP, and continuous-QP models, each nonzero constraint-matrix or Hessian coefficient must satisfy <code>1e-9 &lt; abs(value) &lt; 1e15</code>. Every objective coefficient and every finite row or variable bound must have magnitude below <code>1e20</code>; the local solver interprets values at that boundary as infinite. Integer coefficients and bounds must be exactly representable in binary64, which limits exact integers to <code>abs(value) &lt;= 2**53</code>. Rescale a row or objective when a value lies outside these ranges. File inputs are rejected when loading would discard a matrix coefficient.</p>
+<p>Indicator bodies use a bounded big-M reformulation for LP/MILP export. If the active case would lose more than the SDK's <code>1e-6</code> source-feasibility tolerance through floating-point cancellation, compilation raises a numerical-stability error before solving. Tighten the body-variable bounds or rescale the model; the SDK does not return an optimum for a numerically weakened indicator.</p>
+<p>Local QUBO, HUBO, and Ising solving uses:</p>
+<ol>
+<li>direct exhaustive evaluation when the polynomial has at most 20 active variables and at most 2,000,000 estimated evaluation operations;</li>
+<li>native simulated annealing above that cutoff.</li>
+</ol>
+<p>The exhaustive method evaluates binary assignments for QUBO/HUBO and spin assignments in <code>{-1, +1}</code> for Ising.</p>
+<p>The annealer flips binary values for QUBO/HUBO and spin values for Ising. It evaluates HUBO terms at their original degree. The SDK recomputes the returned source objective from the original coefficients and assignment. For a MAX QUBO or HUBO, the search objective is sign-normalized and the result is restored to the source sense.</p>
+<p>A polynomial compiled from <code>Model</code> can already contain constraint penalties, domain encodings, or auxiliary variables created by the documented modeller compiler. Local solving preserves that compiled QUBO/HUBO/Ising form and decodes the selected assignment back to source variables.</p>
+<p>LP/MILP retains the linear solver's status and optimality-gap fields. Completed QUBO/HUBO/Ising results omit status and proof fields; use <code>result.info()</code> for termination and guarantee semantics.</p>
+<h2 id="local-options">Local options</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Classes</th>
+<th style="text-align: right;">Default</th>
+<th>Validation</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>time_limit</code></td>
+<td>LP/MILP</td>
+<td style="text-align: right;"><code>60.0</code></td>
+<td>Positive finite non-Boolean number</td>
+<td>Wall-clock solve limit in seconds</td>
+</tr>
+<tr>
+<td><code>mip_rel_gap</code></td>
+<td>MILP</td>
+<td style="text-align: right;"><code>1e-4</code></td>
+<td>Non-negative finite non-Boolean number</td>
+<td>Stop when the relative objective gap reaches this value</td>
+</tr>
+<tr>
+<td><code>node_limit</code></td>
+<td>MILP</td>
+<td style="text-align: right;">unset</td>
+<td>Positive non-Boolean integer</td>
+<td>Maximum branch-and-bound nodes</td>
+</tr>
+<tr>
+<td><code>time_limit</code></td>
+<td>QP</td>
+<td style="text-align: right;"><code>60.0</code></td>
+<td>Positive finite non-Boolean number</td>
+<td>Wall-clock solve limit in seconds</td>
+</tr>
+<tr>
+<td><code>num_reads</code></td>
+<td>QUBO/HUBO/Ising</td>
+<td style="text-align: right;"><code>8</code></td>
+<td>Positive non-Boolean integer; class limit below</td>
+<td>Independent annealing runs</td>
+</tr>
+<tr>
+<td><code>num_sweeps</code></td>
+<td>QUBO/HUBO/Ising</td>
+<td style="text-align: right;"><code>500</code></td>
+<td>Positive non-Boolean integer; class limit below</td>
+<td>Annealing sweeps per run</td>
+</tr>
+<tr>
+<td><code>seed</code></td>
+<td>QUBO/HUBO/Ising</td>
+<td style="text-align: right;"><code>0</code></td>
+<td>Integer from <code>0</code> through <code>2**32 - 1</code>; Booleans rejected</td>
+<td>Random seed</td>
+</tr>
+</tbody>
+</table>
+<p>Options for the wrong class raise <code>ValueError</code>; they are not ignored. The exact polynomial strategy is selected deterministically from model work, so annealing controls affect solving only above the exact cutoff. Reads, sweeps, term count, and interaction degree jointly bound sampled local work. A time-limited LP/MILP run returns <code>status="feasible"</code> when it has an incumbent, otherwise <code>status="limit_reached"</code>.</p>
+<p>A <code>HUBOProblem</code> may store <code>num_reads</code>, <code>num_sweeps</code>, and <code>seed</code> in <code>solver_config</code>; local solving uses them when the corresponding call argument is omitted. Other HUBO configuration keys are platform-only and local solving or inspection rejects them. Exhaustive enumeration does not use annealing settings and reports an empty settings dictionary through <code>result.info()</code>.</p>
+<p>Provider support is checked again when <code>auto</code> crosses a local structural limit. HUBO <code>num_reads</code>, <code>num_sweeps</code>, and <code>seed</code> retain the same names on the platform. QUBO and Ising platform resources do not expose those controls, so fallback raises <code>CapabilityError</code> naming the unsupported option instead of discarding it. For LP/MILP, <code>time_limit</code>, <code>mip_rel_gap</code>, and <code>node_limit</code> populate <code>MILPSolverConfig.time_limit</code>, <code>.mip_rel_gap</code>, and <code>.mip_max_nodes</code>. Do not combine these keyword options with an explicit <code>config</code> in the same high-level call. Platform-only lifecycle options such as <code>poll_interval</code> and <code>request_timeout</code> belong to <code>mode="platform"</code>; they are not accepted by the local-first <code>auto</code> attempt.</p>
+<h2 id="structural-limits">Structural limits</h2>
+<p>All thresholds live in <code>LOCAL_LIMITS</code> and are checked before solving. Counts are inclusive: a problem at the limit is accepted.</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th style="text-align: right;">Variables</th>
+<th style="text-align: right;">Constraints</th>
+<th style="text-align: right;">Terms/nonzeros</th>
+<th style="text-align: right;">Degree</th>
+<th style="text-align: right;">Reads</th>
+<th style="text-align: right;">Sweeps</th>
+<th style="text-align: right;">Annealing work</th>
+<th style="text-align: right;">File bytes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LP</td>
+<td style="text-align: right;">20,000</td>
+<td style="text-align: right;">20,000</td>
+<td style="text-align: right;">1,000,000 nonzeros</td>
+<td style="text-align: right;">Not applicable</td>
+<td style="text-align: right;">Not applicable</td>
+<td style="text-align: right;">Not applicable</td>
+<td style="text-align: right;">Not applicable</td>
+<td style="text-align: right;">50,000,000</td>
+</tr>
+<tr>
+<td>MILP</td>
+<td style="text-align: right;">20,000</td>
+<td style="text-align: right;">20,000</td>
+<td style="text-align: right;">1,000,000 nonzeros</td>
+<td style="text-align: right;">Not applicable</td>
+<td style="text-align: right;">Not applicable</td>
+<td style="text-align: right;">Not applicable</td>
+<td style="text-align: right;">Not applicable</td>
+<td style="text-align: right;">50,000,000</td>
+</tr>
+<tr>
+<td>QP</td>
+<td style="text-align: right;">1,000</td>
+<td style="text-align: right;">20,000</td>
+<td style="text-align: right;">1,000,000 linear / 100,000 Hessian nonzeros</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">Not applicable</td>
+<td style="text-align: right;">Not applicable</td>
+<td style="text-align: right;">Not applicable</td>
+<td style="text-align: right;">Not applicable</td>
+</tr>
+<tr>
+<td>QUBO</td>
+<td style="text-align: right;">250</td>
+<td style="text-align: right;">Not applicable</td>
+<td style="text-align: right;">5,000 terms</td>
+<td style="text-align: right;">2 by definition</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">5,000</td>
+<td style="text-align: right;">10,000,000</td>
+<td style="text-align: right;">Not applicable</td>
+</tr>
+<tr>
+<td>HUBO</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">Not applicable</td>
+<td style="text-align: right;">1,500 terms</td>
+<td style="text-align: right;">No separate limit</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">2,500</td>
+<td style="text-align: right;">10,000,000</td>
+<td style="text-align: right;">Not applicable</td>
+</tr>
+<tr>
+<td>ISING</td>
+<td style="text-align: right;">250</td>
+<td style="text-align: right;">Not applicable</td>
+<td style="text-align: right;">5,000 terms</td>
+<td style="text-align: right;">2 by definition</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">5,000</td>
+<td style="text-align: right;">10,000,000</td>
+<td style="text-align: right;">Not applicable</td>
+</tr>
+</tbody>
+</table>
+<p>The common annealing-work ceiling makes the polynomial classes consistent while accounting for the greater work of high-degree terms. For terms with degrees <code>d</code>, the reported work is:</p>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">num_reads * (
+    sum(max(1, d))
+    + num_sweeps * (active_variables + sum(d * max(1, d - 1)))
+)
+</code></pre></div>
+<p>This mirrors the native solver's initial energy calculation and incident-term work for each sweep. A dense model can therefore exceed the work limit even when its variable and term counts are individually accepted. Reduce <code>num_reads</code> or <code>num_sweeps</code>, reduce the interaction structure, or choose an external or platform solver.</p>
+<p>For polynomial inputs, <code>inspect()</code> reports:</p>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">exact_enumeration_work = 2**active_variables * (
+    max(1, active_variables + sum(degree(term)))
+)
+</code></pre></div>
+<p>An active variable appears in at least one nonzero term. Isolated variables do not multiply exact-search or annealing work; local results assign them deterministically to <code>0</code> for binary models or <code>-1</code> for Ising models. The exact strategy requires both <code>active_variables &lt;= 20</code> and <code>exact_enumeration_work &lt;= 2_000_000</code>; crossing either threshold selects native annealing and is not a local-limit failure. Call <code>inspect(problem)</code> to obtain validated structural and work metrics. Provider limits are available separately through <code>LOCAL_LIMITS</code>; exceeding them during a local solve raises <code>LocalLimitExceeded</code>.</p>
+<h2 id="resource-planning">Resource planning</h2>
+<p>Limits are resource-safety defaults for local development, CI, prototypes, and small practical models. <code>LOCAL_LIMITS</code> is public and can be inspected before a solve. For larger problems, use a solver directly or select platform execution.</p>
+<p>Local execution limits cover matrix and Hessian size, enumeration work, and topology-weighted annealing work. Compare the compiled representation's inspection metrics with <code>LOCAL_LIMITS</code> when selecting an execution route. Execution time also depends on coefficients, sparsity, and problem structure.</p>
+<p>Annealing quality varies with coefficients and interaction structure. Verify the source objective and, for a <code>Model</code>, call <code>feasibility()</code> when interpreting a returned candidate.</p>
+<h2 id="structured-failures">Structured failures</h2>
+<p><code>LocalLimitExceeded.as_dict()</code> returns:</p>
+<div class="code-shell"><div class="code-toolbar"><span>json</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-json"><span class="p">{</span>
+<span class="w">  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"local_limit_exceeded"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"problem_class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"QUBO"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"observed"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variables"</span><span class="p">:</span><span class="w"> </span><span class="mi">501</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"limits"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variables"</span><span class="p">:</span><span class="w"> </span><span class="mi">250</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"explanation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"variables=501 exceeds 250"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"next_action"</span><span class="p">:</span><span class="w"> </span><span class="s2">"reduce the model or call solve(..., mode='platform') explicitly; platform use may consume credits"</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>CapabilityError.as_dict()</code> similarly returns the detected class, requested mode, reason, provider capabilities, and compatible alternatives.</p>
+<p>A positive-size QUBO whose coefficients all normalize to zero is valid and solves locally. QpiAI Platform requires at least one nonzero QUBO coefficient; platform solving and submission reject this case before any request and direct the caller to local solving.</p>
+<h2 id="completed-result-contract">Completed result contract</h2>
+<p>Every completed result starts with <code>problem_class</code>, <code>execution_mode</code>, <code>job_id</code>, <code>problem_id</code>, <code>solver_time_s</code>, and <code>compute_time_s</code>. Local identifiers are <code>None</code>. <code>solver_time_s</code> measures the algorithm call; <code>compute_time_s</code> includes preparation and result processing. Platform optimization results use the service-reported durations; unavailable measurements remain <code>None</code>. Use <code>runtime("ms", kind="compute")</code> or <code>runtime("us", kind="solver")</code> and the corresponding <code>compute_time_ms</code>/<code>compute_time_us</code> or <code>solver_time_ms</code>/<code>solver_time_us</code> properties for other units. The typed <code>solve_info</code> field preserves execution details in ordinary Python and JSON dumps; <code>info()</code> returns the same interpretation.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"QPIAI_OPT_API_KEY"</span><span class="p">])</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+<span class="n">result_class</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">problem_class</span>
+<span class="n">execution_mode</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">execution_mode</span>
+<span class="n">runtime_seconds</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">compute_time_s</span>
+<span class="n">runtime_milliseconds</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">runtime</span><span class="p">(</span><span class="s2">"ms"</span><span class="p">)</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">)</span>
+<span class="n">serialized_runtime_fields</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">payload</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"solver_time_s"</span><span class="p">,</span> <span class="s2">"compute_time_s"</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Both measured durations serialize in seconds. Unit properties calculate views on demand; an unavailable duration stays <code>None</code>, and an unrepresentable unit conversion raises <code>ValueError</code>.</p>
+<p>LP, MILP, QP, QUBO, HUBO, and Ising result constructors accept <code>None</code> or stripped nonempty strings for job and problem IDs; local results require both IDs to be <code>None</code>. Durations accept <code>None</code> or finite nonnegative non-Boolean real values, normalized to <code>float</code>. Invalid identity, timing, or attached solve-information fields raise <code>pydantic.ValidationError</code>.</p>
+<h3 id="common-solve-information">Common solve information</h3>
+<p>The normal result stays specific to its problem class. Use <code>info()</code> only when you need the same interpretation across LP, MILP, QP, QUBO, HUBO, and Ising:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">info</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+
+<span class="n">info_payload</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">)</span>
+</code></pre></div>
+<p><code>info()</code> returns a detached deep copy of the validated <code>SolveInfo</code> stored in <code>result.solve_info</code>. Ordinary <code>model_dump()</code> and <code>model_dump(mode="json")</code> include that field, so method, settings, and guarantees travel with the completed result.</p>
+<p>For a manually constructed LP, MILP, QP, QUBO, HUBO, or Ising result with <code>solve_info=None</code>, <code>info()</code> derives an interpretation from the stored result fields. It does not recover execution settings or populate <code>solve_info</code>. The <a href="api-solvers.html#class-solveinfo">common information reference</a> defines constructor validation and consistency requirements.</p>
+<p>Persist the ordinary result dump and validate it with the corresponding class-specific result model when loading:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">record</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">)</span>
+<span class="n">restored</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+<span class="n">restored_info</span> <span class="o">=</span> <span class="n">restored</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+</code></pre></div>
+<p>Serialize <code>solve_info</code> with the result to retain method settings. See <a href="automation.html#blocking-solve">result deserialization</a> for result consumers.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>problem_class</code></td>
+<td>Identified mathematical class.</td>
+</tr>
+<tr>
+<td><code>execution_mode</code></td>
+<td><code>local</code> or <code>platform</code>.</td>
+</tr>
+<tr>
+<td><code>provider</code></td>
+<td>SDK or platform provider that executed the solve.</td>
+</tr>
+<tr>
+<td><code>solver</code></td>
+<td>Solver name when the SDK can identify it; otherwise <code>None</code>.</td>
+</tr>
+<tr>
+<td><code>method</code></td>
+<td>Mathematical or sampling method. Local polynomial results use <code>exhaustive-enumeration</code> or <code>simulated-annealing</code>.</td>
+</tr>
+<tr>
+<td><code>termination</code></td>
+<td><code>optimal</code> for a proven optimum; <code>completed</code> when a solve finished without proof or a more specific reported stop condition; otherwise <code>limit_reached</code>, <code>infeasible</code>, <code>unbounded</code>, <code>failed</code>, or <code>unknown</code>.</td>
+</tr>
+<tr>
+<td><code>has_usable_solution</code></td>
+<td>Whether the result contains a source-feasible candidate suitable for use.</td>
+</tr>
+<tr>
+<td><code>solution_feasible</code></td>
+<td>Source-model feasibility when it can be established; otherwise <code>None</code>.</td>
+</tr>
+<tr>
+<td><code>optimality_proven</code></td>
+<td>Whether global optimality was established; <code>None</code> only when the available result cannot answer.</td>
+</tr>
+<tr>
+<td><code>guarantee</code></td>
+<td><code>global_optimum</code>, <code>best_found</code>, <code>best_bound</code>, <code>feasible_only</code>, an infeasibility/unboundedness proof, <code>none</code>, or <code>unknown</code>. A best bound does not require an incumbent.</td>
+</tr>
+<tr>
+<td><code>source_objective</code></td>
+<td>Objective in the source model's sense and coordinates, when available.</td>
+</tr>
+<tr>
+<td><code>transformed</code></td>
+<td>Whether the submitted source was compiled or converted before solving; <code>None</code> when unknown.</td>
+</tr>
+<tr>
+<td><code>settings</code></td>
+<td>Known settings that materially describe the selected method, such as reads, sweeps, and seed.</td>
+</tr>
+</tbody>
+</table>
+<p>The provider and method identify the execution path. The <code>solver</code> field is runtime diagnostic metadata; use <code>problem_class</code>, <code>execution_mode</code>, and <code>method</code> to interpret the mathematical result.</p>
+<table>
+<thead>
+<tr>
+<th>Execution</th>
+<th><code>provider</code></th>
+<th><code>method</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Local LP</td>
+<td><code>qpiai-opt-local</code></td>
+<td><code>linear-programming</code></td>
+</tr>
+<tr>
+<td>Local MILP</td>
+<td><code>qpiai-opt-local</code></td>
+<td><code>mixed-integer-linear-programming</code></td>
+</tr>
+<tr>
+<td>Local QP</td>
+<td><code>qpiai-opt-local</code></td>
+<td><code>convex-quadratic-programming</code></td>
+</tr>
+<tr>
+<td>Local QUBO/HUBO/Ising</td>
+<td><code>qpiai-opt-local</code></td>
+<td><code>exhaustive-enumeration</code> or <code>simulated-annealing</code></td>
+</tr>
+<tr>
+<td>Platform LP/MILP</td>
+<td><code>qpiai-opt-platform</code></td>
+<td><code>linear-programming</code> or <code>mixed-integer-linear-programming</code></td>
+</tr>
+<tr>
+<td>Platform QUBO</td>
+<td><code>qpiai-opt-platform</code></td>
+<td><code>QUBO</code></td>
+</tr>
+<tr>
+<td>Platform HUBO</td>
+<td><code>qpiai-opt-platform</code></td>
+<td><code>HUBO</code></td>
+</tr>
+<tr>
+<td>Platform Ising</td>
+<td><code>qpiai-opt-platform</code></td>
+<td><code>QUBO</code>, because platform execution uses the explicit Ising-to-QUBO conversion</td>
+</tr>
+</tbody>
+</table>
+<p>Local annealing settings contain <code>num_reads</code>, <code>num_sweeps</code>, and <code>seed</code>; exact enumeration reports <code>{}</code> because those controls were not used. Platform MILP settings contain the submitted <code>MILPSolverConfig</code>, including SDK defaults, when the solver instance retained the request or the backend returned a scalar configuration. Platform HUBO settings contain the validated public configuration when the source problem is available. Platform QUBO and Ising settings are always <code>{}</code> because that platform configuration is not public.</p>
+<p>For local polynomial solving, exhaustive enumeration proves the optimum of the native polynomial. If a decoded candidate violates the source model, <code>has_usable_solution</code> and <code>solution_feasible</code> are false and its guarantee is <code>none</code>. Source-feasible simulated-annealing and platform polynomial candidates use <code>best_found</code>, without an optimality proof.</p>
+<h3 id="qubo-response">QUBO response</h3>
+<div class="code-shell"><div class="code-toolbar"><span>json</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-json"><span class="p">{</span>
+<span class="w">  </span><span class="nt">"problem_class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"QUBO"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"execution_mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"local"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"job_id"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"problem_id"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"solver_time_s"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.73e-05</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"compute_time_s"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.000682</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"solve_info"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"problem_class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"QUBO"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"execution_mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"local"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"qpiai-opt-local"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"solver"</span><span class="p">:</span><span class="w"> </span><span class="s2">"native-polynomial"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"exhaustive-enumeration"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"termination"</span><span class="p">:</span><span class="w"> </span><span class="s2">"optimal"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"has_usable_solution"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"solution_feasible"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"optimality_proven"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"guarantee"</span><span class="p">:</span><span class="w"> </span><span class="s2">"global_optimum"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"source_objective"</span><span class="p">:</span><span class="w"> </span><span class="mf">-2.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"transformed"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"settings"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"num_nodes"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"objective"</span><span class="p">:</span><span class="w"> </span><span class="mf">-2.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"variable_assignment"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"a"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"b"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"solution"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="mi">0</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>solution</code> is in QUBO index order. <code>variable_assignment</code> uses supplied names, source-model names, or generated <code>x[index]</code> names. <code>num_nodes</code> is the QUBO variable count for a local result and the returned platform node count for a platform result. See the <a href="qubo-solver.html#result-interpretation">QUBO result field reference</a>.</p>
+<h3 id="hubo-response">HUBO response</h3>
+<div class="code-shell"><div class="code-toolbar"><span>json</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-json"><span class="p">{</span>
+<span class="w">  </span><span class="nt">"problem_class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"HUBO"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"execution_mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"local"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"job_id"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"problem_id"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"solver_time_s"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.83e-05</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"compute_time_s"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0002445</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"solve_info"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"problem_class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"HUBO"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"execution_mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"local"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"qpiai-opt-local"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"solver"</span><span class="p">:</span><span class="w"> </span><span class="s2">"native-polynomial"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"exhaustive-enumeration"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"termination"</span><span class="p">:</span><span class="w"> </span><span class="s2">"optimal"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"has_usable_solution"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"solution_feasible"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"optimality_proven"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"guarantee"</span><span class="p">:</span><span class="w"> </span><span class="s2">"global_optimum"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"source_objective"</span><span class="p">:</span><span class="w"> </span><span class="mf">-3.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"transformed"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"settings"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"num_variables"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"objective"</span><span class="p">:</span><span class="w"> </span><span class="mf">-3.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"variable_assignment"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"a"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"b"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"c"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"solution"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="mi">1</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>solution</code> follows deterministic label order and contains only binary values. See the <a href="hubo-solver.html#result-interpretation">HUBO result field reference</a>.</p>
+<h3 id="ising-response">Ising response</h3>
+<div class="code-shell"><div class="code-toolbar"><span>json</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-json"><span class="p">{</span>
+<span class="w">  </span><span class="nt">"problem_class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ISING"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"execution_mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"local"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"job_id"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"problem_id"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"solver_time_s"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.39e-05</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"compute_time_s"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0002342</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"solve_info"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"problem_class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ISING"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"execution_mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"local"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"qpiai-opt-local"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"solver"</span><span class="p">:</span><span class="w"> </span><span class="s2">"native-polynomial"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"exhaustive-enumeration"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"termination"</span><span class="p">:</span><span class="w"> </span><span class="s2">"optimal"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"has_usable_solution"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"solution_feasible"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"optimality_proven"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"guarantee"</span><span class="p">:</span><span class="w"> </span><span class="s2">"global_optimum"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"source_objective"</span><span class="p">:</span><span class="w"> </span><span class="mf">-2.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"transformed"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"settings"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"num_variables"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"objective"</span><span class="p">:</span><span class="w"> </span><span class="mf">-2.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"variable_assignment"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"s0"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"s1"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"solution"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="mi">-1</span><span class="p">,</span>
+<span class="w">    </span><span class="mi">-1</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>solution</code> contains spins in <code>{-1, +1}</code> and <code>objective</code> is in the source Ising sense. See <a href="ising-modeller.html#solve">Ising solving</a>.</p>
+<p>QUBO, HUBO, and Ising keep the same compact response shape for exhaustive and sampled candidates. Use <code>result.info()</code> for method and guarantee information. Platform job lifecycle state remains available through <code>status(client, job_id)</code> and the platform website.</p>
+<h3 id="lp-and-milp-response">LP and MILP response</h3>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">linear_result</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"status"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
+    <span class="s2">"solution"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">solution</span><span class="p">,</span>
+    <span class="s2">"objective"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">objective</span><span class="p">,</span>
+    <span class="s2">"best_bound"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">best_bound</span><span class="p">,</span>
+    <span class="s2">"optimality_gap"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">optimality_gap</span><span class="p">,</span>
+    <span class="s2">"optimality_proven"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span><span class="p">()</span><span class="o">.</span><span class="n">optimality_proven</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>model_status</code> preserves the solver's diagnostic text. The normalized <code>status</code> has these meanings:</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Meaning</th>
+<th>Safe use of <code>solution</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>optimal</code></td>
+<td>The solver reported an optimum; a MILP incumbent and bound also agree.</td>
+<td>Present and validated.</td>
+</tr>
+<tr>
+<td><code>feasible</code></td>
+<td>A valid incumbent exists, but optimality was not established.</td>
+<td>Present; treat it as an incumbent.</td>
+</tr>
+<tr>
+<td><code>limit_reached</code></td>
+<td>A work/time limit ended the solve without a valid incumbent.</td>
+<td><code>None</code>.</td>
+</tr>
+<tr>
+<td><code>infeasible</code></td>
+<td>No assignment satisfies the model.</td>
+<td><code>None</code>.</td>
+</tr>
+<tr>
+<td><code>unbounded</code></td>
+<td>The source objective has no finite optimum in its improving direction.</td>
+<td><code>None</code> or a finite point; no optimum.</td>
+</tr>
+<tr>
+<td><code>failed</code></td>
+<td>The solver did not provide a valid successful outcome.</td>
+<td><code>None</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Some unbounded QP solves include a feasible point found before the unbounded direction was established. In that case <code>info().has_usable_solution</code> and <code>solution_feasible</code> are true, while <code>termination</code> remains <code>unbounded</code> and the point must not be presented as an optimum.</p>
+<p><code>objective</code>, <code>best_bound</code>, and <code>optimality_gap</code> use the source MIN/MAX coordinates and include the source objective constant. Optional dual, basis, ranging, pool, and IIS fields remain <code>None</code> unless requested and supplied. The <a href="milp-solver.html#result-interpretation">MILP result reference</a> defines every field and optional diagnostic model.</p>
+<h3 id="qp-response">QP response</h3>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">qp_result</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"status"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
+    <span class="s2">"solution"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">solution</span><span class="p">,</span>
+    <span class="s2">"objective"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">objective</span><span class="p">,</span>
+    <span class="s2">"iteration_count"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">iteration_count</span><span class="p">,</span>
+    <span class="s2">"optimality_proven"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span><span class="p">()</span><span class="o">.</span><span class="n">optimality_proven</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>QP uses the same normalized status meanings where applicable. It has no MILP node, bound, gap, basis, pool, or IIS fields. Continuous QP is local-only; see the <a href="qp-modeller.html#solve-and-verify">QP solve and verification guide</a>.</p>
+<h3 id="verify-before-using-a-candidate">Verify before using a candidate</h3>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">feasibility</span>
+
+<span class="n">values</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">solution</span> <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">problem_class</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">"LP"</span><span class="p">,</span> <span class="s2">"MILP"</span><span class="p">,</span> <span class="s2">"QP"</span><span class="p">}</span> <span class="k">else</span> <span class="n">result</span><span class="o">.</span><span class="n">variable_assignment</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="n">values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="n">feasibility</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+    <span class="n">source_feasible</span> <span class="o">=</span> <span class="n">report</span><span class="p">[</span><span class="s2">"feasible"</span><span class="p">]</span>
+</code></pre></div>
+<p><code>feasibility()</code> accepts model/source names and any deterministic auxiliary columns returned for that model. It rejects unknown keys so a misspelled name cannot be silently ignored. Its complete return shape is documented in the <a href="api-solvers.html#function-feasibility">feasibility reference</a>.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="performance.html"><span>Previous</span><strong>Modeller limits and capacity</strong></a><a class="pager-card next" href="qubo-solver.html"><span>Next</span><strong>QUBO solver</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#accepted-problem-inputs">Accepted problem inputs</a><a class="toc-level-2" href="#modes">Modes</a><a class="toc-level-2" href="#local-solver">Local solver</a><a class="toc-level-3" href="#numeric-input-range">Numeric input range</a><a class="toc-level-2" href="#local-options">Local options</a><a class="toc-level-2" href="#structural-limits">Structural limits</a><a class="toc-level-2" href="#resource-planning">Resource planning</a><a class="toc-level-2" href="#structured-failures">Structured failures</a><a class="toc-level-2" href="#completed-result-contract">Completed result contract</a><a class="toc-level-3" href="#common-solve-information">Common solve information</a><a class="toc-level-3" href="#qubo-response">QUBO response</a><a class="toc-level-3" href="#hubo-response">HUBO response</a><a class="toc-level-3" href="#ising-response">Ising response</a><a class="toc-level-3" href="#lp-and-milp-response">LP and MILP response</a><a class="toc-level-3" href="#qp-response">QP response</a><a class="toc-level-3" href="#verify-before-using-a-candidate">Verify before using a candidate</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

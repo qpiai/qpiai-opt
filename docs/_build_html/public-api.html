@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Public Python API">
+<title>Public Python API | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/public-api.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="public-api">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="active" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Reference</span><span aria-hidden="true">&gt;</span><span>Public Python API</span></div><article class="doc-content"><h1 id="public-python-api">Public Python API</h1>
+<p>This index covers the supported import namespaces. Detailed reference pages preserve exact signatures; the workflow chapters explain mathematical meaning, input contracts, returned fields, and corrective actions.</p>
+<table>
+<thead>
+<tr>
+<th>Namespace</th>
+<th>Exact reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>qpiai_opt</code></td>
+<td>Root package; exposes the <code>opt_modeller</code> and <code>opt_solvers</code> package attributes only</td>
+</tr>
+<tr>
+<td><code>qpiai_opt.opt_modeller</code></td>
+<td><a href="api-modeller.html">Modeller API</a></td>
+</tr>
+<tr>
+<td><code>qpiai_opt.opt_modeller.formats</code></td>
+<td><a href="api-formats.html">Representation utilities</a></td>
+</tr>
+<tr>
+<td><code>qpiai_opt.opt_modeller.compiler</code></td>
+<td><a href="api-formats.html#function-lower_expression">Binary expression lowering</a></td>
+</tr>
+<tr>
+<td><code>qpiai_opt.opt_solvers</code></td>
+<td><a href="api-solvers.html">Common solver API</a></td>
+</tr>
+<tr>
+<td><code>qpiai_opt.opt_solvers.qubo</code></td>
+<td><a href="api-qubo.html">QUBO solver API</a></td>
+</tr>
+<tr>
+<td><code>qpiai_opt.opt_solvers.hubo</code></td>
+<td><a href="api-hubo.html">HUBO solver API</a></td>
+</tr>
+<tr>
+<td><code>qpiai_opt.opt_solvers.milp</code></td>
+<td><a href="api-milp.html">MILP solver API</a></td>
+</tr>
+<tr>
+<td><code>qpiai_opt.opt_solvers.ising</code></td>
+<td><a href="api-solvers.html#class-isingproblem">Ising problem API</a></td>
+</tr>
+<tr>
+<td><code>qpiai_opt.quantum</code></td>
+<td><a href="api-quantum.html">Gate-based optimization API</a> and <a href="quantum-optimization.html">gate-based optimization workflow</a></td>
+</tr>
+<tr>
+<td><code>qpiai_opt.opt_modeller.utils.exceptions</code></td>
+<td><a href="exceptions.html#modeller-exceptions">Modeller exceptions</a></td>
+</tr>
+<tr>
+<td><code>qpiai_opt.opt_modeller.constraints</code></td>
+<td><a href="api-modeller.html#relational-constraints">Relational and logical base types</a>, also exported alongside the concrete constraints</td>
+</tr>
+</tbody>
+</table>
+<p>The namespaces listed above are the supported import locations. Import public objects from the listed child namespaces; the root package does not re-export their symbols. The reference documents every supported object available from them.</p>
+<h2 id="core-model-and-algebra">Core model and algebra</h2>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Model</code></td>
+<td>Owns objective, constraints, variables, parameters, export, compilation, summary, and transformation records.</td>
+</tr>
+<tr>
+<td><code>Expression</code>, <code>Term</code></td>
+<td>Validated polynomial AST and one coefficient/factor term.</td>
+</tr>
+<tr>
+<td><code>quicksum</code>, <code>dot</code></td>
+<td>Construct symbolic sums and dot products; empty inputs return a constant-zero expression.</td>
+</tr>
+<tr>
+<td><code>IndexedVariables</code></td>
+<td>Deterministic multidimensional variable container.</td>
+</tr>
+<tr>
+<td><code>Parameter</code></td>
+<td>Validated mutable scalar bound to supported model coefficients, RHS values, or bounds.</td>
+</tr>
+</tbody>
+</table>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Binary</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">quicksum</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">Binary</span><span class="p">(</span><span class="sa">f</span><span class="s2">"x[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"api"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">quicksum</span><span class="p">((</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)))</span>
+<span class="n">capacity</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">"capacity"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_parameter</span><span class="p">(</span><span class="n">capacity</span><span class="p">)</span>
+</code></pre></div>
+<p>See <a href="modelling-workflows.html">modelling workflows</a>.</p>
+<h2 id="variable-domains-and-helpers">Variable domains and helpers</h2>
+<p><code>Variable</code> is the common base. <code>Binary</code>, <code>Spin</code>, <code>Integer</code>, <code>Continuous</code>, <code>SemiContinuous</code>, <code>SemiInteger</code>, <code>Fraction</code>, and <code>Mixed</code> validate their documented domains. <code>create_binary_array</code> and <code>create_spin_array</code> create named arrays, including empty arrays when <code>size=0</code>.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Binary</span><span class="p">,</span> <span class="n">Continuous</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">Spin</span>
+
+<span class="n">b</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"selected"</span><span class="p">)</span>
+<span class="n">i</span> <span class="o">=</span> <span class="n">Integer</span><span class="p">(</span><span class="s2">"units"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">Continuous</span><span class="p">(</span><span class="s2">"flow"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">Spin</span><span class="p">(</span><span class="s2">"orientation"</span><span class="p">)</span>
+</code></pre></div>
+<p>Domain-specific rules are in the <a href="milp-modeller.html">MILP</a>, <a href="qubo-modeller.html">QUBO</a>, <a href="hubo-modeller.html">HUBO</a>, and <a href="ising-modeller.html">Ising</a> chapters.</p>
+<h2 id="constraints-and-piecewise-modelling">Constraints and piecewise modelling</h2>
+<p><code>SOS1</code>, <code>SOS2</code>, and <code>Indicator</code> are exact MILP constructs. <code>AND</code>, <code>OR</code>, <code>XOR</code>, and <code>NOT</code> construct binary logical constraints. <code>CustomPenalty</code> is an explicit soft polynomial energy. <code>Model.estimate_penalty_weight(constraint)</code> returns the compiler's automatic hard-constraint weight without changing the model. <code>PiecewiseLinear</code> is the descriptor returned by the model's exact SOS2 interpolation method.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Binary</span><span class="p">,</span> <span class="n">Indicator</span><span class="p">,</span> <span class="n">SOS1</span>
+
+<span class="n">active</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"active"</span><span class="p">),</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"a"</span><span class="p">),</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"b"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">SOS1</span><span class="p">(</span><span class="s2">"choose"</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">Indicator</span><span class="p">(</span><span class="n">active</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">))</span>
+</code></pre></div>
+<p>See <a href="milp-modeller.html">MILP constraints</a>, <a href="qubo-modeller.html">QUBO penalties</a>, and <a href="piecewise-linear.html">piecewise-linear relationships</a>.</p>
+<h2 id="encoders-and-representation-converters">Encoders and representation converters</h2>
+<p><code>encode_integer_binary</code>, <code>encode_continuous</code>, and <code>encode_fraction</code> return the single domain encoding used by compilation. <code>hubo_to_qubo</code>, <code>hubo_to_ising</code>, <code>qubo_to_milp</code>, <code>milp_to_qubo</code>, <code>qubo_to_ising</code>, and <code>ising_to_qubo</code> perform explicit exact representation transformations within their stated scope.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">hubo_to_qubo</span><span class="p">,</span> <span class="n">qubo_to_ising</span>
+
+<span class="n">reduced</span> <span class="o">=</span> <span class="n">hubo_to_qubo</span><span class="p">({(</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">):</span> <span class="o">-</span><span class="mi">2</span><span class="p">})</span>
+<span class="n">ising</span> <span class="o">=</span> <span class="n">qubo_to_ising</span><span class="p">(</span><span class="n">reduced</span><span class="o">.</span><span class="n">qubo</span><span class="p">,</span> <span class="n">constant</span><span class="o">=</span><span class="n">reduced</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span>
+<span class="n">conversion_steps</span> <span class="o">=</span> <span class="n">reduced</span><span class="o">.</span><span class="n">transformations</span>
+</code></pre></div>
+<p>The conversion records are <code>HUBOToQUBOConvert</code>, <code>QUBOToMILPConvert</code>, <code>MILPToQUBOConvert</code>, <code>QUBOToIsingConvert</code>, <code>HUBOToIsingConvert</code>, and <code>IsingToQUBOConvert</code>. Their dataclass field assignments are frozen, but nested dictionaries and retained models remain mutable. See their exact <a href="api-modeller.html#function-hubo_to_qubo">conversion contracts</a>, <a href="transformations.html">transformation inspection</a>, and <a href="interoperability.html">interoperability</a>.</p>
+<h2 id="canonical-ir">Canonical IR</h2>
+<p><code>IR_VERSION</code>, <code>to_ir</code>, <code>from_ir</code>, <code>dumps</code>, <code>loads</code>, <code>dump</code>, and <code>load</code> expose the versioned JSON-safe process/storage representation.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">dumps</span><span class="p">,</span> <span class="n">loads</span>
+
+<span class="n">serialized</span> <span class="o">=</span> <span class="n">dumps</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="n">restored</span> <span class="o">=</span> <span class="n">loads</span><span class="p">(</span><span class="n">serialized</span><span class="p">)</span>
+</code></pre></div>
+<p>See <a href="model-ir.html">canonical model IR</a> for version and trust boundaries.</p>
+<h2 id="common-solver-flow">Common solver flow</h2>
+<p><code>classify</code> and <code>inspect</code> perform no solve. <code>solve</code> routes a blocking solve. <code>provider_capabilities</code> describes local/platform class support. <code>LOCAL_LIMITS</code> contains the machine-readable local size limits.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">inspect</span><span class="p">,</span> <span class="n">provider_capabilities</span><span class="p">,</span> <span class="n">solve</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"QPIAI_OPT_API_KEY"</span><span class="p">])</span>
+
+<span class="n">inspection</span> <span class="o">=</span> <span class="n">inspect</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="n">capabilities</span> <span class="o">=</span> <span class="n">provider_capabilities</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"local"</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+</code></pre></div>
+<p>See <a href="local-solving.html">local solving</a>.</p>
+<h2 id="automation-operations">Automation operations</h2>
+<p><code>convert</code>, <code>feasibility</code>, <code>submit</code>, <code>status</code>, <code>result</code>, <code>cancel</code>, and <code>schemas</code> form the strict Python automation surface.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">feasibility</span><span class="p">,</span> <span class="n">schemas</span>
+
+<span class="n">result_schema</span> <span class="o">=</span> <span class="n">schemas</span><span class="p">()[</span><span class="s2">"solve_result"</span><span class="p">]</span>
+<span class="n">feasibility_report</span> <span class="o">=</span> <span class="n">feasibility</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">solution</span><span class="p">)</span>
+</code></pre></div>
+<p><code>submit</code> is explicitly platform-only and may consume credits. See the <a href="automation.html">agent operational contract</a>.</p>
+<h2 id="gate-based-optimization">Gate-based optimization</h2>
+<p><code>qpiai_opt.quantum</code> exports <code>QAOA</code>, <code>VQE</code>, <code>SamplingVQE</code>, <code>RecursiveQAOA</code>, <code>ADAPTQAOA</code>, <code>WarmStart</code>, <code>CVaR</code>, <code>XYMixer</code>, <code>QuantumRun</code>, <code>QuantumResult</code>, <code>QuantumDiagnostics</code>, <code>LogicalCircuitInfo</code>, <code>QuantumSample</code>, <code>QuantumSolveInfo</code>, and <code>build_circuit</code>. It also re-exports the <code>qpiai_quantum.Circuit</code>, <code>QubitHamiltonian</code>, and <code>QpiAIQuantumAuth</code> types without exposing lower-level QCloud clients or job managers.</p>
+<p>Obtain a free QCloud API key at <a href="https://qcloud.qpiai.tech/">QpiAI QCloud</a> and supply it to <code>QpiAIQuantumAuth.login</code>.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">solve</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.quantum</span><span class="w"> </span><span class="kn">import</span> <span class="n">QAOA</span><span class="p">,</span> <span class="n">QpiAIQuantumAuth</span><span class="p">,</span> <span class="n">QuantumRun</span>
+
+<span class="n">QpiAIQuantumAuth</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"QPIAI_QCLOUD_API_KEY"</span><span class="p">])</span>
+
+<span class="n">qubo</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"quantum_selection"</span><span class="p">)</span>
+<span class="n">qubo</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="o">-</span><span class="n">a</span> <span class="o">-</span> <span class="n">b</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span><span class="p">)</span>
+<span class="n">problem</span> <span class="o">=</span> <span class="n">qubo</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s2">"QUBO"</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span>
+    <span class="n">problem</span><span class="p">,</span>
+    <span class="n">algorithm</span><span class="o">=</span><span class="n">QAOA</span><span class="p">(</span><span class="n">reps</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+    <span class="n">execution</span><span class="o">=</span><span class="n">QuantumRun</span><span class="p">(</span><span class="n">shots</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>For QCloud execution, omit <code>QuantumRun.device_name</code> for the default or supply a supported device name chosen by the user or application. <code>QpiAIQuantumAuth.list_compute_resources(display=False)</code> is a separate, optional view of the authenticated user's resources; it does not determine or validate the selection. Authentication and resource inspection remain QpiAI Quantum SDK operations, and the optimization SDK adds no account-management client. See <a href="quantum-optimization.html">gate-based optimization</a> for Hamiltonian conventions, supported compositions, device selection, execution boundaries, inspection, and result semantics.</p>
+<h2 id="ommx">OMMX</h2>
+<p><code>to_ommx</code> and <code>from_ommx</code> move the supported model subset through the optional OMMX ecosystem. <code>Model.to_ommx()</code> and <code>Model.from_ommx()</code> are equivalent conveniences.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">from_ommx</span><span class="p">,</span> <span class="n">to_ommx</span>
+
+<span class="n">exchange_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"exchange"</span><span class="p">)</span>
+<span class="n">flow</span> <span class="o">=</span> <span class="n">Continuous</span><span class="p">(</span><span class="s2">"exchange_flow"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">exchange_model</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">flow</span><span class="p">)</span>
+<span class="n">exchange_model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">flow</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">instance</span> <span class="o">=</span> <span class="n">to_ommx</span><span class="p">(</span><span class="n">exchange_model</span><span class="p">)</span>
+<span class="n">restored</span> <span class="o">=</span> <span class="n">from_ommx</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+</code></pre></div>
+<p>Install <code>qpiai-opt[ommx]</code>; unsupported constructs raise before conversion. See <a href="interoperability.html#ommx-bridge">interoperability</a>.</p>
+<h2 id="platform-client-and-resource-models">Platform client and resource models</h2>
+<p><code>Client</code> exposes authenticated platform operations. <code>Problem</code>, <code>Job</code>, <code>JobStatus</code>, <code>ComputeResource</code>, <code>Organization</code>, <code>Workspace</code>, <code>Project</code>, <code>Experiment</code>, <code>Invitation</code>, <code>UserSummary</code>, <code>SSEEvent</code>, <code>CreditUsage</code>, <code>CreditUsageByResource</code>, <code>CreditUsageJob</code>, <code>CreditResourceUsage</code>, and <code>CreditQuota</code> validate returned platform data. The client exposes read-only credit usage and quota methods; see <a href="platform-client.html#credit-usage-and-allocations">credit usage and allocations</a>.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">JobStatus</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"QPIAI_OPT_API_KEY"</span><span class="p">])</span>
+<span class="n">jobs</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_jobs</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">JobStatus</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">)</span>
+<span class="n">resources</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_solvers</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">"QUBO"</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># advanced pinning only</span>
+</code></pre></div>
+<p>Job-list filters use <code>pending</code>, <code>running</code>, <code>completed</code>, <code>failed</code>, and <code>cancelled</code>. See <a href="platform-client.html">platform client</a>. Normal solve calls do not need a <code>compute_resource_id</code>.</p>
+<h2 id="results-and-errors">Results and errors</h2>
+<p><code>SolveResult</code> is the union of completed LP, MILP, QP, QUBO, HUBO, and Ising results. <code>SolveInfo</code> is their common interpretation; gate-based optimization algorithms return the separate <code>QuantumResult</code> and <code>QuantumSolveInfo</code> types. <code>schemas()["solve_result"]</code> covers both result families. <code>IsingSolveResult</code> and <code>QPSolveResult</code> are directly exported; QUBO, HUBO, and MILP result types live in their solver subpackages. Each of <code>qpiai_opt.opt_solvers.qubo</code>, <code>qpiai_opt.opt_solvers.hubo</code>, and <code>qpiai_opt.opt_solvers.milp</code> exports its class-specific <code>SolveResult</code>, <code>JobSubmissionResponse</code>, and <code>JobStatusResponse</code> alongside its problem/config and solver classes.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SolveInfo</span>
+
+<span class="n">result_identity</span> <span class="o">=</span> <span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">problem_class</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">execution_mode</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">compute_time_s</span><span class="p">)</span>
+<span class="n">solve_information</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span><span class="p">()</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">)</span>
+<span class="n">serialized_result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">)</span>
+</code></pre></div>
+<p><code>info()</code> returns the common interpretation carried in the serialized <code>solve_info</code> field. Ordinary class-specific result dumps preserve it. See the <a href="local-solving.html#common-solve-information">common solve information</a> table.</p>
+<p><code>PlatformError</code> is the solver/API base error. <code>APIError</code>, <code>AuthenticationError</code>, <code>CapabilityError</code>, <code>JobFailedError</code>, <code>JobCancelledError</code>, and <code>LocalLimitExceeded</code> distinguish corrective actions and expose structured details where applicable.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalLimitExceeded</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">solve</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">LocalLimitExceeded</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+    <span class="n">limit_details</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+</code></pre></div>
+<p>See <a href="exceptions.html">exception reference</a>, <a href="local-solving.html#completed-result-contract">result semantics</a>, <a href="local-solving.html#structured-failures">local failures</a>, and <a href="platform-client.html">platform recovery</a>.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="automation.html"><span>Previous</span><strong>Automation and agent workflows</strong></a><a class="pager-card next" href="api-quantum.html"><span>Next</span><strong>Gate-based optimization API reference</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#core-model-and-algebra">Core model and algebra</a><a class="toc-level-2" href="#variable-domains-and-helpers">Variable domains and helpers</a><a class="toc-level-2" href="#constraints-and-piecewise-modelling">Constraints and piecewise modelling</a><a class="toc-level-2" href="#encoders-and-representation-converters">Encoders and representation converters</a><a class="toc-level-2" href="#canonical-ir">Canonical IR</a><a class="toc-level-2" href="#common-solver-flow">Common solver flow</a><a class="toc-level-2" href="#automation-operations">Automation operations</a><a class="toc-level-2" href="#gate-based-optimization">Gate-based optimization</a><a class="toc-level-2" href="#ommx">OMMX</a><a class="toc-level-2" href="#platform-client-and-resource-models">Platform client and resource models</a><a class="toc-level-2" href="#results-and-errors">Results and errors</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Ising modeller">
+<title>Ising modeller | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/ising-modeller.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="ising-modeller">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="active" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Modelling</span><span aria-hidden="true">&gt;</span><span>Ising modeller</span></div><article class="doc-content"><h1 id="ising-modeller">Ising modeller</h1>
+<p>The SDK supports native spin expressions, indexed coefficient dictionaries, and exact QUBO conversion. Local solving works directly in the spin domain. Explicit platform execution converts to the platform's QUBO representation and restores spins and the source objective.</p>
+<h2 id="mathematical-form">Mathematical form</h2>
+<p>An Ising problem uses spins <span class="arithmatex">\(s_i \in \{-1,+1\}\)</span> and the objective</p>
+<div class="arithmatex">\[
+E(s)=c+\sum_i h_i s_i+\sum_{i&lt;j}J_{ij}s_i s_j.
+\]</div>
+<h2 id="model-and-compile">Model and compile</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">create_spin_array</span>
+
+<span class="n">s</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">create_spin_array</span><span class="p">(</span><span class="s2">"spin"</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"native_ising"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">maximize</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">s</span> <span class="o">-</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">s</span> <span class="o">*</span> <span class="n">t</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">problem</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+<span class="n">ising_data</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to_ising_dict</span><span class="p">()</span>
+</code></pre></div>
+<p><code>compile()</code> returns an <code>IsingProblem</code> with an independent source snapshot. <code>to_ising_dict()</code> returns its mathematical fields as a dictionary, including <code>problem_type</code>, variable count, source <code>sense</code>, offset, names, fields, and couplings. Both minimization and maximization retain the source coefficients in that dictionary. The solver performs any required minimization normalization internally.</p>
+<p>A native spin model contains only <code>Spin</code> variables and no stored constraints. Repeated powers reduce by parity: <span class="arithmatex">\(s_i^2=1\)</span>, so even powers are constants and odd powers retain one spin. After parity reduction, a term may contain at most two distinct spins. Higher-order spin interactions are rejected. <code>Spin(name)</code> creates one variable; <code>create_spin_array(prefix, size)</code> creates deterministic names and permits size zero.</p>
+<h2 id="isingproblem">IsingProblem</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers.ising</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsingProblem</span>
+
+<span class="n">problem</span> <span class="o">=</span> <span class="n">IsingProblem</span><span class="p">(</span>
+    <span class="n">num_variables</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">linear</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">},</span>
+    <span class="n">quadratic</span><span class="o">=</span><span class="p">{(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="o">-</span><span class="mf">3.0</span><span class="p">},</span>
+    <span class="n">offset</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
+    <span class="n">sense</span><span class="o">=</span><span class="s2">"MAX"</span><span class="p">,</span>
+    <span class="n">variable_names</span><span class="o">=</span><span class="p">(</span><span class="s2">"left"</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>problem_type</code></td>
+<td>Always <code>"ISING"</code>.</td>
+</tr>
+<tr>
+<td><code>num_variables</code></td>
+<td>Non-negative register size.</td>
+</tr>
+<tr>
+<td><code>sense</code></td>
+<td><code>"MIN"</code> or <code>"MAX"</code>, with coefficients in source coordinates.</td>
+</tr>
+<tr>
+<td><code>offset</code></td>
+<td>Finite source-objective constant.</td>
+</tr>
+<tr>
+<td><code>variable_names</code></td>
+<td>Empty tuple or one unique non-empty name per spin.</td>
+</tr>
+<tr>
+<td><code>linear</code></td>
+<td>Indexed finite fields; zero fields are omitted.</td>
+</tr>
+<tr>
+<td><code>quadratic</code></td>
+<td>Finite pair couplings, aggregated to <code>i &lt; j</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Self-couplings contribute to the offset because <span class="arithmatex">\(s_i s_i=1\)</span>. Mirrored entries aggregate into one pair. Input dictionaries are copied during validation. Invalid indices, counts, names, coefficients, offsets, senses, or aggregation overflow raise.</p>
+<p><code>IsingProblem.from_model(model, **compile_options)</code> is also available. A binary or supported encoded source model first compiles to QUBO, then converts to Ising. Its source snapshot retains the encodings, constraint penalties, variable order, source sense, and transformations. Native spin sources accept no binary-encoding options.</p>
+<h2 id="evaluate-and-decode">Evaluate and decode</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">sample</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"left"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">}</span>
+<span class="n">energy</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">energy</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+<span class="n">assignment</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+<span class="n">source_objective</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">source_objective</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+</code></pre></div>
+<p>Samples may be a sequence of exactly <code>num_variables</code> spins, an index-keyed dictionary, or a dictionary covering all declared names. Simultaneously supplied index and named values must agree. Missing or out-of-domain values raise.</p>
+<p><code>energy()</code> evaluates the stored spin polynomial in its source coordinates. For a model-derived problem, <code>decode()</code> restores the original variables, including binary and numeric encodings; <code>source_objective()</code> evaluates that original model. For a directly constructed spin problem, the source objective is its energy.</p>
+<h2 id="solve">Solve</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">solve</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"QPIAI_OPT_API_KEY"</span><span class="p">])</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+</code></pre></div>
+<p>Local solving uses exhaustive enumeration within the exact work limit and native spin-domain annealing above that cutoff. <code>solve(problem, mode="platform", client=client)</code> explicitly uses the optimization platform's QUBO solver. <code>result.solution</code> remains a spin list in the compiled register order. <code>variable_assignment</code> contains decoded source variables when available. <code>objective</code> is the source objective, including its offset and original direction.</p>
+<p>Every result has the shared identity and <code>solver_time_s</code>/<code>compute_time_s</code> header. Platform identifiers are <code>None</code> locally. <code>solve_info</code> serializes the provider, method, feasibility, termination, and guarantee; <code>info()</code> returns that interpretation. Spin solution lists are the last serialized field.</p>
+<h2 id="qubo-to-ising">QUBO to Ising</h2>
+<p><code>qubo_to_ising()</code> applies <span class="arithmatex">\(x=(1+s)/2\)</span> and returns <code>QUBOToIsingConvert</code>:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">qubo_to_ising</span>
+
+<span class="n">source_qubo</span> <span class="o">=</span> <span class="p">{(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="o">-</span><span class="mf">3.0</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="mf">4.0</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">}</span>
+<span class="n">converted</span> <span class="o">=</span> <span class="n">qubo_to_ising</span><span class="p">(</span>
+    <span class="n">source_qubo</span><span class="p">,</span>
+    <span class="n">num_variables</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">constant</span><span class="o">=</span><span class="mf">7.0</span><span class="p">,</span>
+    <span class="n">variable_names</span><span class="o">=</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">spin_energy</span> <span class="o">=</span> <span class="n">converted</span><span class="o">.</span><span class="n">energy</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</code></pre></div>
+<p>The converter retains fields, couplings, offset, register size, names, bidirectional index/name maps, transformation records, and spin-sample validation. It interprets the QUBO dictionary exactly as stored: upper-triangular entries contain full interactions, while symmetric entries contain half on each mirrored position. <code>num_variables</code> preserves isolated trailing variables; otherwise it is inferred from the largest index. Conversion underflow that would erase a nonzero coefficient raises.</p>
+<p>Conversion records describe a minimizing energy. <code>original_sense</code> records the source direction, and <code>source_objective()</code> restores that direction. <code>with_original_sense()</code> returns a new record with validated source sense. This convention belongs to conversion records; native <code>IsingProblem</code> coefficients use their declared source sense directly.</p>
+<p>The automation operation returns a dictionary suitable for <code>IsingProblem</code>:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers.qubo</span><span class="w"> </span><span class="kn">import</span> <span class="n">QUBOProblem</span>
+
+<span class="n">qubo_problem</span> <span class="o">=</span> <span class="n">QUBOProblem</span><span class="p">(</span>
+    <span class="n">qubo_dict</span><span class="o">=</span><span class="n">source_qubo</span><span class="p">,</span>
+    <span class="n">matrix_format</span><span class="o">=</span><span class="s2">"upper"</span><span class="p">,</span>
+    <span class="n">num_variables</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">offset</span><span class="o">=</span><span class="mf">7.0</span><span class="p">,</span>
+    <span class="n">variable_names</span><span class="o">=</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">ising_data</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">qubo_problem</span><span class="p">,</span> <span class="s2">"ISING"</span><span class="p">)</span>
+<span class="n">problem</span> <span class="o">=</span> <span class="n">IsingProblem</span><span class="p">(</span><span class="o">**</span><span class="n">ising_data</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="ising-to-qubo">Ising to QUBO</h2>
+<p><code>ising_to_qubo()</code> applies <span class="arithmatex">\(s=2x-1\)</span>. <code>convert(problem, "QUBO", matrix_format="upper")</code> normalizes a native problem's source sense and returns <code>IsingToQUBOConvert</code>:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">converted_qubo</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="s2">"QUBO"</span><span class="p">,</span> <span class="n">matrix_format</span><span class="o">=</span><span class="s2">"upper"</span><span class="p">)</span>
+<span class="n">qubo</span> <span class="o">=</span> <span class="n">converted_qubo</span><span class="o">.</span><span class="n">qubo</span>
+<span class="n">offset</span> <span class="o">=</span> <span class="n">converted_qubo</span><span class="o">.</span><span class="n">offset</span>
+</code></pre></div>
+<p>The conversion record retains <code>qubo</code>, <code>offset</code>, <code>num_variables</code>, <code>matrix_format</code>, names and index maps, <code>original_sense</code>, transformation records, and <code>energy()</code>, <code>decode()</code>, and <code>source_objective()</code> methods. Its samples are binary. The default matrix format is symmetric; <code>"upper"</code> stores each interaction once. Its minimizing QUBO energy equals the normalized Ising energy, including the offset; <code>source_objective()</code> restores the original direction.</p>
+<p><code>QUBOToIsingConvert.to_qubo()</code> supports the corresponding conversion-record round trip. <code>HUBOToIsingConvert</code>, returned by <code>hubo_to_ising()</code>, also retains the exact quadratization, source binary decoding, and product-auxiliary completion.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="hubo-modeller.html"><span>Previous</span><strong>HUBO modeller</strong></a><a class="pager-card next" href="piecewise-linear.html"><span>Next</span><strong>Piecewise-linear relationships</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#mathematical-form">Mathematical form</a><a class="toc-level-2" href="#model-and-compile">Model and compile</a><a class="toc-level-2" href="#isingproblem">IsingProblem</a><a class="toc-level-2" href="#evaluate-and-decode">Evaluate and decode</a><a class="toc-level-2" href="#solve">Solve</a><a class="toc-level-2" href="#qubo-to-ising">QUBO to Ising</a><a class="toc-level-2" href="#ising-to-qubo">Ising to QUBO</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

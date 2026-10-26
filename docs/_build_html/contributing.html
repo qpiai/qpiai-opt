@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Contributing to QpiAI Opt">
+<title>Contributing to QpiAI Opt | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/CONTRIBUTING.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="contributing">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="active" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Project</span><span aria-hidden="true">&gt;</span><span>Contributing to QpiAI Opt</span></div><article class="doc-content"><h1 id="contributing-to-qpiai-opt">Contributing to QpiAI Opt</h1>
+<p>Thank you for improving QpiAI Opt. Changes should preserve mathematical meaning, keep local and paid execution boundaries explicit, and avoid adding a second modelling system where an adapter is sufficient.</p>
+<p>Development takes place in <a href="https://github.com/qpiai/qpiai-opt">qpiai/qpiai-opt</a>. Search <a href="https://github.com/qpiai/qpiai-opt/issues">existing issues</a> before reporting a <a href="reporting-bugs.html">defect</a> or proposing a <a href="feature-requests.html">feature</a>. Fork the repository, create a branch from <code>main</code>, and submit a pull request describing the problem, resulting behavior, and verification. Documentation corrections are welcome through the same process.</p>
+<p>Guided by William of Ockham's razor (the YAGNI principle).</p>
+<h2 id="development-setup">Development setup</h2>
+<p>Python 3.10–3.14 is supported. The public source tree contains the modelling, interoperability, and platform SDK. Local execution uses the native runtime included in official SDK wheels. Install <code>uv</code>, then run these commands from the repository root:</p>
+<div class="code-shell"><div class="code-toolbar"><span>bash</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-bash">uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>dev<span class="w"> </span>--no-install-project
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-deps<span class="w"> </span>--only-binary<span class="o">=</span>qpiai-opt<span class="w"> </span>qpiai-opt
+</code></pre></div>
+<p>Copy the compiled <code>_local_runtime</code> file from the installed package into your checkout's <code>qpiai_opt/opt_solvers/</code> directory:</p>
+<ul>
+<li><strong>Windows:</strong> find it in <code>.venv/Lib/site-packages/qpiai_opt/opt_solvers/</code>. Its filename ends in <code>.pyd</code>.</li>
+<li><strong>Linux/macOS:</strong> under <code>.venv/lib/</code>, open the directory matching your Python version, then <code>site-packages/qpiai_opt/opt_solvers/</code>. Its filename ends in <code>.so</code>.</li>
+</ul>
+<p>Keep the filename unchanged. The binary is already excluded from Git. Repeat the installation and copy when changing Python versions or updating the runtime version. You can now edit the checkout's Python source and run development commands with <code>uv run --no-sync</code>:</p>
+<div class="code-shell"><div class="code-toolbar"><span>bash</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-bash">uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>.
+uv<span class="w"> </span>run<span class="w"> </span>--no-sync<span class="w"> </span>ruff<span class="w"> </span>format<span class="w"> </span>--check<span class="w"> </span>.
+</code></pre></div>
+<p><code>--no-install-project</code> installs dependencies without building the checkout. <code>--no-sync</code> runs commands without automatically synchronizing the environment.</p>
+<p>Tests must be deterministic and must not submit paid platform work. Use controlled HTTP failures to check error handling. Native execution checks require a registered Opt key and connectivity; local gate-based optimization checks require an active QCloud credential and connectivity. Obtain a free Opt API key at <a href="https://opt.qpiai.tech/">QpiAI Opt</a> or a free QCloud API key at <a href="https://qcloud.qpiai.tech/">QpiAI QCloud</a>. Keep credentials in an ignored local <code>.env</code> file.</p>
+<h2 id="changes-and-pull-requests">Changes and pull requests</h2>
+<ol>
+<li>Open or reference an issue for behavior changes.</li>
+<li>Keep each change focused and add tests for success and failure behavior.</li>
+<li>Update the applicable reference page and runnable example.</li>
+<li>Describe changes to mathematical semantics, API signatures, serialization, dependencies, or platform resource use.</li>
+<li>Include the relevant validation results and update the affected documentation.</li>
+</ol>
+<p>By submitting a contribution, you agree that it is licensed under the <a href="license.html">Apache License 2.0</a>.</p>
+<h2 id="building-the-documentation">Building the documentation</h2>
+<p>Markdown in <code>docs/</code>, <code>README.md</code>, and <code>automation.md</code> is the editable source. Build the public site:</p>
+<div class="code-shell"><div class="code-toolbar"><span>bash</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-bash">uv<span class="w"> </span>run<span class="w"> </span>--no-project<span class="w"> </span>--with-requirements<span class="w"> </span>docs/requirements.txt<span class="w"> </span>python<span class="w"> </span>docs/build.py
+</code></pre></div>
+<p>The build retains the site's navigation, code copying, search, themes, and mathematical notation. It publishes unchanged Markdown sources alongside HTML, links each HTML page to its Markdown source, and generates <code>llms.txt</code> pointing to the automation entry point and reference body. <code>docs/pages.json</code> controls page order and navigation; add new reference chapters there. The builder rejects omitted Markdown pages, missing local targets, duplicate HTML IDs, and broken HTML fragments. Review the rendered pages at desktop and mobile widths before submitting documentation changes.</p>
+<h2 id="community-guidelines">Community guidelines</h2>
+<p>Use respectful, inclusive language. Discuss the technical merits of a proposal, accept constructive feedback, and protect other contributors' privacy. Harassment, personal attacks, and disclosure of another person's private information are unacceptable. Maintainers may remove inappropriate content or restrict participation to protect the community.</p>
+<h2 id="reporting-defects-and-security-issues">Reporting defects and security issues</h2>
+<p>Use the issue templates for ordinary defects and feature proposals. Do not put credentials, private models, account identifiers, or unredacted server responses in public issues.</p>
+<p>For a suspected vulnerability, follow <a href="reporting-bugs.html">Reporting bugs</a> and use the repository's private security reporting channel. Do not open a public issue until maintainers confirm disclosure is safe.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="package-metadata.html"><span>Previous</span><strong>Package metadata and system support</strong></a><a class="pager-card next" href="reporting-bugs.html"><span>Next</span><strong>Reporting bugs and security issues</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#development-setup">Development setup</a><a class="toc-level-2" href="#changes-and-pull-requests">Changes and pull requests</a><a class="toc-level-2" href="#building-the-documentation">Building the documentation</a><a class="toc-level-2" href="#community-guidelines">Community guidelines</a><a class="toc-level-2" href="#reporting-defects-and-security-issues">Reporting defects and security issues</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

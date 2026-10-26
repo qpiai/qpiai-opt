@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Indexed variables, updates, and parameters">
+<title>Indexed variables, updates, and parameters | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/modelling-workflows.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="modelling-workflows">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="active" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Modelling</span><span aria-hidden="true">&gt;</span><span>Indexed variables, updates, and parameters</span></div><article class="doc-content"><h1 id="indexed-variables-updates-and-parameters">Indexed variables, updates, and parameters</h1>
+<p>Use indexed variables to construct structured models, then update coefficients, bounds, and right-hand sides through the same <code>Model</code>. The next conversion or solve uses the updated values.</p>
+<h2 id="expression-arithmetic">Expression arithmetic</h2>
+<p>Build algebra with ordinary Python operators or <code>quicksum()</code>:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Binary</span><span class="p">,</span> <span class="n">quicksum</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"x"</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"y"</span><span class="p">)</span>
+
+<span class="n">linear</span> <span class="o">=</span> <span class="n">quicksum</span><span class="p">([</span><span class="mi">3</span> <span class="o">*</span> <span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">y</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<span class="n">quadratic</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span>
+</code></pre></div>
+<p>Equivalent terms and constants are combined according to their mathematical sum, independent of insertion order. This applies to linear, quadratic, and higher-order expressions. Scalar multiplication and division act on each combined coefficient once, so the result does not depend on whether equivalent terms were entered separately or as one term. Dividing a <code>Variable</code> or <code>Expression</code> by zero raises <code>ZeroDivisionError</code>; a non-real or non-finite divisor raises <code>InvalidExpressionError</code>. Polynomial multiplication first combines each input and then combines products that produce the same monomial. Numeric values use IEEE-754 binary64 arithmetic: ordinary decimal rounding is expected, and the SDK does not provide arbitrary-precision arithmetic. Keep coefficients and assignments within a practical numeric scale; values outside binary64's finite range are outside the supported input domain. See <a href="model-ir.html#numeric-representation">numeric representation</a> for the shared contract.</p>
+<p>Every scalar variable exposes its canonical domain through <code>var_type</code>:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">x</span><span class="o">.</span><span class="n">var_type</span>  <span class="c1"># "BINARY"</span>
+</code></pre></div>
+<p>Use <code>var_type</code> when a generic modelling routine must branch on <code>BINARY</code>, <code>SPIN</code>, <code>INTEGER</code>, <code>CONTINUOUS</code>, <code>SEMI_CONTINUOUS</code>, <code>SEMI_INTEGER</code>, <code>FRACTIONAL</code>, or <code>MIXED</code>. The class names <code>SemiContinuous</code>, <code>SemiInteger</code>, and <code>Fraction</code> differ from these domain strings.</p>
+<h2 id="multidimensional-variables">Multidimensional variables</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Binary</span><span class="p">,</span> <span class="n">IndexedVariables</span><span class="p">,</span> <span class="n">Model</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">IndexedVariables</span><span class="p">(</span>
+    <span class="n">Binary</span><span class="p">,</span>
+    <span class="s2">"ship"</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">"north"</span><span class="p">,</span> <span class="s2">"south"</span><span class="p">],</span>
+    <span class="nb">range</span><span class="p">(</span><span class="mi">24</span><span class="p">),</span>
+    <span class="p">[</span><span class="s2">"standard"</span><span class="p">,</span> <span class="s2">"express"</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"shipping"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_indexed_variables</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">"north"</span><span class="p">,</span> <span class="s2">"*"</span><span class="p">,</span> <span class="s2">"express"</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">8</span><span class="p">)</span>
+
+<span class="n">one</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="s2">"south"</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="s2">"standard"</span><span class="p">]</span>
+<span class="n">indexed_names</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">variable</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+</code></pre></div>
+<p><code>one.name == "ship[south,9,standard]"</code>. <code>indexed_names</code> contains one entry for each Cartesian-product index in deterministic order.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">IndexedVariables</span><span class="p">(</span><span class="n">variable_type</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">index_sets</span><span class="p">,</span> <span class="o">**</span><span class="n">variable_options</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>Contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>variable_type</code></td>
+<td>subclass of scalar <code>Variable</code>, such as <code>Binary</code>, <code>Integer</code>, or <code>Continuous</code></td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>nonempty base name without line breaks, commas, or brackets</td>
+</tr>
+<tr>
+<td><code>index_sets</code></td>
+<td>one or more iterables containing unique simple strings or finite numbers</td>
+</tr>
+<tr>
+<td><code>variable_options</code></td>
+<td>forwarded to every scalar variable constructor, for example <code>lower_bound=0, upper_bound=10</code></td>
+</tr>
+</tbody>
+</table>
+<p>Names are deterministic Cartesian-product names such as <code>ship[north,0,express]</code>. Index text must be a simple string/number without NUL, newline, comma, or brackets; values that would make names ambiguous are rejected. NaN and infinity are rejected because they do not provide reliable lookup and equality semantics.</p>
+<p>An empty axis produces an empty Cartesian product while preserving <code>shape</code> and <code>index_sets</code>. Iteration, selection, and <code>values()</code> are empty, and <code>sum()</code> is the constant zero. This supports data-driven models in which a valid category has no members.</p>
+<table>
+<thead>
+<tr>
+<th>Member</th>
+<th>Return</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shape</code></td>
+<td>tuple of axis lengths</td>
+</tr>
+<tr>
+<td><code>index_sets</code></td>
+<td>immutable tuple of axis tuples</td>
+</tr>
+<tr>
+<td><code>x[key]</code></td>
+<td>scalar variable; a one-dimensional collection accepts <code>x[key]</code>, higher dimensions require a tuple</td>
+</tr>
+<tr>
+<td>iteration</td>
+<td>keys in Cartesian-product order</td>
+</tr>
+<tr>
+<td><code>keys()</code> / <code>values()</code> / <code>items()</code></td>
+<td>mapping views or key-variable pairs in that order</td>
+</tr>
+<tr>
+<td><code>get(key, default=None)</code></td>
+<td>matching scalar variable, or <code>default</code> when the key is absent</td>
+</tr>
+<tr>
+<td><code>select(*pattern)</code></td>
+<td>tuple of variables; <code>None</code> or <code>"*"</code> is a wildcard for one axis</td>
+</tr>
+<tr>
+<td><code>sum()</code></td>
+<td>symbolic sum of every member</td>
+</tr>
+<tr>
+<td><code>sum(*pattern)</code></td>
+<td>symbolic sum of a selected slice</td>
+</tr>
+</tbody>
+</table>
+<p>Wrong dimensionality raises <code>KeyError</code> for indexing and <code>ValueError</code> for selection. <code>Model.add_indexed_variables()</code> registers members even when their current coefficient is zero.</p>
+<h2 id="direct-updates">Direct updates</h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Accepted target/value</th>
+<th>Return</th>
+<th>Rejection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>set_objective_coefficient(variable_or_name, coefficient)</code></td>
+<td>model variable or its name; finite scalar or <code>Parameter</code></td>
+<td>normalized <code>float</code>, or the supplied <code>Parameter</code> after binding</td>
+<td>unknown variable, missing objective, nonfinite value</td>
+</tr>
+<tr>
+<td><code>set_constraint_rhs(constraint, value)</code></td>
+<td>constraint index or effective label; finite scalar or <code>Parameter</code></td>
+<td>normalized <code>float</code>, or the supplied <code>Parameter</code> after binding</td>
+<td>non-relational target, unknown target, nonfinite value</td>
+</tr>
+<tr>
+<td><code>set_variable_bounds(variable_or_name, *, lower_bound=None, upper_bound=None)</code></td>
+<td>existing non-binary/non-spin variable or its name</td>
+<td>mutated scalar variable</td>
+<td>invalid domain bounds, fixed binary/spin domains, unsupported mixed domain</td>
+</tr>
+</tbody>
+</table>
+<p>Objective coefficient replacement affects the linear one-variable term only; it does not rewrite coefficients inside nonlinear terms. RHS replacement also supports the relation nested in an indicator.</p>
+<p>Omitted bounds retain their current values. Every update uses the same domain validation as construction.</p>
+<h2 id="parameters">Parameters</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Continuous</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">Parameter</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"dispatch"</span><span class="p">)</span>
+<span class="n">power</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span><span class="n">Continuous</span><span class="p">(</span><span class="s2">"power"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">power</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">power</span> <span class="o">&gt;=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"demand"</span><span class="p">)</span>
+
+<span class="n">price</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">"price"</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">)</span>
+<span class="n">demand</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">"demand"</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">set_objective_coefficient</span><span class="p">(</span><span class="n">power</span><span class="p">,</span> <span class="n">price</span><span class="p">)</span>  <span class="c1"># registers and binds</span>
+<span class="n">model</span><span class="o">.</span><span class="n">bind_parameter</span><span class="p">(</span><span class="n">demand</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">"constraint_rhs"</span><span class="p">,</span> <span class="n">constraint</span><span class="o">=</span><span class="s2">"demand"</span><span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">set_parameter</span><span class="p">(</span><span class="s2">"price"</span><span class="p">,</span> <span class="mf">5.25</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">set_parameter</span><span class="p">(</span><span class="n">demand</span><span class="p">,</span> <span class="mi">35</span><span class="p">)</span>
+</code></pre></div>
+<p><code>Parameter(name, value)</code> requires a nonempty name and finite non-Boolean real value. Names must fit on one line because they are persisted in canonical IR. <code>set(value)</code> mutates and returns the normalized float; <code>as_dict()</code> returns <code>{"name": name, "value": value}</code>.</p>
+<p><code>add_variables(iterable)</code> validates the whole batch before registering any member. A bad item or a distinct variable that reuses an existing name leaves the model unchanged. Piecewise-linear construction has the same all-or-nothing mutation contract.</p>
+<h3 id="binding">Binding</h3>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">model.add_parameter(parameter)
+model.bind_parameter(
+    parameter_or_name,
+    *,
+    target,
+    variable=None,
+    constraint=None,
+) -&gt; dict
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><code>target</code></th>
+<th>Required selector</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>objective_coefficient</code></td>
+<td><code>variable</code></td>
+<td>replaces its linear objective coefficient</td>
+</tr>
+<tr>
+<td><code>constraint_rhs</code></td>
+<td><code>constraint</code> index or label</td>
+<td>replaces scalar RHS</td>
+</tr>
+<tr>
+<td><code>lower_bound</code></td>
+<td><code>variable</code></td>
+<td>replaces lower bound</td>
+</tr>
+<tr>
+<td><code>upper_bound</code></td>
+<td><code>variable</code></td>
+<td>replaces upper bound</td>
+</tr>
+</tbody>
+</table>
+<p>Registering a different <code>Parameter</code> object under an existing name is rejected. Duplicate identical bindings are ignored. Binding immediately applies the current parameter value.</p>
+<p><code>set_parameter(parameter_or_name, value)</code> validates the value, applies all bindings, and returns the normalized <code>float</code>. If any application fails, the parameter and already-applied bindings are restored to the prior value before the exception is raised. <code>Parameter.set()</code> changes the parameter alone; use <code>Model.set_parameter()</code> when its bound model fields must change too.</p>
+<p>When one parameter controls both bounds of the same variable, the SDK validates and applies the final lower/upper pair atomically. For example, a variable fixed at <code>[2, 2]</code> can be moved to <code>[7, 7]</code> without a false intermediate lower-greater-than-upper failure. Multiple variables and all other binding targets retain the same all-or-nothing rollback contract.</p>
+<p>Parameters and bindings round-trip through canonical IR. They are not sent as server-side symbolic objects; each solve compiles current concrete values.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="getting-started.html"><span>Previous</span><strong>Getting started</strong></a><a class="pager-card next" href="milp-modeller.html"><span>Next</span><strong>MILP modeller</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#expression-arithmetic">Expression arithmetic</a><a class="toc-level-2" href="#multidimensional-variables">Multidimensional variables</a><a class="toc-level-2" href="#direct-updates">Direct updates</a><a class="toc-level-2" href="#parameters">Parameters</a><a class="toc-level-3" href="#binding">Binding</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Platform client">
+<title>Platform client | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/platform-client.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="platform-client">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="active" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Platform</span><span aria-hidden="true">&gt;</span><span>Platform client</span></div><article class="doc-content"><h1 id="platform-client">Platform client</h1>
+<p><code>qpiai_opt.opt_solvers.Client</code> is the authenticated interface to QpiAI Opt Platform records and job execution. Use it for discovery, scheduling, monitoring, storage, or administrative problem and job operations.</p>
+<p>Direct solver constructors accept either their normal <code>api_key</code> arguments or an initialized <code>Client</code> instance. Arbitrary client-like objects are not part of the public contract.</p>
+<h2 id="construction">Construction</h2>
+<p>Register for a free Opt API key at <a href="https://opt.qpiai.tech/">QpiAI Opt</a>, then supply it to <code>Client</code> from your application's secret store.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"QPIAI_OPT_API_KEY"</span><span class="p">],</span>
+    <span class="n">experiment_name</span><span class="o">=</span><span class="s2">"Default Experiment"</span><span class="p">,</span>
+    <span class="n">base_url</span><span class="o">=</span><span class="s2">"https://opt-server.qpiai.tech/api"</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>api_key</code></td>
+<td>Required non-empty API key. Regular requests send it as <code>X-Secret-Token</code>.</td>
+</tr>
+<tr>
+<td><code>experiment_id</code></td>
+<td>Optional client-wide experiment ID. It takes precedence over a name.</td>
+</tr>
+<tr>
+<td><code>experiment_name</code></td>
+<td>Client-wide exact experiment name. Defaults to <code>Default Experiment</code>.</td>
+</tr>
+<tr>
+<td><code>base_url</code></td>
+<td>HTTP(S) platform API root. Queries and fragments are rejected.</td>
+</tr>
+<tr>
+<td><code>timeout</code></td>
+<td>Default positive finite timeout for each HTTP request, in seconds.</td>
+</tr>
+<tr>
+<td><code>session</code></td>
+<td>Optional <code>requests.Session</code> for custom connection pooling or transport configuration.</td>
+</tr>
+</tbody>
+</table>
+<p>When a caller supplies a <code>requests.Session</code>, the caller owns its lifecycle. The current <code>Client</code> has no context-manager or <code>close()</code> method and does not close a supplied session. A client-created session is retained for the <code>Client</code> object's lifetime.</p>
+<p>Construction validates local configuration without contacting the platform. API keys are stripped and must be nonempty; this check does not prove that a key is accepted. Entity IDs used in URL paths are stripped strings containing only ASCII letters, digits, <code>.</code>, <code>_</code>, <code>-</code>, or <code>~</code>, and cannot be <code>.</code> or <code>..</code>. Names, roles, email selectors, and search values use the nonempty-string rule rather than this path-ID grammar. The server enforces role, membership, and account permissions.</p>
+<h2 id="authentication-and-account-operations">Authentication and account operations</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">verification</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">verify_api_key</span><span class="p">()</span>
+<span class="n">user</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">me</span><span class="p">()</span>
+<span class="n">token_record</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_api_key</span><span class="p">()</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Return</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>verify_api_key(api_key=None)</code></td>
+<td>Raw verification dictionary from the platform. The optional key is verified without changing <code>client.api_key</code>.</td>
+</tr>
+<tr>
+<td><code>me(timeout=None)</code></td>
+<td>Raw authenticated-user dictionary.</td>
+</tr>
+<tr>
+<td><code>get_api_key()</code></td>
+<td>Raw access-token record.</td>
+</tr>
+<tr>
+<td><code>regenerate_api_key()</code></td>
+<td>Raw new-token record.</td>
+</tr>
+<tr>
+<td><code>health()</code></td>
+<td>Checks authenticated <code>/users/me</code> with a five-second request timeout; returns <code>True</code> for a successful HTTP status or <code>False</code> on request/API failure.</td>
+</tr>
+</tbody>
+</table>
+<p>Token-returning dictionaries can contain secret material. Do not log, commit, or attach them to exception telemetry.</p>
+<p>Methods returning JSON records validate the response's required object or array shape. Object endpoints reject arrays and scalars, list endpoints reject objects, and invalid JSON raises <code>APIError</code> with the HTTP status when available. Nested required objects, such as an uploaded storage record, also fail closed when missing.</p>
+<h2 id="organizations-and-collaboration">Organizations and collaboration</h2>
+<p>The secret-token middleware authorizes normal collaboration routes. Root-only global listing and organization creation are not exposed.</p>
+<h3 id="organization-and-invitations">Organization and invitations</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Return</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>get_organization(organization_id)</code></td>
+<td><code>Organization</code>, including <code>.users</code> when supplied</td>
+</tr>
+<tr>
+<td><code>update_organization(organization_id, name=...)</code>, <code>delete_organization(organization_id)</code></td>
+<td>confirmation dictionary; server role checks apply</td>
+</tr>
+<tr>
+<td><code>invite_member(organization_id, email=..., role=...)</code></td>
+<td>invitation result dictionary</td>
+</tr>
+<tr>
+<td><code>invite_members(organization_id, users)</code></td>
+<td>bulk result; nonempty list of <code>{email, role}</code></td>
+</tr>
+<tr>
+<td><code>list_invitations(organization_id)</code></td>
+<td><code>list[Invitation]</code></td>
+</tr>
+<tr>
+<td><code>cancel_invitation(invitation_id)</code></td>
+<td>confirmation dictionary</td>
+</tr>
+<tr>
+<td><code>update_member_role(organization_id, user_id, role=...)</code></td>
+<td>confirmation dictionary</td>
+</tr>
+<tr>
+<td><code>can_invite_members(organization_id)</code></td>
+<td>seat/permission dictionary</td>
+</tr>
+<tr>
+<td><code>get_organization_statistics(organization_id)</code></td>
+<td>statistics dictionary</td>
+</tr>
+<tr>
+<td><code>get_organization_compute_resources(organization_id)</code></td>
+<td><code>list[ComputeResource]</code></td>
+</tr>
+</tbody>
+</table>
+<p>Identifiers, email, and role must be nonempty strings. Valid roles and authorization remain server policy.</p>
+<p>Bulk invitations require an actual nonempty list of dictionaries, each containing exactly <code>email</code> and <code>role</code>. Unknown fields are rejected. All entries are validated before the invitation request. A successful response is the server's acknowledgement dictionary; the client does not infer a per-member outcome beyond that payload.</p>
+<h3 id="workspaces">Workspaces</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Return / behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>create_workspace(organization_id, name=..., description="")</code></td>
+<td><code>Workspace</code>; the authenticated user is sent as the required owner</td>
+</tr>
+<tr>
+<td><code>get_workspace</code>, <code>update_workspace</code>, <code>delete_workspace</code></td>
+<td><code>Workspace</code>, <code>Workspace</code>, confirmation dictionary</td>
+</tr>
+<tr>
+<td><code>list_workspaces(organization_id, page=1, page_size=10)</code></td>
+<td>Pagination response with <code>.workspaces</code> and <code>.pagination</code></td>
+</tr>
+<tr>
+<td><code>list_my_workspaces(page=1, page_size=10, search=None)</code></td>
+<td>Pagination response with <code>.workspaces</code>, <code>.pagination</code>, and optional <code>.summary</code></td>
+</tr>
+<tr>
+<td><code>list_workspace_members(id)</code></td>
+<td><code>list[UserSummary]</code></td>
+</tr>
+<tr>
+<td><code>add_workspace_member(id, user_id=... | email=...)</code></td>
+<td>exactly one selector is required</td>
+</tr>
+<tr>
+<td><code>add_workspace_members(id, emails)</code></td>
+<td>bulk result for a nonempty email list</td>
+</tr>
+<tr>
+<td><code>remove_workspace_member(id, user_id)</code></td>
+<td>confirmation dictionary</td>
+</tr>
+</tbody>
+</table>
+<p>Bulk workspace membership accepts an actual nonempty <code>list[str]</code> of nonempty stripped email selectors. Single-member workspace and project calls require exactly one of <code>user_id</code> or <code>email</code>; supplying both, neither, or an empty supplied value fails validation.</p>
+<h3 id="projects-and-experiments">Projects and experiments</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Return / behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>create_project(workspace_id, name=..., description="")</code></td>
+<td><code>Project</code>; server assigns authenticated owner</td>
+</tr>
+<tr>
+<td><code>get_project</code>, <code>update_project</code>, <code>delete_project</code></td>
+<td><code>Project</code>, <code>Project</code>, confirmation dictionary</td>
+</tr>
+<tr>
+<td><code>list_projects(workspace_id, page=1, page_size=10, search=None)</code></td>
+<td>Pagination response with <code>.projects</code> and <code>.pagination</code></td>
+</tr>
+<tr>
+<td><code>list_my_projects(page=1, page_size=10)</code></td>
+<td>Pagination response with <code>.projects</code> and <code>.pagination</code></td>
+</tr>
+<tr>
+<td><code>list_project_members</code>, <code>add_project_member</code>, <code>remove_project_member</code></td>
+<td>member list / confirmation; add accepts exactly one of user ID or email</td>
+</tr>
+<tr>
+<td><code>create_experiment(project_id, name=..., description="")</code></td>
+<td><code>Experiment</code>; the authenticated user is sent as the required owner</td>
+</tr>
+<tr>
+<td><code>get_experiment</code>, <code>update_experiment</code>, <code>delete_experiment</code></td>
+<td><code>Experiment</code>, <code>Experiment</code>, confirmation dictionary</td>
+</tr>
+<tr>
+<td><code>list_experiments(project_id, page=1, page_size=10, search=None)</code></td>
+<td>Pagination response with <code>.experiments</code> and <code>.pagination</code></td>
+</tr>
+<tr>
+<td><code>list_my_experiments(page=1, page_size=10)</code></td>
+<td>Pagination response with <code>.experiments</code> and <code>.pagination</code></td>
+</tr>
+<tr>
+<td><code>list_workspace_experiments(workspace_id, page=1, page_size=10)</code></td>
+<td>Pagination response with <code>.experiments</code> and <code>.pagination</code></td>
+</tr>
+<tr>
+<td><code>list_experiment_members</code>, <code>add_experiment_member</code>, <code>remove_experiment_member</code></td>
+<td>member list / confirmation; experiment add uses user ID</td>
+</tr>
+<tr>
+<td><code>associate_compute_resource(experiment_id, compute_resource_id)</code></td>
+<td>confirmation dictionary</td>
+</tr>
+</tbody>
+</table>
+<p>Pagination values are strict positive integers. Optional search strings must be nonempty when provided. Entity identifiers are exposed as <code>id</code>.</p>
+<p>Create/update <code>description</code> accepts any string, including the default <code>""</code>. Updates to workspaces, projects, and experiments send both <code>name</code> and <code>description</code>; omitting <code>description</code> therefore requests the empty string rather than retaining the previous description. These updates fetch the current typed record first, merge the returned update payload, and return the validated record. The merge does not make the operation atomic against concurrent server changes.</p>
+<p>Collection records use <code>None</code> for optional data that a list operation does not supply. In particular, membership summaries can omit <code>status</code> and <code>organization_id</code>, and experiments returned by <code>list_my_experiments()</code> can omit <code>workspace_id</code>. Supplied text remains validated as nonempty.</p>
+<h2 id="experiment-selection">Experiment selection</h2>
+<p>Every submitted job requires an experiment ID. Selection order is:</p>
+<ol>
+<li><code>experiment_id</code> passed to the operation;</li>
+<li><code>experiment_name</code> passed to the operation;</li>
+<li>client-wide <code>experiment_id</code>;</li>
+<li>client-wide <code>experiment_name</code>;</li>
+<li>exact <code>Default Experiment</code>.</li>
+</ol>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">experiment_id</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">resolve_experiment</span><span class="p">(</span><span class="s2">"Benchmarks"</span><span class="p">)</span>
+</code></pre></div>
+<p><code>resolve_experiment()</code> requests an exact name within the authenticated organization. Successful resolutions are cached by name on the client. A missing <code>experiment_id</code> in the lookup response raises <code>APIError</code>.</p>
+<h2 id="problems">Problems</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">problem</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">create_problem</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"External problem"</span><span class="p">,</span>
+        <span class="s2">"method"</span><span class="p">:</span> <span class="s2">"QUBO"</span><span class="p">,</span>
+        <span class="s2">"qubo_dict"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"0,0"</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">},</span>
+        <span class="s2">"num_variables"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="n">same_problem</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_problem</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+<span class="n">page</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_problems</span><span class="p">(</span><span class="n">page</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">updated</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">update_problem</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Renamed problem"</span><span class="p">})</span>
+<span class="n">confirmation</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">delete_problem</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</code></pre></div>
+<p><code>create_problem()</code> requires a dictionary with non-empty <code>name</code> and <code>method</code>. Method-specific payload fields are passed to the platform. High-level solvers should be preferred for QUBO/HUBO/MILP creation because they validate and serialize those fields.</p>
+<p>Returns:</p>
+<ul>
+<li><code>create_problem()</code>, <code>get_problem()</code>, and <code>update_problem()</code> return <code>Problem</code>;</li>
+<li><code>list_problems()</code> returns a pagination response containing <code>.problems</code> and <code>.pagination</code>;</li>
+<li><code>delete_problem()</code> returns the platform confirmation dictionary.</li>
+</ul>
+<p>Page and page size are strict positive integers.</p>
+<h2 id="advanced-solver-discovery-and-resource-pinning">Advanced solver discovery and resource pinning</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">resources</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_solvers</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">"QUBO"</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">resource</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_solver</span><span class="p">(</span><span class="n">resources</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</code></pre></div>
+<p><code>list_solvers()</code> returns <code>list[ComputeResource]</code>. <code>method</code> filters by problem class, such as <code>"QUBO"</code>, <code>"HUBO"</code>, or <code>"MILP"</code>.</p>
+<p><code>active_only=True</code> retains resources whose status is <code>"active"</code> ignoring case. Resource availability and allocation can change between discovery and submission; a discovered record is not a reservation.</p>
+<p>Most applications should skip this section and omit <code>compute_resource_id</code>. The platform selects an eligible resource from the submitted problem method. A compute-resource ID is an opaque platform UUID for a particular solver deployment; it is useful only when an advanced workflow must pin that specific deployment.</p>
+<h2 id="job-submission-and-scheduling">Job submission and scheduling</h2>
+<p>High-level solvers package the class-specific payload. Direct submission is available when a problem already exists:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">submission</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">submit_job</span><span class="p">(</span>
+    <span class="n">problem</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">"QUBO"</span><span class="p">,</span>
+    <span class="n">experiment_name</span><span class="o">=</span><span class="s2">"Benchmarks"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">pinned_submission</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">submit_job</span><span class="p">(</span>
+    <span class="n">problem</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">"QUBO"</span><span class="p">,</span>
+    <span class="n">experiment_name</span><span class="o">=</span><span class="s2">"Benchmarks"</span><span class="p">,</span>
+    <span class="n">compute_resource_id</span><span class="o">=</span><span class="n">resource</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">scheduled</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">schedule_job</span><span class="p">(</span>
+    <span class="n">problem</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+    <span class="s2">"2030-01-01T09:30:00+05:30"</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">"QUBO"</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><code>scheduled_at</code> must be an ISO 8601 timestamp with an explicit timezone. Direct <code>submit_job(..., scheduled_at=...)</code> sets the platform scheduling fields; <code>schedule_job()</code> uses the dedicated scheduling endpoint.</p>
+<p>Both methods return an acknowledgement with <code>.message</code>, optional <code>.expected_run_at</code>, and the new <code>.job</code>:</p>
+<ul>
+<li><code>.message</code>: acknowledgement text;</li>
+<li><code>.expected_run_at</code>: optional <code>datetime</code> parsed from the platform response;</li>
+<li><code>.job</code>: the created <code>Job</code>.</li>
+</ul>
+<p>Submission is nonblocking; the response contains the job state supplied by the platform.</p>
+<p><code>pinned_submission</code> places the discovered resource ID in the job request. Use an ID returned for the same <code>method</code>; omit it to let the platform choose.</p>
+<h2 id="reading-and-filtering-jobs">Reading and filtering jobs</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">job</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_job</span><span class="p">(</span><span class="n">submission</span><span class="o">.</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+<span class="n">user_jobs</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_jobs</span><span class="p">(</span>
+    <span class="n">page</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">page_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+    <span class="n">status</span><span class="o">=</span><span class="s2">"running"</span><span class="p">,</span>
+    <span class="n">compute_resource_id</span><span class="o">=</span><span class="n">resource</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">problem_jobs</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_problem_jobs</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">experiment_jobs</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_experiment_jobs</span><span class="p">(</span>
+    <span class="n">experiment_name</span><span class="o">=</span><span class="s2">"Benchmarks"</span><span class="p">,</span>
+    <span class="n">page</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">page_size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><code>get_job()</code> returns <code>Job</code>. List methods return a pagination response containing <code>.jobs</code>, <code>.pagination</code>, and optional aggregate execution/credit totals. <code>status</code> accepts <code>JobStatus.PENDING</code>, <code>RUNNING</code>, <code>COMPLETED</code>, <code>FAILED</code>, or <code>CANCELLED</code>, or the corresponding lowercase strings. Surrounding whitespace is ignored; uppercase strings, <code>"unknown"</code>, and other values are rejected. <code>period</code> and <code>compute_resource_id</code> must be nonempty strings when supplied.</p>
+<p>Job-list <code>period</code> filters use job creation time: <code>daily</code> starts at the current UTC day's boundary, <code>weekly</code> starts seven days before the request, and <code>monthly</code> starts one calendar month before the request. Omit <code>period</code> for all dates. The SDK strips whitespace but does not validate these choices; other strings apply no time filter. <code>compute_resource_id</code> filters <code>list_jobs()</code> and <code>list_experiment_jobs()</code>. The problem-job endpoint does not apply this filter, although <code>list_problem_jobs()</code> accepts the argument.</p>
+<h2 id="credit-usage-and-allocations">Credit usage and allocations</h2>
+<p>Platform usage charges are based on compute time (<code>compute_time_s</code>), not solver time (<code>solver_time_s</code>). Credit usage reports contain the service-recorded charges.</p>
+<p>Credit information is read-only account information. A completed or retrieved <code>Job</code> exposes <code>credits_used</code> and <code>credits_reserved</code> when the platform supplies them. Period reports and current allocations are available through the same authenticated client:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">job</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_job</span><span class="p">(</span><span class="n">submission</span><span class="o">.</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+<span class="n">job_credits</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">credits_used</span>
+
+<span class="n">usage</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_user_credit_usage</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="s2">"monthly"</span><span class="p">)</span>
+<span class="n">usage_summary</span> <span class="o">=</span> <span class="p">(</span><span class="n">usage</span><span class="o">.</span><span class="n">used_credits</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">usage</span><span class="o">.</span><span class="n">jobs</span><span class="p">))</span>
+
+<span class="n">quota_balances</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">quota</span><span class="o">.</span><span class="n">compute_resource_id</span><span class="p">:</span> <span class="n">quota</span><span class="o">.</span><span class="n">remaining_credits</span>
+    <span class="k">for</span> <span class="n">quota</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">get_user_quotas</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The methods are:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Return</th>
+<th>Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>get_user_credit_usage(user_id=None, period="monthly", by_resource=False)</code></td>
+<td><code>CreditUsage</code> or <code>CreditUsageByResource</code></td>
+<td>One user's usage</td>
+</tr>
+<tr>
+<td><code>get_workspace_credit_usage(workspace_id, period="monthly", by_resource=False)</code></td>
+<td><code>CreditUsage</code> or <code>CreditUsageByResource</code></td>
+<td>A workspace the caller may access</td>
+</tr>
+<tr>
+<td><code>get_organization_credit_usage(organization_id=None, period="monthly", by_resource=False)</code></td>
+<td><code>CreditUsage</code> or <code>CreditUsageByResource</code></td>
+<td>An organization the caller may access</td>
+</tr>
+<tr>
+<td><code>get_user_quotas(user_id=None)</code></td>
+<td><code>list[CreditQuota]</code></td>
+<td>Per-resource user allocations</td>
+</tr>
+<tr>
+<td><code>get_workspace_quotas(workspace_id)</code></td>
+<td><code>list[CreditQuota]</code></td>
+<td>Per-resource workspace allocations</td>
+</tr>
+<tr>
+<td><code>get_organization_quotas(organization_id=None)</code></td>
+<td><code>list[CreditQuota]</code></td>
+<td>Per-resource organization allocations</td>
+</tr>
+</tbody>
+</table>
+<p><code>period</code> accepts <code>daily</code>, <code>weekly</code>, <code>monthly</code>, or <code>yearly</code>. Set <code>by_resource=True</code> to receive one <code>CreditResourceUsage</code> record per compute resource; the SDK checks that those records add up to the report total. <code>CreditUsage.jobs</code> contains typed job identifiers, statuses, resource names, execution times, and credits used when present.</p>
+<p>For a quota, <code>capacity_credits</code> is the platform's enforceable allocation (<code>total_credits</code> for an organization quota, otherwise <code>allocated_credits</code>) and <code>remaining_credits</code> is that capacity minus <code>used_credits</code>. <code>remaining_credits</code> reports the balance before reservations. The platform also accounts for <code>reserved_credits</code> when deciding whether a new job can run. A quota with inconsistent values is rejected rather than presented as a misleading balance. Access to another user, workspace, or organization is still controlled by the platform; an authorization error is returned as <code>AuthenticationError</code> or <code>APIError</code>.</p>
+<p>Cancel a job with:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">confirmation</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">cancel_job</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</code></pre></div>
+<p>This returns the platform dictionary. Cancellation is a request; read the job again or wait for a terminal state to confirm the final result.</p>
+<h2 id="server-sent-events-and-waiting">Server-Sent Events and waiting</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">stream_job</span><span class="p">(</span>
+    <span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+    <span class="n">connect_timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">read_timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">event_record</span> <span class="o">=</span> <span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">event</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</code></pre></div>
+<p><code>stream_job()</code> yields <code>SSEEvent</code>. Multi-line <code>data:</code> fields are joined with newlines. JSON data is decoded; other content remains a string. Its response is closed when the generator is exhausted, explicitly closed, or raises. Close the generator when stopping iteration early. Each <code>event_record</code> contains the event name and its decoded JSON value or text; JSON scalars and <code>null</code> are valid payloads.</p>
+<p>The stream is decoded as UTF-8. A leading UTF-8 byte-order mark is ignored, comment lines beginning with <code>:</code> and unknown fields are ignored, and an omitted or empty <code>event</code> field becomes <code>"message"</code>. An event is dispatched only at a blank-line boundary and only when at least one <code>data</code> field was received. Invalid UTF-8 raises <code>requests.exceptions.ContentDecodingError</code>.</p>
+<p>The common waiter uses SSE first:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">completed_job</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">wait_for_job</span><span class="p">(</span>
+    <span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span>
+    <span class="n">poll_interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">use_sse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Behavior:</p>
+<ul>
+<li>reads the current job before opening the stream;</li>
+<li>makes at most three SSE connection attempts, with bounded exponential backoff after transient failures;</li>
+<li>falls back to polling;</li>
+<li>never schedules a sleep beyond the total <code>timeout</code>;</li>
+<li>returns a completed <code>Job</code>;</li>
+<li>raises <code>JobFailedError</code> or <code>JobCancelledError</code> for those terminal states;</li>
+<li>raises <code>TimeoutError</code> when the monitoring budget is exhausted;</li>
+<li>raises <code>APIError</code> for an unknown platform state.</li>
+</ul>
+<p>Set <code>use_sse=False</code> for polling only.</p>
+<p>Transient HTTP statuses are <code>408</code>, <code>425</code>, <code>429</code>, <code>500</code>, <code>502</code>, <code>503</code>, and <code>504</code>; other API errors propagate. Request exceptions can also trigger retry or polling fallback. Monitoring retries do not submit another job. See the <a href="#timeouts">timeout contract</a> for in-flight request behaviour at the budget boundary.</p>
+<h2 id="storage-and-result-extraction">Storage and result extraction</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">storage</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span>
+    <span class="n">Path</span><span class="p">(</span><span class="s2">"model.lp"</span><span class="p">),</span>
+    <span class="n">workspace_id</span><span class="o">=</span><span class="s2">"workspace-id"</span><span class="p">,</span>
+    <span class="n">project_id</span><span class="o">=</span><span class="s2">"project-id"</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><code>path</code> must identify an existing regular file; a missing file raises <code>FileNotFoundError</code> before upload. If <code>user_id</code> or <code>organization_id</code> is omitted, <code>upload_file()</code> obtains them from <code>me()</code>. It uploads the bytes with the basename and the supplied ownership fields. The file handle is closed after the request.</p>
+<p>The return is the platform's nested <code>storage</code> dictionary. The client validates that this is a dictionary, but does not validate individual storage fields. The platform's storage identifier is conventionally <code>ID</code>; validate that value before passing it to another operation. High-level MILP submission performs its own storage-ID validation.</p>
+<p>Download a JSON object by storage ID or S3 path:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">by_id</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">download_result_by_id</span><span class="p">(</span><span class="n">storage</span><span class="p">[</span><span class="s2">"ID"</span><span class="p">],</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<span class="n">by_path</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">download_result</span><span class="p">(</span><span class="s2">"s3://bucket/key"</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+</code></pre></div>
+<p>The timeout applies separately to the platform request that obtains the presigned URL and the subsequent object-storage GET. Non-JSON object content raises <code>APIError</code>.</p>
+<p><code>extract_result(job)</code> handles all supported result locations:</p>
+<ol>
+<li>inline <code>job.server_response</code>;</li>
+<li><code>job.server_response_id</code>;</li>
+<li>an inline <code>s3://...</code> string;</li>
+<li>JSON encoded as a string.</li>
+</ol>
+<p>If the decoded value has a dictionary/list under <code>result</code> or <code>results</code>, that inner value is returned. Otherwise the decoded value is returned unchanged. Class-specific solvers require a completed job to contain a valid result object. A completed lifecycle state with no retrievable result raises instead of producing a partial solve result.</p>
+<p>Delete storage explicitly:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">confirmation</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">delete_storage</span><span class="p">(</span><span class="n">storage</span><span class="p">[</span><span class="s2">"ID"</span><span class="p">])</span>
+</code></pre></div>
+<h2 id="timeouts">Timeouts</h2>
+<p>There are two distinct timeout concepts.</p>
+<p>Individual request timeouts configure connection and read waits:</p>
+<ul>
+<li><code>Client(timeout=...)</code> sets the default;</li>
+<li>method-level <code>timeout=...</code> overrides it where exposed;</li>
+<li>solver <code>request_timeout</code> is passed through create, submit, upload, and result requests.</li>
+</ul>
+<p>A scalar timeout applies to both connection establishment and periods waiting for response data. It is not a total download deadline; a response that continues sending data can take longer. This follows the <a href="https://requests.readthedocs.io/en/latest/user/quickstart/#timeouts">Requests timeout contract</a>.</p>
+<p>Job wait timeouts set a monitoring budget:</p>
+<ul>
+<li><code>Client.wait_for_job(timeout=...)</code>;</li>
+<li><code>QUBOSolver.solve(timeout=...)</code>;</li>
+<li><code>HUBOSolver.solve(timeout=...)</code>;</li>
+<li><code>MILPSolver.solve(timeout=...)</code>.</li>
+</ul>
+<p>The waiter checks its monotonic budget between operations and bounds requested sleeps and request timeouts by the remaining time. An in-flight request can still finish after that budget, so the value is not a strict wall-clock cancellation deadline. It does not cancel the platform job.</p>
+<p>A request timeout raises <code>requests.Timeout</code>; a streamed read can instead surface a Requests connection error. Budget exhaustion in the job waiter raises the built-in <code>TimeoutError</code>.</p>
+<h2 id="failure-and-retry-policy">Failure and retry policy</h2>
+<p>Do not automatically retry a failed submission without determining whether the platform accepted it. A transport failure or HTTP 408, 425, 429, or server error can occur after record creation.</p>
+<p>High-level solver behavior:</p>
+<ul>
+<li>definitive non-transient 4xx rejection triggers best-effort cleanup of SDK-created problem records;</li>
+<li>MILP also attempts cleanup of SDK-owned uploaded storage after definitive rejection;</li>
+<li>ambiguous outcomes retain records and add reconciliation instructions to the exception;</li>
+<li>the SDK never resubmits a paid optimization job inside its wait/reconnect logic.</li>
+</ul>
+<p>Use the problem ID from the exception note or submission response:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">jobs</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_problem_jobs</span><span class="p">(</span><span class="n">problem_id</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</code></pre></div>
+<p>Solver-specific response fields are documented in the QUBO, HUBO, and MILP guides. Common results and failures are in <a href="local-solving.html">Local solving</a> and <a href="automation.html">Automation</a>.</p>
+<h2 id="response-models">Response models</h2>
+<p>Typed platform records are Pydantic models. Timestamps are timezone-aware when the platform includes an offset. The fields below are the supported contract. Serialize a record with <code>model_dump(mode="json")</code>:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">job</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_job</span><span class="p">(</span><span class="s2">"job-123"</span><span class="p">)</span>
+<span class="n">payload</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="jobs-and-problems">Jobs and problems</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code>, <code>status</code></td>
+<td><code>str</code></td>
+<td>Platform identifier and raw lifecycle state.</td>
+</tr>
+<tr>
+<td><code>method</code>, <code>problem_id</code>, <code>experiment_id</code></td>
+<td><code>str | None</code></td>
+<td>Associated problem metadata.</td>
+</tr>
+<tr>
+<td><code>server_response</code>, <code>server_response_id</code></td>
+<td>any / <code>str | None</code></td>
+<td>Inline result or storage reference.</td>
+</tr>
+<tr>
+<td><code>error</code></td>
+<td><code>str | None</code></td>
+<td>Platform failure detail.</td>
+</tr>
+<tr>
+<td><code>compute_time_s</code>, <code>solver_time_s</code></td>
+<td><code>float | None</code></td>
+<td>Nonnegative compute and solver durations in seconds when supplied; service timing aliases are normalized to these names.</td>
+</tr>
+<tr>
+<td><code>created_at</code>, <code>updated_at</code>, <code>cancelled_at</code></td>
+<td>datetime or <code>None</code></td>
+<td>Platform timestamps.</td>
+</tr>
+<tr>
+<td><code>cancellation_reason</code></td>
+<td><code>str | None</code></td>
+<td>Cancellation detail when supplied.</td>
+</tr>
+<tr>
+<td><code>credits_used</code>, <code>credits_reserved</code></td>
+<td><code>int | None</code></td>
+<td>Non-negative charged and reserved credits when supplied.</td>
+</tr>
+</tbody>
+</table>
+<p><code>job.normalized_status</code> maps the raw <code>status</code> to <code>JobStatus.PENDING</code>, <code>RUNNING</code>, <code>COMPLETED</code>, <code>FAILED</code>, <code>CANCELLED</code>, or <code>UNKNOWN</code>. It does not modify the raw field.</p>
+<table>
+<thead>
+<tr>
+<th>Returned object</th>
+<th>Fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Problem</code></td>
+<td><code>id: str</code>, <code>name: str</code>, <code>method: str</code>, <code>created_at: datetime | None</code>, <code>updated_at: datetime | None</code></td>
+</tr>
+<tr>
+<td>Pagination record inside a list response</td>
+<td><code>current_page: int = 1</code>, <code>page_size: int = 10</code>, <code>total: int = 0</code>; all are non-negative and page values start at one</td>
+</tr>
+<tr>
+<td><code>list_problems()</code> response</td>
+<td><code>problems: list[Problem]</code> and a <code>pagination</code> record</td>
+</tr>
+<tr>
+<td><code>submit_job()</code> or <code>schedule_job()</code> response</td>
+<td><code>message: str</code>, <code>expected_run_at: datetime | None</code>, <code>job: Job</code></td>
+</tr>
+<tr>
+<td>Job-list response</td>
+<td><code>jobs: list[Job]</code>, a <code>pagination</code> record, <code>total_compute_time_s: float | None</code>, and <code>total_credits_used: float | None</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="compute-resources-and-credit-records">Compute resources and credit records</h3>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Field</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ComputeResource</code></td>
+<td><code>id</code></td>
+<td><code>str</code></td>
+<td>Opaque deployment identifier.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>backend_name</code>, <code>type</code>, <code>device_name</code>, <code>status</code></td>
+<td><code>str | None</code></td>
+<td>Backend, solver class, device label, and availability state.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>usage_rate</code></td>
+<td><code>float | None</code></td>
+<td>Non-negative platform-supplied usage rate.</td>
+</tr>
+<tr>
+<td><code>CreditUsageJob</code></td>
+<td><code>job_id</code>, <code>credits_used</code></td>
+<td><code>str</code>, <code>int</code></td>
+<td>Job identifier and non-negative charged credits.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>name</code>, <code>user_name</code>, <code>device_name</code>, <code>method</code>, <code>status</code></td>
+<td><code>str | None</code></td>
+<td>Display and execution metadata.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>compute_resource_id</code>, <code>compute_backend</code></td>
+<td><code>str | None</code></td>
+<td>Resource identifier and backend.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>executed_at</code></td>
+<td><code>datetime | None</code></td>
+<td>Execution timestamp.</td>
+</tr>
+<tr>
+<td><code>CreditUsage</code></td>
+<td><code>used_credits</code>, <code>start_date</code>, <code>end_date</code></td>
+<td><code>int</code>, <code>datetime</code>, <code>datetime</code></td>
+<td>Total and platform-supplied report period; the end cannot precede the start.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>jobs</code></td>
+<td><code>list[CreditUsageJob]</code></td>
+<td>Jobs included in the report.</td>
+</tr>
+<tr>
+<td><code>CreditResourceUsage</code></td>
+<td><code>compute_resource_id</code>, <code>used_credits</code>, <code>job_count</code></td>
+<td><code>str</code>, <code>int</code>, <code>int</code></td>
+<td>Resource identifier, charge total, and job count.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>compute_backend</code></td>
+<td><code>str | None</code></td>
+<td>Backend label.</td>
+</tr>
+<tr>
+<td><code>CreditUsageByResource</code></td>
+<td><code>used_credits</code>, <code>start_date</code>, <code>end_date</code></td>
+<td><code>int</code>, <code>datetime</code>, <code>datetime</code></td>
+<td>Total and report period.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>compute_resource_usages</code></td>
+<td><code>list[CreditResourceUsage]</code></td>
+<td>Per-resource records; their credits must sum to <code>used_credits</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><code>ComputeResource</code> accepts the public field name <code>id</code> and the platform payload alias <code>ID</code>; serialization uses <code>id</code>.</p>
+<p><code>CreditQuota</code> fields are:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code>, <code>compute_resource_id</code></td>
+<td><code>str</code></td>
+<td>Quota and resource identifiers.</td>
+</tr>
+<tr>
+<td><code>allocated_credits</code></td>
+<td><code>int</code></td>
+<td>Base allocation.</td>
+</tr>
+<tr>
+<td><code>used_credits</code>, <code>reserved_credits</code></td>
+<td><code>int = 0</code></td>
+<td>Charged and separately reported reserved amounts.</td>
+</tr>
+<tr>
+<td><code>total_credits</code></td>
+<td><code>int | None</code></td>
+<td>Enforced organization capacity when present; otherwise <code>allocated_credits</code> is the capacity.</td>
+</tr>
+<tr>
+<td><code>top_up_credits</code></td>
+<td><code>int = 0</code></td>
+<td>Additional credits reported by the platform.</td>
+</tr>
+<tr>
+<td><code>top_up_expiry_date</code></td>
+<td><code>datetime | None</code></td>
+<td>Top-up expiry.</td>
+</tr>
+<tr>
+<td><code>from_date</code>, <code>to_date</code></td>
+<td><code>datetime | None</code></td>
+<td>Allocation period; the end cannot precede the start.</td>
+</tr>
+<tr>
+<td><code>user_id</code>, <code>workspace_id</code>, <code>organization_id</code></td>
+<td><code>str | None</code></td>
+<td>Owning scope.</td>
+</tr>
+<tr>
+<td><code>compute_resource</code></td>
+<td><code>dict | None</code></td>
+<td>Embedded resource payload when supplied.</td>
+</tr>
+<tr>
+<td><code>capacity_credits</code></td>
+<td>read-only <code>int</code></td>
+<td><code>total_credits</code> when present, otherwise <code>allocated_credits</code>.</td>
+</tr>
+<tr>
+<td><code>remaining_credits</code></td>
+<td>read-only <code>int</code></td>
+<td><code>capacity_credits - used_credits</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>All credit counts reject Booleans, negative values, and non-integers. <code>used_credits</code> cannot exceed quota capacity.</p>
+<h3 id="collaboration-records">Collaboration records</h3>
+<table>
+<thead>
+<tr>
+<th>Returned object</th>
+<th>Fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UserSummary</code></td>
+<td><code>id: str</code>; optional <code>name</code>, <code>email</code>, <code>role</code>, <code>status</code>, <code>organization_id</code>; <code>is_revoked: bool | None</code></td>
+</tr>
+<tr>
+<td><code>Organization</code></td>
+<td><code>id: str</code>, <code>organization_name: str</code>, optional <code>billing_details</code>; optional non-negative <code>min_booking_minutes</code>, <code>max_booking_minutes</code>, <code>max_daily_minutes</code>, <code>current_seat_count</code>; <code>users: list[UserSummary]</code>; optional <code>created_at</code>, <code>updated_at</code></td>
+</tr>
+<tr>
+<td><code>Workspace</code></td>
+<td><code>id: str</code>, <code>owner_id: str | None</code>, <code>name: str</code>, <code>description: str</code>, <code>organization_id: str</code>, <code>is_default: bool</code>, optional <code>created_at</code>, <code>updated_at</code></td>
+</tr>
+<tr>
+<td><code>Project</code></td>
+<td><code>id: str</code>, <code>owner_id: str</code>, <code>name: str</code>, <code>description: str</code>, <code>workspace_id: str</code>, <code>is_default: bool</code>, optional <code>created_at</code>, <code>updated_at</code></td>
+</tr>
+<tr>
+<td><code>Experiment</code></td>
+<td><code>id: str</code>, <code>owner_id: str</code>, <code>name: str</code>, <code>description: str</code>, <code>project_id: str</code>, optional <code>workspace_id</code>, <code>compute_resource_id</code>; <code>is_default: bool</code>; non-negative <code>total_compute_time_s: float</code>, <code>total_credits_used: int</code>; optional <code>created_at</code>, <code>updated_at</code></td>
+</tr>
+<tr>
+<td><code>Invitation</code></td>
+<td><code>id: str</code>, <code>organization_id: str</code>, <code>email: str</code>, <code>role: str</code>, <code>status: str</code>; optional <code>invitation_type</code>, <code>invited_by</code>, <code>expires_at</code>, <code>created_at</code>, <code>updated_at</code></td>
+</tr>
+<tr>
+<td>Workspace-list response</td>
+<td><code>workspaces: list[Workspace]</code>, a <code>pagination</code> record, and optional <code>summary</code></td>
+</tr>
+<tr>
+<td>Project-list response</td>
+<td><code>projects: list[Project]</code> and a <code>pagination</code> record</td>
+</tr>
+<tr>
+<td>Experiment-list response</td>
+<td><code>experiments: list[Experiment]</code> and a <code>pagination</code> record</td>
+</tr>
+</tbody>
+</table>
+<p><code>Organization.min_booking_minutes</code> cannot exceed <code>max_booking_minutes</code>. Text identifiers are stripped and must be non-empty when present.</p>
+<h3 id="server-sent-events">Server-sent events</h3>
+<p><code>SSEEvent</code> contains <code>event: str</code> and decoded <code>data: Any</code>. The event name is non-empty. JSON data becomes its Python value; other data remains text.</p>
+<h2 id="error-reference">Error reference</h2>
+<p>Confirmation endpoints return the platform acknowledgement dictionary. Its keys depend on the endpoint; treat a successful return as confirmation and use the typed retrieval operation when current entity state is required.</p>
+<p>Common failures are:</p>
+<table>
+<thead>
+<tr>
+<th>Exception/message</th>
+<th>Cause</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ValueError: API key is missing / invalid. Get a valid API key by registering at https://opt.qpiai.tech/</code></td>
+<td>Missing or empty credential at client construction.</td>
+<td>Load a key from a secret manager and keep it outside logs.</td>
+</tr>
+<tr>
+<td><code>AuthenticationError</code></td>
+<td>The platform rejected the credential.</td>
+<td>Replace/revoke the key; do not retry the same key indefinitely.</td>
+</tr>
+<tr>
+<td><code>APIError: ... returned invalid JSON</code></td>
+<td>An object/array endpoint returned a non-JSON body.</td>
+<td>Preserve the status and response context and report the platform failure.</td>
+</tr>
+<tr>
+<td><code>APIError: ... expected a JSON object</code> / <code>... array</code></td>
+<td>The response shape contradicts the endpoint contract.</td>
+<td>Treat the response as invalid; do not guess a wrapper.</td>
+</tr>
+<tr>
+<td><code>requests.Timeout</code></td>
+<td>One HTTP exchange exceeded its request timeout.</td>
+<td>Reconcile a submission before retrying; retry read-only calls within an application deadline.</td>
+</tr>
+<tr>
+<td><code>TimeoutError</code></td>
+<td>A job did not reach a terminal state before the total wait deadline.</td>
+<td>Keep the same job ID and resume monitoring.</td>
+</tr>
+<tr>
+<td><code>JobFailedError</code></td>
+<td>The job reached a failed terminal state.</td>
+<td>Read <code>job.error</code>; there is no completed solution.</td>
+</tr>
+<tr>
+<td><code>JobCancelledError</code></td>
+<td>The job reached a cancelled terminal state.</td>
+<td>Treat it as no solution.</td>
+</tr>
+<tr>
+<td><code>RuntimeError: &lt;class&gt; job &lt;id&gt; returned an invalid result</code></td>
+<td>Lifecycle state is completed but no class-specific result can be retrieved/validated.</td>
+<td>Preserve the job/problem IDs and investigate the existing record.</td>
+</tr>
+</tbody>
+</table>
+<p>For <code>APIError</code>, <code>status_code</code> is available when the failure came from an HTTP response. Validation errors occur before a network side effect whenever the SDK has all required information locally.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="transformations.html"><span>Previous</span><strong>Model inspection, transformations, and decoding</strong></a><a class="pager-card next" href="automation.html"><span>Next</span><strong>Automation and agent workflows</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#construction">Construction</a><a class="toc-level-2" href="#authentication-and-account-operations">Authentication and account operations</a><a class="toc-level-2" href="#organizations-and-collaboration">Organizations and collaboration</a><a class="toc-level-3" href="#organization-and-invitations">Organization and invitations</a><a class="toc-level-3" href="#workspaces">Workspaces</a><a class="toc-level-3" href="#projects-and-experiments">Projects and experiments</a><a class="toc-level-2" href="#experiment-selection">Experiment selection</a><a class="toc-level-2" href="#problems">Problems</a><a class="toc-level-2" href="#advanced-solver-discovery-and-resource-pinning">Advanced solver discovery and resource pinning</a><a class="toc-level-2" href="#job-submission-and-scheduling">Job submission and scheduling</a><a class="toc-level-2" href="#reading-and-filtering-jobs">Reading and filtering jobs</a><a class="toc-level-2" href="#credit-usage-and-allocations">Credit usage and allocations</a><a class="toc-level-2" href="#server-sent-events-and-waiting">Server-Sent Events and waiting</a><a class="toc-level-2" href="#storage-and-result-extraction">Storage and result extraction</a><a class="toc-level-2" href="#timeouts">Timeouts</a><a class="toc-level-2" href="#failure-and-retry-policy">Failure and retry policy</a><a class="toc-level-2" href="#response-models">Response models</a><a class="toc-level-3" href="#jobs-and-problems">Jobs and problems</a><a class="toc-level-3" href="#compute-resources-and-credit-records">Compute resources and credit records</a><a class="toc-level-3" href="#collaboration-records">Collaboration records</a><a class="toc-level-3" href="#server-sent-events">Server-sent events</a><a class="toc-level-2" href="#error-reference">Error reference</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

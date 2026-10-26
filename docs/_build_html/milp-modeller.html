@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="MILP modeller">
+<title>MILP modeller | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/milp-modeller.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="milp-modeller">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="active" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Modelling</span><span aria-hidden="true">&gt;</span><span>MILP modeller</span></div><article class="doc-content"><h1 id="milp-modeller">MILP modeller</h1>
+<p>The MILP path represents linear objectives and linear constraints over continuous and discrete domains. It produces solver-neutral matrices and LP/MPS files; solving is handled separately by <code>qpiai_opt.opt_solvers.milp</code>.</p>
+<h2 id="mathematical-form">Mathematical form</h2>
+<div class="arithmatex">\[
+\begin{aligned}
+\min\;\text{or}\;\max\quad &amp;c^Tx+c_0\\
+\text{subject to}\quad &amp;b_l\le Ax\le b_u,\\
+&amp;l\le x\le u.
+\end{aligned}
+\]</div>
+<p>Each column has a declared continuous or discrete domain. LP uses continuous columns; MILP permits integer and binary columns alongside continuous columns. Equal row bounds express equalities, and infinite bounds express one-sided rows or unbounded variable endpoints. Supported domain, indicator, and SOS reformulations produce this linear form.</p>
+<h2 id="complete-model">Complete model</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Binary</span><span class="p">,</span> <span class="n">Continuous</span><span class="p">,</span> <span class="n">Indicator</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">Model</span>
+
+<span class="n">produce</span> <span class="o">=</span> <span class="n">Integer</span><span class="p">(</span><span class="s2">"produce"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="n">overtime</span> <span class="o">=</span> <span class="n">Continuous</span><span class="p">(</span><span class="s2">"overtime"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">open_line</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"open_line"</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"production"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="n">produce</span> <span class="o">+</span> <span class="mi">12</span> <span class="o">*</span> <span class="n">overtime</span> <span class="o">+</span> <span class="mi">30</span> <span class="o">*</span> <span class="n">open_line</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">produce</span> <span class="o">+</span> <span class="n">overtime</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"demand"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">produce</span> <span class="o">&lt;=</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">open_line</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"activation"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
+    <span class="n">Indicator</span><span class="p">(</span><span class="n">open_line</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">produce</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">"minimum_batch"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">problem_class</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="s2">"MILP"</span><span class="p">)</span>  <span class="c1"># "MIP"</span>
+<span class="n">matrix</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to_lp_matrix</span><span class="p">()</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to_lp_file</span><span class="p">(</span><span class="s2">"production.lp"</span><span class="p">)</span>
+</code></pre></div>
+<p>An objective is required before validation or export. <code>minimize()</code> and <code>maximize()</code> accept a variable, an expression, or a finite real constant. Objective constants are preserved.</p>
+<h3 id="numeric-inputs">Numeric inputs</h3>
+<p>The modeller stores numeric coefficients, bounds, and constants as IEEE-754 binary64 values. Ordinary decimal rounding is expected; values are not kept as arbitrary-precision decimals. Keep values within the finite binary64 range and scale a model with very large or very small quantities. Integer variable bounds are limited to <code>2**53 - 1</code> in magnitude. <code>decimal.Decimal</code> is not accepted; use a supported Python or NumPy real value. See <a href="model-ir.html#numeric-representation">canonical IR numeric representation</a> for the shared representation rules.</p>
+<h2 id="variables-and-domains">Variables and domains</h2>
+<table>
+<thead>
+<tr>
+<th>Constructor</th>
+<th>Mathematical domain</th>
+<th>Linear export</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Continuous(name, lower_bound=0.0, upper_bound=inf)</code></td>
+<td><span class="arithmatex">\(x \in [lower\_bound, upper\_bound]\)</span></td>
+<td>Continuous column. Infinite lower or upper bounds are allowed.</td>
+</tr>
+<tr>
+<td><code>Integer(name, lower_bound=0, upper_bound=None)</code></td>
+<td><span class="arithmatex">\(x \in \mathbb Z \cap [lower\_bound, upper\_bound]\)</span></td>
+<td>Integer column. <code>None</code> means positive infinity.</td>
+</tr>
+<tr>
+<td><code>Binary(name)</code></td>
+<td><span class="arithmatex">\(x \in \{0,1\}\)</span></td>
+<td>Binary column.</td>
+</tr>
+<tr>
+<td><code>SemiContinuous(name, lower_bound, upper_bound)</code></td>
+<td><span class="arithmatex">\(x=0\)</span> or <span class="arithmatex">\(lower\_bound \le x \le upper\_bound\)</span></td>
+<td>Semi-continuous column or exact MILP representation.</td>
+</tr>
+<tr>
+<td><code>SemiInteger(name, lower_bound, upper_bound)</code></td>
+<td><span class="arithmatex">\(x=0\)</span> or <span class="arithmatex">\(x \in \mathbb Z \cap [lower\_bound,upper\_bound]\)</span></td>
+<td>Semi-integer column or exact MILP representation.</td>
+</tr>
+<tr>
+<td><code>Fraction(name, lower_bound, upper_bound, precision_decimals=2)</code></td>
+<td>Fixed decimal grid in the closed interval</td>
+<td>Exact scaled-integer reformulation.</td>
+</tr>
+<tr>
+<td><code>Mixed(name, valid_discrete_values, continuous_range)</code></td>
+<td>One listed discrete value or any real value in the interval</td>
+<td>Exact disjunctive MILP reformulation.</td>
+</tr>
+</tbody>
+</table>
+<p>Requirements enforced at construction:</p>
+<ul>
+<li>names are non-empty single-line strings;</li>
+<li>finite integer and semi-integer bounds lie in <code>[-(2**53 - 1), 2**53 - 1]</code> and have integral values;</li>
+<li>semi-domain bounds are finite and satisfy <code>0 &lt; lower &lt;= upper</code>;</li>
+<li>fixed-point bounds are finite, aligned to 0 through 15 requested decimal places, and safe to scale exactly;</li>
+<li>mixed discrete values are finite and unique, and the continuous interval is finite and ordered.</li>
+</ul>
+<p>Two distinct variable objects may use the same name in different models. A single model rejects distinct variables with the same name. Use <code>model.add_variable(variable)</code> or <code>add_variables(...)</code> to retain an isolated or currently zero-coefficient variable:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">reserve</span> <span class="o">=</span> <span class="n">Continuous</span><span class="p">(</span><span class="s2">"reserve"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span><span class="n">reserve</span><span class="p">)</span>
+</code></pre></div>
+<p><code>model.variables()</code> returns the model's variables in stable first-use order.</p>
+<h2 id="expressions">Expressions</h2>
+<p>Variables support:</p>
+<ul>
+<li>addition and subtraction;</li>
+<li>multiplication by a finite scalar;</li>
+<li>division by a nonzero finite scalar;</li>
+<li>variable products and non-negative integer powers;</li>
+<li><code>&lt;=</code>, <code>&gt;=</code>, and <code>==</code> to construct modelling constraints.</li>
+</ul>
+<p>The MILP validator accepts objectives and relational bodies of degree at most one. Nonlinear expressions use the QUBO/HUBO or QP paths; linear export rejects them.</p>
+<p>Use <code>quicksum()</code> instead of repeated Python addition for a large collection:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_binary_array</span><span class="p">,</span> <span class="n">dot</span><span class="p">,</span> <span class="n">quicksum</span>
+
+<span class="n">select</span> <span class="o">=</span> <span class="n">create_binary_array</span><span class="p">(</span><span class="s2">"select"</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">cost</span> <span class="o">=</span> <span class="n">dot</span><span class="p">([</span><span class="mf">2.0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">select</span><span class="p">)</span>
+<span class="n">cardinality</span> <span class="o">=</span> <span class="n">quicksum</span><span class="p">(</span><span class="n">select</span><span class="p">)</span>
+</code></pre></div>
+<p><code>dot(coefficients, variables)</code> requires equal lengths.</p>
+<h3 id="direct-expression-objects">Direct expression objects</h3>
+<p>Operator syntax is the usual entry point, but the exported low-level constructors are also supported:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Expression</span><span class="p">,</span> <span class="n">Term</span>
+
+<span class="n">direct</span> <span class="o">=</span> <span class="n">Expression</span><span class="p">(</span>
+    <span class="n">terms</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">Term</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="p">[</span><span class="n">produce</span><span class="p">]),</span>
+        <span class="n">Term</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="p">[</span><span class="n">overtime</span><span class="p">]),</span>
+    <span class="p">],</span>
+    <span class="n">constant</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">same</span> <span class="o">=</span> <span class="n">Expression</span><span class="o">.</span><span class="n">from_terms</span><span class="p">(</span><span class="n">direct</span><span class="o">.</span><span class="n">terms</span><span class="p">,</span> <span class="n">constant</span><span class="o">=</span><span class="n">direct</span><span class="o">.</span><span class="n">constant</span><span class="p">)</span>
+</code></pre></div>
+<p><code>Term(coefficient, variables)</code> requires a finite real coefficient and decision variable factors. <code>Expression(terms=None, constant=0)</code> combines such terms and a finite constant; constant-only terms are folded into the constant and zero-coefficient terms are removed.</p>
+<p><code>expression.terms</code> returns a list of terms. <code>expression.degree()</code> returns the polynomial degree. Pass <code>raise_on_higher_order=True</code> when a quadratic-only operation should reject a higher-order expression with <code>NonlinearExpressionError</code>. <code>expression.evaluate(values)</code> accepts a complete variable/name mapping, and <code>expression.to_readable_string()</code> returns display text. Display text is not an interchange parser. <code>expression.to_terms()</code> returns a defensive list copy of its terms.</p>
+<p><code>model.objective_as_string()</code> returns the objective display text. <code>model.print_objective()</code> prints and returns that same string; neither method is an interchange or serialization format.</p>
+<h2 id="relational-constraints">Relational constraints</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">produce</span> <span class="o">+</span> <span class="n">overtime</span> <span class="o">&lt;=</span> <span class="mi">12</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"capacity"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">produce</span> <span class="o">-</span> <span class="n">overtime</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"balance"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">produce</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">overtime</span> <span class="o">==</span> <span class="mi">12</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"recipe"</span><span class="p">)</span>
+</code></pre></div>
+<p><code>add_constraint()</code> returns the same constraint. An explicit <code>label</code> must be a non-empty unique string. When omitted, the model uses <code>c0</code>, <code>c1</code>, and so on. Generated and explicit effective names cannot collide.</p>
+<p><code>penalty_weight</code> is stored for QUBO/HUBO compilation. It has no effect on native linear export. It must be a finite positive number when supplied.</p>
+<h2 id="indicator-constraints">Indicator constraints</h2>
+<p><code>Indicator(trigger, active_value, body)</code> enforces <code>body</code> only when the binary trigger equals <code>active_value</code>.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Indicator</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
+    <span class="n">Indicator</span><span class="p">(</span><span class="n">open_line</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">overtime</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">"closed_line_has_no_overtime"</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>The trigger must be <code>Binary</code>, the active value must be <code>0</code> or <code>1</code>, and the body must be a linear equality or inequality. Export derives a tight big-M value from body-variable bounds. Every body variable must therefore have finite bounds. Equality indicators become one upper and one lower row.</p>
+<p>The active case is checked for floating-point cancellation during export. If the reformulated row differs from the source relation by more than the SDK's <code>1e-6</code> source-feasibility tolerance, export raises a numerical-stability error. Tighten the body-variable bounds or rescale the model before exporting; a weakened active relation is never silently accepted.</p>
+<p>Indicator constraints are not accepted by QUBO/HUBO compilation.</p>
+<h2 id="sos1-and-sos2">SOS1 and SOS2</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Continuous</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">SOS1</span><span class="p">,</span> <span class="n">SOS2</span><span class="p">,</span> <span class="n">create_binary_array</span>
+
+<span class="n">modes</span> <span class="o">=</span> <span class="n">create_binary_array</span><span class="p">(</span><span class="s2">"mode"</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">interpolation_weights</span> <span class="o">=</span> <span class="p">[</span><span class="n">Continuous</span><span class="p">(</span><span class="sa">f</span><span class="s2">"weight_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+<span class="n">sos_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"special_ordered_sets"</span><span class="p">)</span>
+<span class="n">sos_model</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">sos_model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">SOS1</span><span class="p">(</span><span class="s2">"one_mode"</span><span class="p">,</span> <span class="n">modes</span><span class="p">))</span>
+<span class="n">sos_model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
+    <span class="n">SOS2</span><span class="p">(</span>
+        <span class="s2">"adjacent_breakpoints"</span><span class="p">,</span>
+        <span class="n">interpolation_weights</span><span class="p">,</span>
+        <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>SOS1 permits at most one nonzero member.</li>
+<li>SOS2 permits at most two nonzero members; two active members must be adjacent after ordering by weight.</li>
+<li>A set needs at least one member. Member names cannot repeat.</li>
+<li>Weights default to <code>1, 2, ...</code>; explicit weights must be finite, unique, and match the member count.</li>
+</ul>
+<p><code>to_lp_matrix()</code>, LP, and MPS use exact selector reformulations by default. Selector reformulations require finite member bounds; an SOS2 set with at most two members needs no selectors or finite bounds. Pass <code>for_milp=False</code> to retain native SOS records instead:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">native_sos_data</span> <span class="o">=</span> <span class="n">sos_model</span><span class="o">.</span><span class="n">to_lp_matrix</span><span class="p">(</span><span class="n">for_milp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">sos_reformulated</span> <span class="o">=</span> <span class="n">native_sos_data</span><span class="p">[</span><span class="s2">"sos_reformulated"</span><span class="p">]</span>  <span class="c1"># False</span>
+</code></pre></div>
+<h2 id="model-validation-and-classification">Model validation and classification</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">classification</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+</code></pre></div>
+<p>Without a target, the model is classified from its variables, objective degree, and constraints. Linear results are:</p>
+<ul>
+<li><code>"LP"</code> for continuous-only linear models;</li>
+<li><code>"MILP"</code> for discrete-only linear models;</li>
+<li><code>"MIP"</code> when continuous and discrete variables occur together.</li>
+</ul>
+<p><code>validate("LP")</code>, <code>validate("MILP")</code>, and <code>validate("MIP")</code> all run the same linear structural validation and return the normalized classification. A requested target does not relax domain or linearity rules.</p>
+<h2 id="matrix-representation">Matrix representation</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">data</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to_lp_matrix</span><span class="p">(</span>
+    <span class="n">for_milp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">sparse_matrix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>The central numerical contract is:</p>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">row_lower &lt;= constraint_matrix @ x &lt;= row_upper
+objective value = objective @ x + objective_offset
+</code></pre></div>
+<p><code>variable_names</code> defines column order; <code>constraint_names</code> defines row order. <code>lower_bounds</code> and <code>upper_bounds</code> align with columns. <code>integrality</code> uses SciPy codes:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Code</th>
+<th>Domain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><code>0</code></td>
+<td>continuous</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>1</code></td>
+<td>integer, including binary selectors</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>2</code></td>
+<td>semi-continuous</td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>3</code></td>
+<td>semi-integer</td>
+</tr>
+</tbody>
+</table>
+<p>The default constraint matrix is SciPy CSR. Set <code>sparse_matrix=False</code> only when a consumer requires a dense NumPy array.</p>
+<p>Local linear and quadratic solves require <code>1e-9 &lt; abs(value) &lt; 1e15</code> for every nonzero constraint-matrix or Hessian coefficient. Objective coefficients and finite bounds have separate <a href="local-solving.html#numeric-input-range">numeric limits</a>. Rescale values outside these ranges before solving.</p>
+<p>Domain and indicator reformulations can add auxiliary columns and rows in either mode. <code>for_milp=True</code> also reformulates SOS sets; <code>False</code> retains them separately. Read original solution values from their named columns. Both options require Python <code>bool</code> values.</p>
+<p>The result is a <code>dict</code> with the following fields. Let <code>n</code> be the number of exported columns and <code>m</code> the number of exported linear rows, including reformulations.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type and meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td><code>str</code>: source model name.</td>
+</tr>
+<tr>
+<td><code>problem_type</code></td>
+<td><code>"LP"</code>, <code>"MILP"</code>, or <code>"MIP"</code>: source linear classification.</td>
+</tr>
+<tr>
+<td><code>solver</code></td>
+<td><code>str</code>: linear adapter identifier, <code>"milp"</code>.</td>
+</tr>
+<tr>
+<td><code>format</code></td>
+<td><code>"matrix"</code>.</td>
+</tr>
+<tr>
+<td><code>sense</code></td>
+<td><code>"min"</code> or <code>"max"</code>; coefficients retain the source direction.</td>
+</tr>
+<tr>
+<td><code>variable_names</code></td>
+<td><code>list[str]</code>, length <code>n</code>: column names.</td>
+</tr>
+<tr>
+<td><code>objective</code></td>
+<td>NumPy <code>float64</code> array, shape <code>(n,)</code>: linear objective coefficients.</td>
+</tr>
+<tr>
+<td><code>objective_coefficients</code></td>
+<td><code>dict[str, float]</code>: nonzero linear coefficients by variable name.</td>
+</tr>
+<tr>
+<td><code>objective_offset</code></td>
+<td><code>float</code>: source objective constant.</td>
+</tr>
+<tr>
+<td><code>constraint_names</code></td>
+<td><code>list[str]</code>, length <code>m</code>: linear row names.</td>
+</tr>
+<tr>
+<td><code>constraint_matrix</code></td>
+<td>SciPy CSR <code>float64</code> matrix of shape <code>(m, n)</code>; a NumPy <code>float64</code> array with the same shape when <code>sparse_matrix=False</code>.</td>
+</tr>
+<tr>
+<td><code>row_lower</code>, <code>row_upper</code></td>
+<td>NumPy <code>float64</code> arrays, shape <code>(m,)</code>: row activity bounds; infinities indicate absent bounds.</td>
+</tr>
+<tr>
+<td><code>constraints</code></td>
+<td><code>list[dict]</code>, length <code>m</code>: structured row records described below.</td>
+</tr>
+<tr>
+<td><code>lower_bounds</code>, <code>upper_bounds</code></td>
+<td>NumPy <code>float64</code> arrays, shape <code>(n,)</code>: column bounds, with infinities where allowed.</td>
+</tr>
+<tr>
+<td><code>integrality</code></td>
+<td>NumPy <code>int32</code> array, shape <code>(n,)</code>: domain codes in the table above.</td>
+</tr>
+<tr>
+<td><code>variable_types</code></td>
+<td><code>dict[str, str]</code>: exported column domain kinds. Fractional and mixed source variables use continuous columns plus explicit domain reformulations.</td>
+</tr>
+<tr>
+<td><code>sos</code></td>
+<td><code>list[dict]</code>: native SOS records when <code>for_milp=False</code>; otherwise empty.</td>
+</tr>
+<tr>
+<td><code>sos_reformulated</code></td>
+<td><code>bool</code>: the supplied <code>for_milp</code> setting, even when the model contains no SOS sets.</td>
+</tr>
+</tbody>
+</table>
+<p>Each <code>constraints</code> record has <code>name: str</code>, <code>sense: "=" | "&lt;=" | "&gt;="</code>, <code>rhs: float</code>, <code>lower: float</code>, <code>upper: float</code>, <code>coefficients: dict[str, float]</code>, and <code>is_sos=False</code>. Bounds and coefficients describe the exported row after constants have moved to the right-hand side.</p>
+<p>Each native <code>sos</code> record has <code>name: str</code>, <code>type: "S1" | "S2"</code>, <code>variables: list[str]</code>, and <code>weights: list[float]</code> in corresponding order. Native SOS records are additional constraints; a consumer must enforce them as well as the linear matrix. Keeping only the matrix would lose those restrictions.</p>
+<h2 id="lp-mps-and-gzip-export">LP, MPS, and gzip export</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">lp_text</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to_lp_string</span><span class="p">()</span>
+<span class="n">mps_text</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to_mps_string</span><span class="p">()</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">to_lp_file</span><span class="p">(</span><span class="s2">"model.lp"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">to_lp_file</span><span class="p">(</span><span class="s2">"model.lp.gz"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">to_mps_file</span><span class="p">(</span><span class="s2">"model.mps"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">to_mps_file</span><span class="p">(</span><span class="s2">"model.mps.gz"</span><span class="p">)</span>
+</code></pre></div>
+<p>The writers preserve:</p>
+<ul>
+<li>objective sense and constant;</li>
+<li>row names, senses, and right-hand sides;</li>
+<li>variable bounds and integrality;</li>
+<li>native SOS records when <code>for_milp=False</code>;</li>
+<li>exact MILP reformulations when <code>for_milp=True</code>.</li>
+</ul>
+<p>Variable, row, and SOS names are checked against a portable LP/MPS subset: at most 255 ASCII characters, beginning with a letter, <code>_</code>, <code>.</code>, or <code>$</code>, followed by letters, digits, <code>_</code>, <code>.</code>, <code>$</code>, <code>[</code>, <code>]</code>, or <code>,</code>. Format keywords and names beginning with <code>inf</code> case-insensitively are rejected. LP encodes square brackets as parentheses and includes a naming-convention header; MPS retains square brackets. Unsupported names fail before a file is opened. Long LP expressions wrap below the portable line-length limit.</p>
+<p>String exporters return newline-terminated text. File exporters accept a string or path-like destination and return its string path. Suffix checks are case-insensitive and require <code>.lp</code>/<code>.lp.gz</code> or <code>.mps</code>/<code>.mps.gz</code> respectively. Files use UTF-8 and LF newlines; <code>.gz</code> requests gzip compression. Existing files are overwritten after content validation. Parent directories must already exist, and filesystem errors propagate.</p>
+<p>A constant-only model is valid. Its in-memory matrix has zero variables. LP/MPS text represents it with one fixed zero-valued column so standard readers retain the objective constant.</p>
+<h2 id="strict-dictionary-interchange">Strict dictionary interchange</h2>
+<p><code>generate_lp()</code> converts a linear dictionary into both LP text and matrix data:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller.formats</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_lp</span>
+
+<span class="n">lp_text</span><span class="p">,</span> <span class="n">matrix_data</span> <span class="o">=</span> <span class="n">generate_lp</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"dictionary_model"</span><span class="p">,</span>
+        <span class="s2">"objective"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"sense"</span><span class="p">:</span> <span class="s2">"max"</span><span class="p">,</span>
+            <span class="s2">"terms"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"open"</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">"units"</span><span class="p">:</span> <span class="mi">9</span><span class="p">},</span>
+            <span class="s2">"constant"</span><span class="p">:</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">"constraints"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"capacity"</span><span class="p">,</span>
+                <span class="s2">"terms"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"units"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"open"</span><span class="p">:</span> <span class="o">-</span><span class="mi">8</span><span class="p">},</span>
+                <span class="s2">"sense"</span><span class="p">:</span> <span class="s2">"&lt;="</span><span class="p">,</span>
+                <span class="s2">"rhs"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">"bounds"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"units"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">]},</span>
+        <span class="s2">"binary"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"open"</span><span class="p">],</span>
+        <span class="s2">"general"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"units"</span><span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Top-level fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>no</td>
+<td>Non-empty model name; defaults to <code>GeneratedLP</code>.</td>
+</tr>
+<tr>
+<td><code>objective</code></td>
+<td>yes</td>
+<td>Dictionary: optional <code>sense="min"</code> (case-insensitive <code>min</code>/<code>max</code>), <code>terms={}</code> (name-to-coefficient dictionary), and <code>constant=0.0</code>.</td>
+</tr>
+<tr>
+<td><code>constraints</code></td>
+<td>no</td>
+<td>List or tuple of dictionaries: required <code>sense</code> (<code>=</code>, <code>&lt;=</code>, or <code>&gt;=</code>) and finite <code>rhs</code>; optional <code>terms={}</code> and <code>name=None</code>. Missing names become <code>c0</code>, <code>c1</code>, and so on.</td>
+</tr>
+<tr>
+<td><code>bounds</code></td>
+<td>no</td>
+<td>Name-to-pair dictionary; each pair is a list or tuple <code>[lower, upper]</code>. <code>None</code> lower means negative infinity; <code>None</code> upper means positive infinity.</td>
+</tr>
+<tr>
+<td><code>binary</code>, <code>general</code></td>
+<td>no</td>
+<td>List, tuple, or set of variable names, deduplicated within each section.</td>
+</tr>
+<tr>
+<td><code>semi_continuous</code>, <code>semi_integer</code></td>
+<td>no</td>
+<td>The same name collections; each variable requires explicit finite bounds with <code>0 &lt; lower &lt;= upper</code>.</td>
+</tr>
+<tr>
+<td><code>sos</code></td>
+<td>no</td>
+<td>List or tuple of dictionaries with required <code>name</code>, <code>type</code> (<code>S1</code>/<code>S2</code>), and nonempty <code>vars</code> mapping variable names to finite unique weights.</td>
+</tr>
+</tbody>
+</table>
+<p>Variables not listed in a type section are continuous. Type sections cannot overlap. Every dictionary level rejects unknown fields, so a misspelled <code>constraints</code>, <code>sense</code>, or type section cannot silently change the model. Coefficients and right-hand sides must be finite.</p>
+<p>Undeclared continuous/integer bounds default to <code>[0, +inf]</code>; binary bounds default to <code>[0, 1]</code>. Explicit binary bounds must be <code>[0, 1]</code>, <code>[0, 0]</code>, or <code>[1, 1]</code>; a fixed binary is enforced by an added equality. Variables are collected from nonzero objective/constraint terms, bounds, type declarations, and SOS membership, then registered in sorted name order. A zero coefficient alone does not declare a variable. At least one collected variable is required. These dictionary defaults are separate from a variable constructor's defaults.</p>
+<h2 id="evaluate-and-verify-a-solution">Evaluate and verify a solution</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">solution</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"produce"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="s2">"overtime"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+    <span class="s2">"open_line"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">"reserve"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">objective</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate_objective</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
+<span class="n">violations</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">constraint_violations</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
+<span class="n">feasible</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">is_feasible</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
+</code></pre></div>
+<p>The default <code>1e-6</code> tolerance matches local linear-solver feasibility. For a linear constraint, the threshold is scaled by the larger of one, the row activity, and the row bound. Variable-domain and SOS checks use the tolerance directly. Supply <code>tolerance=...</code> when your application requires a different verification threshold.</p>
+<p>The assignment must contain every source variable. Validation covers:</p>
+<ul>
+<li>finite real values;</li>
+<li>continuous bounds;</li>
+<li>binary, integer, and fixed-point membership;</li>
+<li>zero-or-interval semi-domains;</li>
+<li>mixed-domain unions;</li>
+<li>equality and inequality residuals;</li>
+<li>active indicators;</li>
+<li>SOS adjacency/cardinality;</li>
+<li>logical constraints if the model contains them.</li>
+</ul>
+<p>Domain errors use <code>variable:&lt;name&gt;</code> keys. Constraint entries are zero when satisfied within tolerance.</p>
+<h2 id="supported-boundary">Supported boundary</h2>
+<p>LP/MILP export requires linear objectives and rows. Solver configuration, status, basis information, and IIS data are documented in <a href="milp-solver.html">the MILP solver guide</a>. To convert a bounded linear discrete model to QUBO, use <code>milp_to_qubo()</code> as described in the <a href="qubo-modeller.html#milp-to-qubo">QUBO modeller guide</a>.</p>
+<p>Invalid structures raise typed exceptions from <code>qpiai_opt.opt_modeller.utils.exceptions</code>; <a href="automation.html#failure-handling">Automation failure handling</a> explains recovery at workflow level.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="modelling-workflows.html"><span>Previous</span><strong>Indexed variables, updates, and parameters</strong></a><a class="pager-card next" href="qp-modeller.html"><span>Next</span><strong>Continuous quadratic programming</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#mathematical-form">Mathematical form</a><a class="toc-level-2" href="#complete-model">Complete model</a><a class="toc-level-3" href="#numeric-inputs">Numeric inputs</a><a class="toc-level-2" href="#variables-and-domains">Variables and domains</a><a class="toc-level-2" href="#expressions">Expressions</a><a class="toc-level-3" href="#direct-expression-objects">Direct expression objects</a><a class="toc-level-2" href="#relational-constraints">Relational constraints</a><a class="toc-level-2" href="#indicator-constraints">Indicator constraints</a><a class="toc-level-2" href="#sos1-and-sos2">SOS1 and SOS2</a><a class="toc-level-2" href="#model-validation-and-classification">Model validation and classification</a><a class="toc-level-2" href="#matrix-representation">Matrix representation</a><a class="toc-level-2" href="#lp-mps-and-gzip-export">LP, MPS, and gzip export</a><a class="toc-level-2" href="#strict-dictionary-interchange">Strict dictionary interchange</a><a class="toc-level-2" href="#evaluate-and-verify-a-solution">Evaluate and verify a solution</a><a class="toc-level-2" href="#supported-boundary">Supported boundary</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

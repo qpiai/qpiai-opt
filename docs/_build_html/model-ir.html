@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Canonical model IR">
+<title>Canonical model IR | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/model-ir.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="model-ir">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="active" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Interoperability</span><span aria-hidden="true">&gt;</span><span>Canonical model IR</span></div><article class="doc-content"><h1 id="canonical-model-ir">Canonical model IR</h1>
+<p>The QpiAI Opt intermediate representation (IR) is a versioned JSON format for persistence, reproducibility, automation, and SDK adapters. It complements LP/MPS files and native QUBO/HUBO/Ising representations.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">dump</span><span class="p">,</span> <span class="n">dumps</span><span class="p">,</span> <span class="n">load</span><span class="p">,</span> <span class="n">loads</span><span class="p">,</span> <span class="n">to_ir</span><span class="p">,</span> <span class="n">from_ir</span>
+
+<span class="n">document</span> <span class="o">=</span> <span class="n">to_ir</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>  <span class="c1"># dict</span>
+<span class="n">payload</span> <span class="o">=</span> <span class="n">dumps</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">clone</span> <span class="o">=</span> <span class="n">loads</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+
+<span class="n">dump</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">"model.qpiai.json"</span><span class="p">)</span>
+<span class="n">clone</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="s2">"model.qpiai.json"</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="public-functions">Public functions</h2>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Input</th>
+<th>Return</th>
+<th>Failure behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>to_ir(value)</code></td>
+<td><code>Model</code>, <code>QUBOProblem</code>, <code>HUBOProblem</code>, <code>IsingProblem</code>, <code>MILPProblem</code>, <code>QubitHamiltonian</code></td>
+<td>canonical <code>dict</code></td>
+<td><code>TypeError</code> for other objects</td>
+</tr>
+<tr>
+<td><code>from_ir(document)</code></td>
+<td>mapping</td>
+<td>reconstructed native object</td>
+<td><code>TypeError</code> for non-mapping; <code>ValueError</code> for missing/unknown fields, version, references, duplicate terms, numbers, domains, or kinds; Pydantic validation for polynomial objects</td>
+</tr>
+<tr>
+<td><code>dumps(value, *, indent=None)</code></td>
+<td>supported native object</td>
+<td>deterministically key-sorted JSON string</td>
+<td>rejects NaN and unsupported values</td>
+</tr>
+<tr>
+<td><code>loads(payload)</code></td>
+<td><code>str</code>, <code>bytes</code>, <code>bytearray</code> JSON</td>
+<td>reconstructed object</td>
+<td><code>json.JSONDecodeError</code> or IR validation error; duplicate object keys and non-standard NaN/infinity tokens are rejected</td>
+</tr>
+<tr>
+<td><code>dump(value, path, *, indent=2)</code></td>
+<td>object and path</td>
+<td>written <code>Path</code></td>
+<td>normal filesystem errors</td>
+</tr>
+<tr>
+<td><code>load(path)</code></td>
+<td>path</td>
+<td>reconstructed object</td>
+<td>normal filesystem or parse/validation errors</td>
+</tr>
+</tbody>
+</table>
+<p>The schema version is <code>qpiai-opt-ir/1.0</code>. <code>from_ir()</code> rejects other version values.</p>
+<h2 id="common-envelope">Common envelope</h2>
+<p>Every document has:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ir_version</code></td>
+<td>string constant</td>
+<td><code>qpiai-opt-ir/1.0</code></td>
+</tr>
+<tr>
+<td><code>kind</code></td>
+<td>enum</td>
+<td><code>model</code>, <code>qubo</code>, <code>hubo</code>, <code>ising</code>, or <code>qubit_hamiltonian</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>kind="model"</code> documents carry <code>transformation_metadata</code>, an array of caller- or compiler-recorded transformation descriptions. Each item must be a JSON object. Native QUBO/HUBO/Ising documents contain the fields listed under their respective kinds below.</p>
+<p>All numbers are JSON numbers except unbounded variable limits, represented by the exact strings <code>"+inf"</code> and <code>"-inf"</code>. NaN is never valid.</p>
+<h2 id="numeric-representation">Numeric representation</h2>
+<p>Numeric fields use IEEE-754 binary64 values. JSON numbers are converted to that representation when the document is read, so ordinary decimal rounding is expected and the IR is not an arbitrary-precision decimal format. Values outside the finite binary64 range are outside the supported input domain; scale coefficients, bounds, and offsets before serializing them. A nonzero value that is too small for binary64 can underflow to zero, and a value that is too large can overflow, so neither retains its mathematical value in the IR.</p>
+<p>Exact integer meaning is guaranteed only through <code>2**53</code>. Larger integer values may round during binary64 conversion and must not be used where every integer digit matters. The SDK accepts finite Python and NumPy real values at its numeric boundaries; <code>decimal.Decimal</code> is not an accepted input type. Use a supported <code>int</code>, <code>float</code>, NumPy real scalar, or <code>fractions.Fraction</code> where the API accepts it, and scale values that approach the binary64 limits.</p>
+<h2 id="kindmodel"><code>kind="model"</code></h2>
+<p>Required fields are <code>name</code>, <code>sense</code>, <code>variables</code>, <code>objective</code>, <code>constraints</code>, <code>parameters</code>, <code>parameter_bindings</code>, and <code>transformation_metadata</code>.</p>
+<h3 id="variables">Variables</h3>
+<p>Each variable has a unique <code>name</code> and <code>domain</code>. Domains are:</p>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Additional fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BINARY</code>, <code>SPIN</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>INTEGER</code>, <code>CONTINUOUS</code>, <code>SEMI_CONTINUOUS</code>, <code>SEMI_INTEGER</code></td>
+<td><code>lower_bound</code>, <code>upper_bound</code></td>
+</tr>
+<tr>
+<td><code>FRACTIONAL</code></td>
+<td>bounds and <code>precision_decimals</code></td>
+</tr>
+<tr>
+<td><code>MIXED</code></td>
+<td><code>valid_discrete_values</code>, two-element <code>continuous_range</code></td>
+</tr>
+</tbody>
+</table>
+<p>Names are semantic IDs in IR. Expressions refer to them and deserialization rejects unknown or duplicate references.</p>
+<h3 id="expressions">Expressions</h3>
+<div class="code-shell"><div class="code-toolbar"><span>json</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-json"><span class="p">{</span>
+<span class="w">  </span><span class="nt">"constant"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"terms"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">"coefficient"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"variables"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"x"</span><span class="p">]},</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">"coefficient"</span><span class="p">:</span><span class="w"> </span><span class="mf">-1.5</span><span class="p">,</span><span class="w"> </span><span class="nt">"variables"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"x"</span><span class="p">,</span><span class="w"> </span><span class="s2">"y"</span><span class="p">]}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Repeated names preserve powers/products exactly. <code>sense</code> is <code>MIN</code> or <code>MAX</code>.</p>
+<h3 id="constraints">Constraints</h3>
+<table>
+<thead>
+<tr>
+<th><code>kind</code></th>
+<th>Fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>equal</code>, <code>less_equal</code>, <code>greater_equal</code></td>
+<td><code>lhs</code>, <code>rhs</code> expressions</td>
+</tr>
+<tr>
+<td><code>indicator</code></td>
+<td><code>binary</code>, <code>active_value</code>, nested <code>relation</code></td>
+</tr>
+<tr>
+<td><code>and</code>, <code>or</code>, <code>xor</code>, <code>not</code></td>
+<td>ordered variable-name array</td>
+</tr>
+<tr>
+<td><code>custom_penalty</code></td>
+<td><code>expression</code>, <code>penalty_label</code> (string or null)</td>
+</tr>
+<tr>
+<td><code>sos1</code>, <code>sos2</code></td>
+<td><code>name</code>, variable names, numeric <code>weights</code></td>
+</tr>
+</tbody>
+</table>
+<p>Every constraint carries <code>label</code> and <code>penalty_weight</code>; either value may be null. A null penalty weight retains automatic penalty selection. All listed fields are required, including nullable fields. Logical arrays contain three names for <code>and</code>/<code>or</code>/<code>xor</code>, or two for <code>not</code>, in constructor argument order. Indicator <code>relation</code> contains only its relational <code>kind</code>, <code>lhs</code>, and <code>rhs</code>.</p>
+<h3 id="parameters">Parameters</h3>
+<p><code>parameters</code> is an array of <code>{name, value}</code>. <code>parameter_bindings</code> contains objects with:</p>
+<ul>
+<li><code>parameter</code>;</li>
+<li><code>target</code>: <code>objective_coefficient</code>, <code>constraint_rhs</code>, <code>lower_bound</code>, or <code>upper_bound</code>;</li>
+<li><code>variable</code> for coefficient/bound targets, or zero-based <code>constraint</code> for an RHS target.</li>
+</ul>
+<p>Deserialization restores the serialized objective, bounds, and constraints, then validates their parameter bindings without reapplying parameter values. Use <code>model.set_parameter(name, value)</code> to update all registered targets atomically. Duplicate bindings are rejected.</p>
+<h2 id="polynomial-kinds">Polynomial kinds</h2>
+<h3 id="qubo">QUBO</h3>
+<p>Fields: <code>num_variables</code>, <code>terms[{indices:[i,j], coefficient}]</code>, <code>matrix_format</code>, <code>offset</code>, <code>sense</code>, and <code>variable_names</code> (an empty array when names are absent). The reconstructed <code>QUBOProblem</code> revalidates index range, symmetry, finite values, and name count.</p>
+<h3 id="hubo">HUBO</h3>
+<p>Fields: <code>num_variables</code>, <code>terms[{variables:[label,...], coefficient}]</code>, <code>sense</code>, and <code>variable_names</code> (an empty array when no explicit order was supplied). Solver-facing HUBO labels are non-empty strings; an empty term's <code>variables</code> array represents the constant. Repeated labels within a term are rejected. Labels are sorted within each term, and a second term with the same labels in another order is rejected as a duplicate. The declared variable order retains isolated variables and is revalidated by <code>HUBOProblem</code>.</p>
+<h3 id="ising">Ising</h3>
+<p>Fields: <code>num_variables</code>, <code>linear</code> (stringified integer index keys), <code>quadratic[{indices:[i,j], coefficient}]</code>, <code>offset</code>, <code>sense</code>, and <code>variable_names</code>. Linear keys use canonical decimal text: <code>"0"</code> and <code>"12"</code> are valid, while leading-zero, signed, and out-of-range forms are rejected. <code>num_variables</code> is a non-negative integer. <code>variable_names</code> may be an empty array when names were not supplied, including for the valid zero-spin constant case.</p>
+<h2 id="round-trip-guarantees-and-limits">Round-trip guarantees and limits</h2>
+<p>The guarantee is mathematical equivalence within the supported public model semantics: domains, bounds, sense, objective, constraints, offsets, labels, parameters, and transformation metadata survive. Runtime client state and solver results are not part of the model representation. Private source-model snapshots on compiled polynomial problem objects are also excluded: their IR preserves the compiled energy and declared labels, but not the original model's domain-decoding or source-objective metadata. Serialize the source <code>Model</code> separately when that interpretation is needed after loading.</p>
+<p>JSON object ordering is not semantic. <code>dumps()</code> sorts keys for reproducible text; variable, term, and constraint arrays preserve defined order.</p>
+<p>Readers reject unknown fields in the defined schemas. Generic transformation-metadata objects retain caller-defined keys; the piecewise-linear record has a strict schema and consistency checks.</p>
+<p>Collection members are validated before lookup or duplicate detection. Malformed variable names, indices, logical arity, SOS arrays, and canonical-key collisions therefore fail at the affected IR path instead of being aggregated or surfacing a generic Python container error.</p>
+<h2 id="hamiltonians-and-linear-problem-containers">Hamiltonians and linear problem containers</h2>
+<p><code>MILPProblem</code> serializes its underlying mathematical model using <code>kind="model"</code>; solver configuration and file paths are execution inputs and are not part of that model document. A path-backed container is read through the existing LP/MPS reader before conversion.</p>
+<p><code>kind="qubit_hamiltonian"</code> stores <code>num_qubits</code>, <code>sense</code>, <code>variable_names</code>, and <code>terms</code>. Each term contains a finite real <code>coefficient</code> and an <code>operators</code> array of <code>[qubit_index, "I" | "X" | "Y" | "Z"]</code> pairs; an empty array is the identity. This IR preserves arbitrary real Pauli terms. Conversion to QUBO or Ising is narrower and requires only identity, Z, and ZZ terms. Reading or writing a Hamiltonian requires the optional gate-based optimization dependency.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="quantum-optimization.html"><span>Previous</span><strong>Gate-based optimization</strong></a><a class="pager-card next" href="interoperability.html"><span>Next</span><strong>External solver interoperability</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#public-functions">Public functions</a><a class="toc-level-2" href="#common-envelope">Common envelope</a><a class="toc-level-2" href="#numeric-representation">Numeric representation</a><a class="toc-level-2" href="#kindmodel">kind=&quot;model&quot;</a><a class="toc-level-3" href="#variables">Variables</a><a class="toc-level-3" href="#expressions">Expressions</a><a class="toc-level-3" href="#constraints">Constraints</a><a class="toc-level-3" href="#parameters">Parameters</a><a class="toc-level-2" href="#polynomial-kinds">Polynomial kinds</a><a class="toc-level-3" href="#qubo">QUBO</a><a class="toc-level-3" href="#hubo">HUBO</a><a class="toc-level-3" href="#ising">Ising</a><a class="toc-level-2" href="#round-trip-guarantees-and-limits">Round-trip guarantees and limits</a><a class="toc-level-2" href="#hamiltonians-and-linear-problem-containers">Hamiltonians and linear problem containers</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

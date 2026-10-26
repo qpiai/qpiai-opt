@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="HUBO solver">
+<title>HUBO solver | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/hubo-solver.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="hubo-solver">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="active" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Solving</span><span aria-hidden="true">&gt;</span><span>HUBO solver</span></div><article class="doc-content"><h1 id="hubo-solver">HUBO solver</h1>
+<p>QpiAI's native higher-order HUBO solver works directly with the problem's natural higher-order polynomial, preserving its energy landscape without quadratization or reduction-induced approximations. <code>HUBOSolver</code> validates and submits the polynomial, preserves source labels, and returns typed results.</p>
+<h2 id="construct-huboproblem">Construct <code>HUBOProblem</code></h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers.hubo</span><span class="w"> </span><span class="kn">import</span> <span class="n">HUBOProblem</span>
+
+<span class="n">problem</span> <span class="o">=</span> <span class="n">HUBOProblem</span><span class="p">(</span>
+    <span class="n">polynomial_dict</span><span class="o">=</span><span class="p">{</span>
+        <span class="p">():</span> <span class="mf">4.0</span><span class="p">,</span>
+        <span class="p">(</span><span class="s2">"x"</span><span class="p">,):</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span>
+        <span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">):</span> <span class="mf">3.0</span><span class="p">,</span>
+        <span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">):</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">num_variables</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">sense</span><span class="o">=</span><span class="s2">"MIN"</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Polynomial rules:</p>
+<ul>
+<li>every key is a tuple;</li>
+<li><code>()</code> is the constant term;</li>
+<li>labels are non-empty strings;</li>
+<li>coefficients are finite real numbers;</li>
+<li>repeated labels within a term are removed by binary idempotence;</li>
+<li>term labels are sorted deterministically;</li>
+<li>equivalent terms are aggregated and zero terms are removed;</li>
+<li><code>num_variables</code> is a nonnegative integer;</li>
+<li>without <code>variable_names</code>, it must equal the distinct label count;</li>
+<li>optional <code>variable_names</code> declares the complete register, including isolated variables.</li>
+</ul>
+<p>Local execution supports zero and constant polynomials and isolated variables. The platform HUBO service requires a nonempty polynomial with an active term and every declared variable present in it; unsupported platform inputs are rejected before submission.</p>
+<p>Thus:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">canonical</span> <span class="o">=</span> <span class="n">HUBOProblem</span><span class="p">(</span>
+    <span class="n">polynomial_dict</span><span class="o">=</span><span class="p">{</span>
+        <span class="p">(</span><span class="s2">"y"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">):</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">):</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">num_variables</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">canonical</span><span class="o">.</span><span class="n">polynomial_dict</span>  <span class="c1"># {("x", "y"): 1.0}</span>
+</code></pre></div>
+<h3 id="from-an-algebraic-model">From an algebraic model</h3>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Binary</span><span class="p">,</span> <span class="n">Model</span>
+
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"x"</span><span class="p">),</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"y"</span><span class="p">),</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"z"</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"cubic_assignment"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span> <span class="o">*</span> <span class="n">z</span><span class="p">)</span>
+<span class="n">problem</span> <span class="o">=</span> <span class="n">HUBOProblem</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</code></pre></div>
+<p><code>from_model()</code> compiles the polynomial and retains an independent source snapshot for variable decoding, objective evaluation, and feasibility checks. Later edits to <code>model</code> do not change that problem. Encoding and penalty options follow <a href="hubo-modeller.html">HUBO compilation</a>.</p>
+<h2 id="problem-fields">Problem fields</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Default</th>
+<th>Contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>polynomial_dict</code></td>
+<td>required</td>
+<td>Validated binary polynomial, including a zero polynomial locally.</td>
+</tr>
+<tr>
+<td><code>num_variables</code></td>
+<td>required</td>
+<td>Strict nonnegative integer equal to the declared register size.</td>
+</tr>
+<tr>
+<td><code>variable_names</code></td>
+<td><code>None</code></td>
+<td>Optional complete, ordered, unique label tuple.</td>
+</tr>
+<tr>
+<td><code>sense</code></td>
+<td><code>"MIN"</code></td>
+<td><code>"MIN"</code> minimizes the source polynomial; <code>"MAX"</code> maximizes it. Results are restored to this source sense.</td>
+</tr>
+<tr>
+<td><code>problem_type</code></td>
+<td><code>"HUBO"</code></td>
+<td>Fixed HUBO marker.</td>
+</tr>
+<tr>
+<td><code>vartype</code></td>
+<td><code>"BINARY"</code></td>
+<td>Only supported HUBO variable type.</td>
+</tr>
+<tr>
+<td><code>solver_config</code></td>
+<td><code>None</code></td>
+<td>Validated solver-parameter dictionary.</td>
+</tr>
+</tbody>
+</table>
+<p>Unknown fields are forbidden.</p>
+<h2 id="client-and-solver-construction">Client and solver construction</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers.hubo</span><span class="w"> </span><span class="kn">import</span> <span class="n">HUBOSolver</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"QPIAI_OPT_API_KEY"</span><span class="p">])</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">HUBOSolver</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+</code></pre></div>
+<p>The solver can create its own client with <code>api_key=...</code>, <code>url=...</code>, <code>experiment_id=...</code>, or <code>experiment_name=...</code>.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">available</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">health</span><span class="p">()</span>
+</code></pre></div>
+<p><code>health() -&gt; bool</code> delegates to <code>Client.health()</code>. It performs an authenticated account request with a five-second timeout, creates no problem or job, and returns <code>False</code> on request or API failure.</p>
+<h2 id="solver-configuration">Solver configuration</h2>
+<p>Configuration can be stored on the problem:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">problem</span> <span class="o">=</span> <span class="n">HUBOProblem</span><span class="p">(</span>
+    <span class="n">polynomial_dict</span><span class="o">=</span><span class="p">{(</span><span class="s2">"x"</span><span class="p">,):</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">},</span>
+    <span class="n">num_variables</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">solver_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">"num_reads"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="s2">"num_sweeps"</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="s2">"seed"</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>or passed to <code>solve()</code>/<code>submit()</code>:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">result</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+    <span class="n">problem</span><span class="p">,</span>
+    <span class="n">num_reads</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">num_sweeps</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Per-call values override the same keys in <code>problem.solver_config</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Purpose</th>
+<th>Validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>num_sweeps</code></td>
+<td>Annealing sweeps per read.</td>
+<td>Positive integer.</td>
+</tr>
+<tr>
+<td><code>num_reads</code></td>
+<td>Number of independent sampling reads.</td>
+<td>Positive integer.</td>
+</tr>
+<tr>
+<td><code>num_threads</code></td>
+<td>Requested solver thread count.</td>
+<td>Positive integer.</td>
+</tr>
+<tr>
+<td><code>beta_min</code>, <code>beta_max</code></td>
+<td>Lower and upper inverse-temperature endpoints for annealing.</td>
+<td>Positive finite numbers; <code>beta_min &lt;= beta_max</code> when both are present.</td>
+</tr>
+<tr>
+<td><code>temperature_schedule</code></td>
+<td>Linear or geometric progression between the annealing endpoints.</td>
+<td><code>"LINEAR"</code> or <code>"GEOMETRIC"</code>, case-insensitive at input.</td>
+</tr>
+<tr>
+<td><code>seed</code></td>
+<td>Random seed for sampling.</td>
+<td>Integer.</td>
+</tr>
+</tbody>
+</table>
+<p>Numeric settings reject Boolean values. Unknown keys raise before problem creation. <code>solver_config=...</code> may be passed as one explicit dictionary to a solver call; recognized direct keyword values are merged over it.</p>
+<p>For <code>qpiai_opt.opt_solvers.solve(problem, mode="local", client=client)</code>, the native local solver uses stored <code>num_reads</code>, <code>num_sweeps</code>, and <code>seed</code>; direct call values override them. The remaining settings in the table are platform-only and a local solve or inspection rejects them instead of ignoring them. Small local problems use exhaustive enumeration, so annealing settings do not affect that solve and are omitted from <code>result.info().settings</code>.</p>
+<h2 id="blocking-solve">Blocking solve</h2>
+<p>Blocking solves read the current job state, then wait through Server-Sent Events (SSE) by default. If the stream cannot complete monitoring, the waiter falls back to polling; <code>poll_interval</code> controls that fallback interval in seconds.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">result</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+    <span class="n">problem</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"Cubic assignment"</span><span class="p">,</span>
+    <span class="n">experiment_name</span><span class="o">=</span><span class="s2">"Benchmarks"</span><span class="p">,</span>
+    <span class="n">num_reads</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span>
+    <span class="n">request_timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+    <span class="n">poll_interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><code>solve()</code>:</p>
+<ol>
+<li>validates/canonicalizes the polynomial and solver options;</li>
+<li>creates the persisted HUBO problem;</li>
+<li>submits a job;</li>
+<li>waits for a terminal job state;</li>
+<li>retrieves and validates inline/storage-backed output;</li>
+<li>restores source labels when the map is available.</li>
+</ol>
+<p><code>timeout</code> is the waiting budget, starting after submission; it excludes problem creation, submission, and final result retrieval. <code>request_timeout</code> defaults to the client's timeout and supplies the connection/read timeout for those requests. Status reads use the client's timeout within the waiter's remaining budget. These HTTP timeouts bound connection and read inactivity, not total transfer duration; an in-flight request can overrun the waiting budget. A local timeout stops waiting without cancelling the platform job. Resume monitoring the same job ID rather than resubmitting. See <a href="platform-client.html#timeouts">request and wait timing</a>.</p>
+<h2 id="nonblocking-lifecycle">Nonblocking lifecycle</h2>
+<p>This solver-instance <code>submit()</code> method is explicitly platform-only. Supplying its <code>Client</code> and calling it is the caller's choice to create one potentially paid platform job.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">submission</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+    <span class="n">problem</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"Cubic assignment"</span><span class="p">,</span>
+    <span class="n">num_reads</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">status</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">get_status</span><span class="p">(</span><span class="n">submission</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">"completed"</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">result</span>
+</code></pre></div>
+<p><code>submit()</code> returns <code>job_id</code>, normalized initial <code>status</code>, acknowledgement <code>message</code>, and <code>problem_id</code>. It does not wait for solver execution.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">result</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">get_result</span><span class="p">(</span>
+    <span class="n">submission</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+    <span class="n">problem</span><span class="o">=</span><span class="n">problem</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">solution</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">get_solution</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">)</span>
+</code></pre></div>
+<p><code>get_result()</code> requires a completed job and otherwise raises <code>RuntimeError</code>. <code>get_solution(job_id=...)</code> performs retrieval; pass <code>result=...</code> to avoid another request.</p>
+<h2 id="label-serialization">Label serialization</h2>
+<p>Labels may be nonempty single-line strings, including punctuation and Unicode, but cannot contain NUL, carriage return, or newline. Completed results restore the original labels when the solver has the source problem. For retrieval in another process, pass that problem explicitly:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">result</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">get_result</span><span class="p">(</span><span class="n">submission</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span> <span class="n">problem</span><span class="o">=</span><span class="n">problem</span><span class="p">)</span>
+</code></pre></div>
+<p>Without the source problem, the result retains the labels supplied by the platform and cannot reconstruct information that was not returned.</p>
+<h2 id="result-interpretation">Result interpretation</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>problem_class</code></td>
+<td>Always <code>"HUBO"</code>.</td>
+</tr>
+<tr>
+<td><code>execution_mode</code></td>
+<td><code>"local"</code> or <code>"platform"</code>.</td>
+</tr>
+<tr>
+<td><code>job_id</code></td>
+<td>Platform job identifier retained by blocking and retrieval workflows.</td>
+</tr>
+<tr>
+<td><code>problem_id</code></td>
+<td>Platform problem identifier associated with the job, when returned.</td>
+</tr>
+<tr>
+<td><code>num_variables</code></td>
+<td>Nonnegative compiled binary-variable count.</td>
+</tr>
+<tr>
+<td><code>solution</code></td>
+<td>Binary list in declared <code>variable_names</code> order, or canonical label order when names were omitted.</td>
+</tr>
+<tr>
+<td><code>variable_assignment</code></td>
+<td>Decoded source-name-to-value mapping for a model-derived problem; otherwise label-to-binary values.</td>
+</tr>
+<tr>
+<td><code>objective</code></td>
+<td>Source objective, including model decoding when available; otherwise the reported solver objective.</td>
+</tr>
+<tr>
+<td><code>compute_time_s</code>, <code>solver_time_s</code></td>
+<td>Compute and algorithm durations in seconds, or <code>None</code> when unavailable.</td>
+</tr>
+<tr>
+<td><code>compute_time_ms</code>, <code>compute_time_us</code>, <code>solver_time_ms</code>, <code>solver_time_us</code></td>
+<td>Runtime in milliseconds and microseconds.</td>
+</tr>
+</tbody>
+</table>
+<p>Use the common view when method or guarantee affects downstream use:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">info</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+<span class="n">solve_summary</span> <span class="o">=</span> <span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">info</span><span class="o">.</span><span class="n">termination</span><span class="p">,</span> <span class="n">info</span><span class="o">.</span><span class="n">guarantee</span><span class="p">)</span>
+</code></pre></div>
+<p>Local <code>method</code> is <code>"exhaustive-enumeration"</code> or <code>"simulated-annealing"</code>; the platform method is <code>"HUBO"</code>. For a source-feasible candidate, exact enumeration reports <code>termination="optimal"</code> and <code>guarantee="global_optimum"</code>; annealing and platform execution report <code>"completed"</code> and <code>"best_found"</code>. A decoded candidate that violates its source model has no usable-solution guarantee. See <a href="local-solving.html#common-solve-information">common solve information</a>.</p>
+<p>The response validator requires exactly <code>num_variables</code> solution entries and binary values.</p>
+<p>Verify the returned assignment locally:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller.formats</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_hubo_energy</span>
+
+<span class="n">energy</span> <span class="o">=</span> <span class="n">calculate_hubo_energy</span><span class="p">(</span>
+    <span class="n">problem</span><span class="o">.</span><span class="n">polynomial_dict</span><span class="p">,</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">variable_assignment</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Compare this value with <code>result.objective</code> using an appropriate floating-point tolerance. Pass <code>problem=problem</code> when retrieving from another process so the SDK can restore labels and evaluate the source polynomial. When that metadata is available, a reported solver objective that disagrees with the returned assignment raises instead of producing a contradictory result. The typed <code>solve_info</code> field stores execution details in ordinary dumps. <code>result.info()</code> returns the common solver and guarantee view. Without the source problem, <code>objective</code> contains the reported solver objective while <code>info().source_objective</code> and <code>info().transformed</code> are <code>None</code>. <code>get_status()</code> separately returns asynchronous job lifecycle state and embeds this result only after completion.</p>
+<p>For a source-aware result, every reported platform objective must agree with the returned assignment under <code>round(abs(reported - recomputed)) &lt;= max(1, 1e-7 * max(1, abs(reported), abs(recomputed)))</code>. A non-finite difference or a rounded difference above this tolerance raises <code>RuntimeError</code>. Python rounding uses ties to even. When the tolerance is one, a difference of <code>1.4</code> is accepted and <code>1.5</code> is rejected; the tolerance increases with objective magnitude.</p>
+<p><code>get_status()</code> returns <code>job_id</code>, normalized lifecycle state, optional result/error/timestamps, and the available <code>compute_time_s</code> and <code>solver_time_s</code> measurements.</p>
+<h2 id="problem-names-resources-and-experiments">Problem names, resources, and experiments</h2>
+<p>Problem names need not be unique. An omitted name becomes a UTC timestamped <code>SDK HUBO problem - ...</code> label.</p>
+<p>Ordinary calls omit <code>compute_resource_id</code>; the platform automatically chooses an eligible HUBO resource. Advanced callers may pin a discovered resource ID. The ID is the opaque <code>id</code> of an active resource returned by solver discovery:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">resources</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_solvers</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">"HUBO"</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">resource</span> <span class="o">=</span> <span class="n">resources</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">pinned_submission</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+    <span class="n">problem</span><span class="p">,</span>
+    <span class="n">compute_resource_id</span><span class="o">=</span><span class="n">resource</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Pass the same value to <code>HUBOSolver(..., compute_resource_id=resource.id)</code> to make it the default for that solver instance. Per-call <code>experiment_id</code> and exact <code>experiment_name</code> override solver/client defaults. If no experiment is configured, the client uses <code>Default Experiment</code>.</p>
+<h2 id="failure-and-cleanup-behavior">Failure and cleanup behavior</h2>
+<p>All problem and solver configuration validation occurs locally.</p>
+<p>A definitive non-transient 4xx submission rejection triggers cleanup of the new problem record. Timeout-like status codes, server failures, and transport errors have ambiguous acceptance; the SDK retains the problem and attaches its ID to the exception notes. Inspect existing jobs before resubmitting.</p>
+<p>Blocking <code>solve()</code> can raise:</p>
+<ul>
+<li><code>pydantic.ValidationError</code> for invalid problem/result models;</li>
+<li><code>ValueError</code> for unsupported solver parameters;</li>
+<li><code>AuthenticationError</code> or <code>APIError</code> for platform responses;</li>
+<li>Requests exceptions for transport failures;</li>
+<li><code>JobFailedError</code> or <code>JobCancelledError</code>;</li>
+<li><code>TimeoutError</code> for the total wait deadline.</li>
+</ul>
+<p>The result tables above define the solver-specific schema; common status and failure semantics are in <a href="automation.html">Automation</a>. The <a href="#construct-huboproblem">problem construction</a> section shows both a polynomial compiled by <code>Model</code> and a direct polynomial supplied without the modeller.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="qubo-solver.html"><span>Previous</span><strong>QUBO solver</strong></a><a class="pager-card next" href="milp-solver.html"><span>Next</span><strong>MILP solver</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#construct-huboproblem">Construct HUBOProblem</a><a class="toc-level-3" href="#from-an-algebraic-model">From an algebraic model</a><a class="toc-level-2" href="#problem-fields">Problem fields</a><a class="toc-level-2" href="#client-and-solver-construction">Client and solver construction</a><a class="toc-level-2" href="#solver-configuration">Solver configuration</a><a class="toc-level-2" href="#blocking-solve">Blocking solve</a><a class="toc-level-2" href="#nonblocking-lifecycle">Nonblocking lifecycle</a><a class="toc-level-2" href="#label-serialization">Label serialization</a><a class="toc-level-2" href="#result-interpretation">Result interpretation</a><a class="toc-level-2" href="#problem-names-resources-and-experiments">Problem names, resources, and experiments</a><a class="toc-level-2" href="#failure-and-cleanup-behavior">Failure and cleanup behavior</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="External solver interoperability">
+<title>External solver interoperability | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/interoperability.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="interoperability">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="active" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Interoperability</span><span aria-hidden="true">&gt;</span><span>External solver interoperability</span></div><article class="doc-content"><h1 id="external-solver-interoperability">External solver interoperability</h1>
+<p>Exchange models through LP/MPS files, linear matrices, polynomial dictionaries, or the optional OMMX bridge. The table identifies inputs accepted directly by external APIs and exchanges that require an adapter, model reconstruction, or explicit reformulation.</p>
+<h2 id="supported-exchanges">Supported exchanges</h2>
+<table>
+<thead>
+<tr>
+<th>QpiAI output</th>
+<th>Target</th>
+<th>Integration</th>
+<th>Usage and requirements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.lp</code>, <code>.mps</code>, <code>.lp.gz</code>, <code>.mps.gz</code></td>
+<td>HiGHS</td>
+<td><strong>directly compatible</strong></td>
+<td><code>highspy.Highs().readModel(path)</code>; compressed input requires a build with zlib support</td>
+</tr>
+<tr>
+<td><code>.lp.gz</code>, <code>.mps.gz</code></td>
+<td>QpiAI local solve</td>
+<td><strong>directly compatible through the SDK</strong></td>
+<td>pass the compressed path to <code>solve(path, client=client)</code></td>
+</tr>
+<tr>
+<td><code>.lp</code>, <code>.mps</code>, <code>.lp.gz</code>, <code>.mps.gz</code></td>
+<td>Gurobi</td>
+<td><strong>directly compatible</strong></td>
+<td><code>gurobipy.read(path)</code>; compressed input requires the corresponding compression utility on the host; prefer MPS when column order and numeric fidelity matter</td>
+</tr>
+<tr>
+<td><code>.lp</code>, <code>.mps</code>, <code>.lp.gz</code>, <code>.mps.gz</code></td>
+<td>IBM CPLEX</td>
+<td><strong>directly compatible</strong></td>
+<td><code>cplex.Cplex(path)</code> or <code>cpx.read(path)</code></td>
+</tr>
+<tr>
+<td><code>.mps</code></td>
+<td>PuLP</td>
+<td><strong>requires MPS adaptation</strong></td>
+<td><code>LpProblem.fromMPS(path)</code> requires explicit restoration of the source objective and sense. PuLP 4.2 omits the objective constant; 3.3.2 rejects objective-row RHS entries, which must be removed before import. Decompress gzip input first</td>
+</tr>
+<tr>
+<td><code>.lp</code> / <code>.mps</code></td>
+<td>Pyomo</td>
+<td><strong>requires model reconstruction</strong></td>
+<td>Pyomo writes these formats and delegates them to solvers, but does not document a general reader that reconstructs a Pyomo model from either file; rebuild the model or use the file directly with a downstream solver</td>
+</tr>
+<tr>
+<td>QpiAI model or linear matrix dictionary</td>
+<td>CVXPY</td>
+<td><strong>requires model reconstruction</strong></td>
+<td>create CVXPY variables, constraints, and objective explicitly; CVXPY has no documented QpiAI, LP, or MPS importer</td>
+</tr>
+<tr>
+<td>linear matrix dictionary</td>
+<td>SciPy <code>milp</code></td>
+<td><strong>requires an adapter</strong></td>
+<td>pass the objective vector as <code>c</code>, preserve <code>integrality</code>, and construct <code>Bounds</code> and <code>LinearConstraint</code> from the variable and row bounds. Negate MAX costs for minimization and restore the source objective constant</td>
+</tr>
+<tr>
+<td>linear matrix dictionary</td>
+<td>Gurobi matrix API</td>
+<td><strong>requires an adapter</strong></td>
+<td>create an <code>MVar</code>, then pass the sparse matrix and row bounds through <code>addMConstr</code>/linear constraints; field names and ranged-row handling differ</td>
+</tr>
+<tr>
+<td>linear model</td>
+<td>OR-Tools <code>MPSolver</code></td>
+<td><strong>requires model reconstruction</strong></td>
+<td>OR-Tools exports LP/MPS and loads its own proto, but its Python API does not provide a general LP/MPS model reader; rebuild variables/rows or translate through another library</td>
+</tr>
+<tr>
+<td>upper QUBO dictionary + offset</td>
+<td>D-Wave dimod</td>
+<td><strong>directly compatible</strong></td>
+<td><code>dimod.BinaryQuadraticModel.from_qubo(upper_qubo, offset)</code></td>
+</tr>
+<tr>
+<td>symmetric QUBO dictionary + offset</td>
+<td>D-Wave dimod</td>
+<td><strong>directly compatible</strong></td>
+<td><code>from_qubo(symmetric_qubo, offset)</code> adds mirrored half-coefficients into one interaction</td>
+</tr>
+<tr>
+<td>upper QUBO dictionary</td>
+<td>OpenJij</td>
+<td><strong>directly compatible</strong></td>
+<td><code>oj.SASampler().sample_qubo(upper_qubo)</code>; constant offset is tracked separately because sampling does not need it</td>
+</tr>
+<tr>
+<td>symmetric QUBO dictionary</td>
+<td>OpenJij</td>
+<td><strong>directly compatible</strong></td>
+<td><code>sampler.sample_qubo(symmetric_qubo)</code> aggregates mirrored half-coefficients into one interaction; retain the constant offset separately</td>
+</tr>
+<tr>
+<td><code>IsingProblem.linear</code>, <code>.quadratic</code></td>
+<td>D-Wave dimod samplers</td>
+<td><strong>directly compatible</strong></td>
+<td><code>sampler.sample_ising(ising.linear, ising.quadratic)</code>; add <code>ising.offset</code> when comparing reported energies</td>
+</tr>
+<tr>
+<td><code>IsingProblem.linear</code>, <code>.quadratic</code></td>
+<td>OpenJij</td>
+<td><strong>directly compatible</strong></td>
+<td><code>sampler.sample_ising(h, J)</code>; preserve the offset and source sense separately</td>
+</tr>
+<tr>
+<td>HUBO polynomial dictionary</td>
+<td>OpenJij</td>
+<td><strong>directly compatible</strong></td>
+<td><code>SASampler.sample_hubo(polynomial, vartype="BINARY")</code></td>
+</tr>
+<tr>
+<td>HUBO polynomial dictionary</td>
+<td>dimod polynomial API</td>
+<td><strong>directly compatible</strong></td>
+<td><code>dimod.BinaryPolynomial(poly, "BINARY")</code> represents the polynomial directly; <code>dimod.ExactPolySolver().sample_hubo(poly)</code> enumerates small problems</td>
+</tr>
+<tr>
+<td>HUBO polynomial dictionary</td>
+<td>dimod <code>HigherOrderComposite</code> (via quadratic reduction)</td>
+<td><strong>compatible through the composite</strong></td>
+<td><code>dimod.HigherOrderComposite(sampler).sample_hubo(poly, penalty_strength=strength)</code> reduces the polynomial internally before calling the quadratic sampler. A sufficient <code>strength</code> is required to preserve minimizing source assignments</td>
+</tr>
+<tr>
+<td>QUBO</td>
+<td>Qiskit Optimization</td>
+<td><strong>requires explicit conversion</strong></td>
+<td>construct a <code>QuadraticProgram</code>; its Ising translator expects a Pauli operator, not QpiAI dictionaries</td>
+</tr>
+<tr>
+<td>HUBO polynomial dictionary</td>
+<td>Qiskit Optimization <code>QuadraticProgram</code> (via explicit quadratic reduction)</td>
+<td><strong>requires quadratization and conversion</strong></td>
+<td>reduce to QUBO first, then construct a <code>QuadraticProgram</code>; this model does not accept higher-order objective terms directly</td>
+</tr>
+<tr>
+<td>QpiAI canonical IR</td>
+<td>external package</td>
+<td><strong>requires an adapter</strong></td>
+<td>the versioned schema preserves SDK model semantics; external consumers need a schema adapter</td>
+</tr>
+<tr>
+<td>QpiAI <code>Model</code> Python object</td>
+<td>external modeller/solver</td>
+<td><strong>requires an adapter</strong></td>
+<td>export a documented representation; symbolic classes are package-specific</td>
+</tr>
+</tbody>
+</table>
+<h2 id="ommx-bridge">OMMX bridge</h2>
+<p>Install the optional stable OMMX v2 API:</p>
+<div class="code-shell"><div class="code-toolbar"><span>bash</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-bash">python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"qpiai-opt[ommx]"</span>
+</code></pre></div>
+<p>The extra requires <code>ommx&gt;=2.6,&lt;3</code>. OMMX 2.9.2 publishes wheels for Windows x86-64, Linux x86-64/AArch64, and Apple Silicon macOS, with no Intel macOS wheel in that release; see the <a href="https://pypi.org/project/ommx/2.9.2/">OMMX 2.9.2 release files</a>. The base SDK and its standard LP/MPS, polynomial, and IR exchange formats remain available on Intel macOS without this extra. Dependency requirements and wheel availability belong to the selected OMMX release.</p>
+<p>Export and import with the same mathematical data:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">from_ommx</span><span class="p">,</span> <span class="n">to_ommx</span>
+
+<span class="n">instance</span> <span class="o">=</span> <span class="n">to_ommx</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="n">restored</span> <span class="o">=</span> <span class="n">from_ommx</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+</code></pre></div>
+<p>The bridge preserves objective polynomial and constant, MIN/MAX sense, binary domains, integer/continuous/semi-continuous/semi-integer domains and bounds, and linear equality/inequality constraints. Binary imports use the full <code>{0, 1}</code> domain; express a fixed binary value as an explicit linear equality before calling <code>from_ommx()</code>. It rejects Spin, Fraction, Mixed, logical, indicator, SOS, custom-penalty, and nonlinear relational constraints instead of weakening or approximating them. <code>Model.to_ommx()</code> and <code>Model.from_ommx()</code> are convenience equivalents; <code>convert(model, "OMMX")</code> is available to automation.</p>
+<p>Partial assignments, solution objects, fixed binary bounds, variable dependencies, removed constraints, constraint hints, named functions, subscripts, and metadata beyond imported titles and names are currently unsupported.</p>
+<p>On import, variable IDs, variable names, and constraint labels must each be unique. Missing variable names become <code>x[id]</code>; missing constraint labels become <code>c{id}</code>. Generated names must also be unique, and OMMX subscripts do not distinguish duplicate names.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">instance</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to_ommx</span><span class="p">()</span>
+<span class="n">variable_ids</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">transformations</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">"variable_ids"</span><span class="p">]</span>
+</code></pre></div>
+<p><code>variable_ids</code> maps each QpiAI variable name to the integer ID used by the returned OMMX instance.</p>
+<p>OMMX is not required for local or platform solves. Calling <code>to_ommx()</code>, <code>from_ommx()</code>, or their <code>Model</code> equivalents without the extra raises <code>ImportError</code> with a message naming <code>qpiai-opt[ommx]</code>. The bridge targets OMMX 2.6's documented <code>ommx.v1.Instance</code>, <code>DecisionVariable</code>, <code>Constraint</code>, and <code>Polynomial</code> API: <a href="https://jij-inc.github.io/ommx/python/ommx/autoapi/ommx/v1/index.html">OMMX v1 Python reference</a>.</p>
+<h2 id="qubo-representation-rule">QUBO representation rule</h2>
+<p>External samplers minimize their input energy. Preserve constants and source sense alongside the exchanged coefficients. <code>Model.to_qubo_dict()</code> already produces a minimizing representation. When exchanging source-coordinate coefficients with <code>sense="MAX"</code>, negate the objective coefficients and offset before minimization, then restore the source objective when interpreting energies.</p>
+<p>The direct polynomial convention stores each interaction once:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">upper_qubo</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to_qubo_dict</span><span class="p">(</span><span class="n">matrix_format</span><span class="o">=</span><span class="s2">"upper"</span><span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">dimod</span>
+
+<span class="n">bqm</span> <span class="o">=</span> <span class="n">dimod</span><span class="o">.</span><span class="n">BinaryQuadraticModel</span><span class="o">.</span><span class="n">from_qubo</span><span class="p">(</span><span class="n">upper_qubo</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+</code></pre></div>
+<p>The default <code>matrix_format="symmetric"</code> is the QpiAI Platform convention. For an interaction coefficient <code>q</code>, it stores <code>q/2</code> at both <code>(i, j)</code> and <code>(j, i)</code>. dimod's <code>from_qubo</code> adds contributions for the same undirected interaction, so both SDK formats preserve the same energy. Use upper output when another reader requires each pair to appear only once. Do not keep only one triangle of symmetric output without adding the mirrored contribution.</p>
+<h2 id="lpmps-portability">LP/MPS portability</h2>
+<p><code>Model.to_lp_file()</code> and <code>to_mps_file()</code> write solver-neutral linear models, including integrality and SDK reformulations for indicators, semi domains, and SOS constraints. Portability applies to the emitted mathematical model; it does not promise preservation of every target-specific feature, option, basis, callback, or solution-pool setting.</p>
+<p>Prefer MPS for machine interchange and LP for inspection. Gurobi documents that LP can lose column order and exact coefficient values. MPS likewise cannot carry all modelling-library metadata, so use canonical IR when QpiAI-specific labels, parameter bindings, or transformation metadata must round-trip. The SDK writes finite numeric values with round-trip decimal precision, but the target reader still determines the numeric semantics of the imported text.</p>
+<p>Within the SDK, the same plain or gzip path works on Linux, macOS, and Windows, including Unicode path components. Direct calls to an external package remain subject to that package's build and path capabilities.</p>
+<h2 id="exchange-formats">Exchange formats</h2>
+<p>Supported exchange routes are OMMX, LP/MPS, canonical IR, QUBO and HUBO dictionaries, and Ising fields and couplings. Direct object conversion for Gurobi, SCIP, CPLEX, Python-MIP, and similar packages is not part of the public API; use one of the documented exchange representations.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="model-ir.html"><span>Previous</span><strong>Canonical model IR</strong></a><a class="pager-card next" href="transformations.html"><span>Next</span><strong>Model inspection, transformations, and decoding</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#supported-exchanges">Supported exchanges</a><a class="toc-level-2" href="#ommx-bridge">OMMX bridge</a><a class="toc-level-2" href="#qubo-representation-rule">QUBO representation rule</a><a class="toc-level-2" href="#lpmps-portability">LP/MPS portability</a><a class="toc-level-2" href="#exchange-formats">Exchange formats</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

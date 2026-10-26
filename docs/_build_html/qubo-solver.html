@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="QUBO solver">
+<title>QUBO solver | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/qubo-solver.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="qubo-solver">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="active" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Solving</span><span aria-hidden="true">&gt;</span><span>QUBO solver</span></div><article class="doc-content"><h1 id="qubo-solver">QUBO solver</h1>
+<p><code>QUBOSolver</code> validates and submits QUBO problems, supports blocking and nonblocking job workflows, and returns typed results.</p>
+<h2 id="construct-a-platform-problem">Construct a platform problem</h2>
+<h3 id="from-a-modeller">From a modeller</h3>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Binary</span><span class="p">,</span> <span class="n">Model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers.qubo</span><span class="w"> </span><span class="kn">import</span> <span class="n">QUBOProblem</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"x"</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"y"</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"selection"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">maximize</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">5</span><span class="p">)</span>
+
+<span class="n">problem</span> <span class="o">=</span> <span class="n">QUBOProblem</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</code></pre></div>
+<p>This is the preferred bridge. It carries:</p>
+<ul>
+<li>the fully symmetric compiled matrix;</li>
+<li>source minimization/maximization sense;</li>
+<li>source constant;</li>
+<li>compiled variable names;</li>
+<li>compiled variable count.</li>
+</ul>
+<p>Compilation happens immediately and retains an independent source-model snapshot for decoding, objective evaluation, feasibility, and transformations. Later edits to the original <code>Model</code> do not affect the compiled problem. Compile again to include those edits.</p>
+<p><code>max_evaluations</code> can be supplied to <code>from_model()</code>. Continuous source variables require the same explicit QUBO compile options:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">problem</span> <span class="o">=</span> <span class="n">QUBOProblem</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="n">continuous_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">max_evaluations</span><span class="o">=</span><span class="mi">50_000</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<h3 id="direct-symmetric-matrix">Direct symmetric matrix</h3>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">problem</span> <span class="o">=</span> <span class="n">QUBOProblem</span><span class="p">(</span>
+    <span class="n">num_variables</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">qubo_dict</span><span class="o">=</span><span class="p">{</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="mf">3.0</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">variable_names</span><span class="o">=</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">),</span>
+    <span class="n">offset</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+    <span class="n">sense</span><span class="o">=</span><span class="s2">"MAX"</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>For <code>matrix_format="symmetric"</code> (default):</p>
+<ul>
+<li>every nonzero off-diagonal key needs its mirror;</li>
+<li>mirrored values must be equal;</li>
+<li>each mirrored value is half the direct polynomial coefficient;</li>
+<li>zero entries are removed after validation.</li>
+</ul>
+<p>Missing or unequal mirrors raise <code>pydantic.ValidationError</code>.</p>
+<h3 id="direct-upper-triangular-coefficients">Direct upper-triangular coefficients</h3>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">problem</span> <span class="o">=</span> <span class="n">QUBOProblem</span><span class="p">(</span>
+    <span class="n">num_variables</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">qubo_dict</span><span class="o">=</span><span class="p">{</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="mf">3.0</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="o">-</span><span class="mf">4.0</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">matrix_format</span><span class="o">=</span><span class="s2">"upper"</span><span class="p">,</span>
+    <span class="n">variable_names</span><span class="o">=</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">),</span>
+    <span class="n">offset</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+    <span class="n">sense</span><span class="o">=</span><span class="s2">"MAX"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">stored_format</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">matrix_format</span>
+<span class="n">mirrored_coefficients</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">problem</span><span class="o">.</span><span class="n">qubo_dict</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span>
+    <span class="n">problem</span><span class="o">.</span><span class="n">qubo_dict</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><code>stored_format == "symmetric"</code> and <code>mirrored_coefficients == (-2.0, -2.0)</code>: the direct upper coefficient is split evenly across the symmetric matrix.</p>
+<p>The model validates the upper triangle and immediately stores the platform form. Lower-triangle keys are invalid in upper input. If halving a nonzero coefficient underflows to zero, construction raises rather than losing the interaction.</p>
+<h2 id="quboproblem-fields"><code>QUBOProblem</code> fields</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Default</th>
+<th>Contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>num_variables</code></td>
+<td>required</td>
+<td>Strict nonnegative integer; zero represents a constant problem locally.</td>
+</tr>
+<tr>
+<td><code>qubo_dict</code></td>
+<td>required</td>
+<td>Finite <code>(int, int)</code> coefficient dictionary; indices lie in <code>[0, num_variables)</code>.</td>
+</tr>
+<tr>
+<td><code>matrix_format</code></td>
+<td><code>"symmetric"</code></td>
+<td><code>"symmetric"</code> or <code>"upper"</code> at input; normalized to symmetric storage.</td>
+</tr>
+<tr>
+<td><code>max_evaluations</code></td>
+<td><code>10000</code></td>
+<td>Strict positive integer sent to the platform.</td>
+</tr>
+<tr>
+<td><code>problem_type</code></td>
+<td><code>"QUBO"</code></td>
+<td>Fixed QUBO marker.</td>
+</tr>
+<tr>
+<td><code>offset</code></td>
+<td><code>0.0</code></td>
+<td>Finite source-objective constant retained by the SDK; not sent as a matrix term.</td>
+</tr>
+<tr>
+<td><code>sense</code></td>
+<td><code>"MIN"</code></td>
+<td><code>"MIN"</code> minimizes the source objective; <code>"MAX"</code> maximizes it. Results are restored to this source sense.</td>
+</tr>
+<tr>
+<td><code>variable_names</code></td>
+<td><code>None</code></td>
+<td>One unique non-empty name per index; used for named results.</td>
+</tr>
+</tbody>
+</table>
+<p>Unknown fields are forbidden.</p>
+<p>An empty normalized matrix is valid for local zero-energy solving when <code>num_variables</code> is supplied. The platform cannot store that representation, so <code>QUBOSolver.submit()</code>, high-level platform solving, and <code>submit()</code> reject it before creating a platform problem.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">solve</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"QPIAI_OPT_API_KEY"</span><span class="p">])</span>
+<span class="n">zero_energy</span> <span class="o">=</span> <span class="n">QUBOProblem</span><span class="p">(</span><span class="n">num_variables</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">qubo_dict</span><span class="o">=</span><span class="p">{})</span>
+<span class="n">local_result</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">zero_energy</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+<span class="n">zero_energy_solution</span> <span class="o">=</span> <span class="n">local_result</span><span class="o">.</span><span class="n">solution</span>  <span class="c1"># [0, 0, 0]</span>
+
+<span class="c1"># Raises CapabilityError before a platform request.</span>
+<span class="n">solve</span><span class="p">(</span><span class="n">zero_energy</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"platform"</span><span class="p">,</span> <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="client-and-solver-construction">Client and solver construction</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers.qubo</span><span class="w"> </span><span class="kn">import</span> <span class="n">QUBOSolver</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"QPIAI_OPT_API_KEY"</span><span class="p">])</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">QUBOSolver</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
+</code></pre></div>
+<p>The solver can also create its own client:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">solver</span> <span class="o">=</span> <span class="n">QUBOSolver</span><span class="p">(</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"QPIAI_OPT_API_KEY"</span><span class="p">],</span>
+    <span class="n">experiment_name</span><span class="o">=</span><span class="s2">"Default Experiment"</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Ordinary calls omit <code>compute_resource_id</code>; the platform automatically chooses an eligible QUBO resource. Advanced callers may pin a discovered resource ID on the solver or an individual call, where the per-call value takes precedence. A compute-resource ID is the opaque <code>id</code> on a record returned by <code>Client.list_solvers()</code>:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">resources</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_solvers</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">"QUBO"</span><span class="p">,</span> <span class="n">active_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">resource</span> <span class="o">=</span> <span class="n">resources</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">pinned_submission</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+    <span class="n">problem</span><span class="p">,</span>
+    <span class="n">compute_resource_id</span><span class="o">=</span><span class="n">resource</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>This placement pins only that submission. Supplying the ID to <code>QUBOSolver(..., compute_resource_id=resource.id)</code> makes it the solver default.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">available</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">health</span><span class="p">()</span>
+</code></pre></div>
+<p><code>health() -&gt; bool</code> delegates to <code>Client.health()</code>. It performs an authenticated account request with a five-second timeout, creates no problem or job, and returns <code>False</code> on request or API failure.</p>
+<h2 id="blocking-solve">Blocking solve</h2>
+<p>Blocking solves read the current job state, then wait through Server-Sent Events (SSE) by default. If the stream cannot complete monitoring, the waiter falls back to polling; <code>poll_interval</code> controls that fallback interval in seconds.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">result</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+    <span class="n">problem</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"Selection QUBO"</span><span class="p">,</span>
+    <span class="n">experiment_name</span><span class="o">=</span><span class="s2">"Benchmarks"</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span>
+    <span class="n">request_timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+    <span class="n">poll_interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Execution sequence:</p>
+<ol>
+<li>validate and serialize the problem;</li>
+<li>create a persisted platform problem;</li>
+<li>submit the job;</li>
+<li>wait for a terminal job state;</li>
+<li>retrieve inline or storage-backed output;</li>
+<li>validate and restore source metadata.</li>
+</ol>
+<p><code>timeout</code> is the waiting budget, starting after submission; it excludes problem creation, submission, and final result retrieval. <code>request_timeout</code> defaults to the client's timeout and supplies the connection/read timeout for those requests. Status reads use the client's timeout within the waiter's remaining budget. These HTTP timeouts bound connection and read inactivity, not total transfer duration; an in-flight request can overrun the waiting budget. A local timeout stops waiting without cancelling the platform job. Resume monitoring the same job ID rather than resubmitting. See <a href="platform-client.html#timeouts">request and wait timing</a>.</p>
+<h2 id="nonblocking-lifecycle">Nonblocking lifecycle</h2>
+<p>This solver-instance <code>submit()</code> method is explicitly platform-only. Supplying its <code>Client</code> and calling it is the caller's choice to create one potentially paid platform job.</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">submission</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+    <span class="n">problem</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"Selection QUBO"</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">submission_fields</span> <span class="o">=</span> <span class="n">submission</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">)</span>
+</code></pre></div>
+<p><code>submit()</code> returns after platform submission; it never waits for completion. Its <code>timeout</code> is an individual request bound. <code>submission_fields</code> contains the new <code>job_id</code>, <code>problem_id</code>, normalized lifecycle <code>status</code>, and platform <code>message</code>.</p>
+<p>Check state:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">status</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">get_status</span><span class="p">(</span><span class="n">submission</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">"completed"</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">result</span>
+<span class="k">elif</span> <span class="n">status</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">"failed"</span><span class="p">:</span>
+    <span class="n">failure_message</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">error</span>
+</code></pre></div>
+<p><code>get_status()</code> includes the validated result when completed.</p>
+<p>Retrieve explicitly:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">result</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">get_result</span><span class="p">(</span><span class="n">submission</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<span class="n">solution</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">get_solution</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">)</span>
+</code></pre></div>
+<p><code>get_result()</code> raises <code>RuntimeError</code> unless the job is completed. <code>get_solution(job_id=...)</code> retrieves the result first; passing an existing result avoids another request.</p>
+<h2 id="result-interpretation">Result interpretation</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">result_summary</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"num_nodes"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">num_nodes</span><span class="p">,</span>
+    <span class="s2">"compute_time_s"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">compute_time_s</span><span class="p">,</span>
+    <span class="s2">"solution"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">solution</span><span class="p">,</span>
+    <span class="s2">"objective"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">objective</span><span class="p">,</span>
+    <span class="s2">"variable_assignment"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">variable_assignment</span><span class="p">,</span>
+    <span class="s2">"method"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span><span class="p">()</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+    <span class="s2">"guarantee"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span><span class="p">()</span><span class="o">.</span><span class="n">guarantee</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>problem_class</code></td>
+<td>Always <code>"QUBO"</code>.</td>
+</tr>
+<tr>
+<td><code>execution_mode</code></td>
+<td><code>"local"</code> or <code>"platform"</code>.</td>
+</tr>
+<tr>
+<td><code>job_id</code></td>
+<td>Platform job identifier retained by blocking and retrieval workflows.</td>
+</tr>
+<tr>
+<td><code>problem_id</code></td>
+<td>Platform problem identifier associated with the job, when returned.</td>
+</tr>
+<tr>
+<td><code>solution</code></td>
+<td>Binary list in QUBO index order.</td>
+</tr>
+<tr>
+<td><code>variable_assignment</code></td>
+<td>Source-name dictionary when a source <code>Model</code> is retained; otherwise explicit variable names or generated <code>x[index]</code> names.</td>
+</tr>
+<tr>
+<td><code>objective</code></td>
+<td>Source objective evaluated from the returned bitstring after sense and offset restoration when metadata is available.</td>
+</tr>
+<tr>
+<td><code>num_nodes</code></td>
+<td>Non-negative QUBO node count; local results use the QUBO variable count.</td>
+</tr>
+<tr>
+<td><code>compute_time_s</code>, <code>solver_time_s</code></td>
+<td>Compute and algorithm durations in seconds, or <code>None</code> when unavailable.</td>
+</tr>
+<tr>
+<td><code>compute_time_ms</code>, <code>compute_time_us</code>, <code>solver_time_ms</code>, <code>solver_time_us</code></td>
+<td>Runtime in milliseconds and microseconds; omitted from default serialization.</td>
+</tr>
+</tbody>
+</table>
+<p><code>result.info()</code> reports the provider, method, termination, source feasibility, optimality proof, guarantee, transformation, and known settings and is backed by the serializable <code>solve_info</code> field. For a source-feasible candidate, local <code>exhaustive-enumeration</code> reports <code>termination="optimal"</code> and <code>guarantee="global_optimum"</code>; simulated annealing and platform execution report <code>"completed"</code> and <code>"best_found"</code>. A decoded candidate that violates its source model has no usable-solution guarantee. <code>get_status()</code> separately returns asynchronous job lifecycle state and embeds the result only after completion.</p>
+<p>When source metadata is available, the SDK also checks the returned bitstring against the reported matrix energy. This comparison excludes the source offset and reverses the matrix sign for MAX, matching the minimizing service coordinates.</p>
+<p>Metadata is cached only in the <code>QUBOSolver</code> instance that submitted the job. For retrieval in another process, reconstruct/pass the original problem:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">result</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">get_result</span><span class="p">(</span>
+    <span class="n">submission</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span>
+    <span class="n">problem</span><span class="o">=</span><span class="n">problem</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Without <code>problem</code>, the SDK cannot recover an offset, source sense, or variable names absent from the platform response. <code>objective</code> then contains the reported minimizing matrix value; <code>info().source_objective</code> and <code>info().transformed</code> remain <code>None</code>. Supply the original problem when retrieving source coordinates.</p>
+<p>For a source-aware platform result, the reported minimizing matrix objective must agree with the returned bitstring under <code>round(abs(reported - recomputed)) &lt;= max(1, 1e-7 * max(1, abs(reported), abs(recomputed)))</code>. A non-finite difference or a rounded difference above this tolerance raises <code>RuntimeError</code>. Python rounding uses ties to even. When the tolerance is one, a difference of <code>1.4</code> is accepted and <code>1.5</code> is rejected; the tolerance increases with objective magnitude. The adapter then restores the source offset, sense, and decoded assignment.</p>
+<p>For a modeller source, decode and verify independently:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">decoded</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">decode_qubo_sample</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">solution</span><span class="p">)</span>
+<span class="n">source_feasible</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">is_feasible</span><span class="p">(</span><span class="n">decoded</span><span class="p">)</span>
+<span class="n">recomputed_objective</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate_objective</span><span class="p">(</span><span class="n">decoded</span><span class="p">)</span>
+</code></pre></div>
+<p><code>source_feasible</code> confirms every source constraint. Compare <code>recomputed_objective</code> with <code>result.objective</code> using a tolerance for non-integral coefficients.</p>
+<h2 id="problem-names-and-experiments">Problem names and experiments</h2>
+<p>Problem names are labels and need not be unique. If omitted, the SDK generates a UTC timestamped name:</p>
+<div class="code-shell"><div class="code-toolbar"><span>text</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-text">SDK QUBO problem - &lt;UTC timestamp&gt;
+</code></pre></div>
+<p>Per-call experiment ID/name overrides the solver/client fallback. Names are matched exactly within the authenticated organization and cached after resolution.</p>
+<h2 id="submission-failures">Submission failures</h2>
+<p>Problem/config/identifier validation occurs before the corresponding network side effect.</p>
+<p>If the platform definitively rejects job submission with a non-transient 4xx, the solver attempts to delete the new problem record. For HTTP 408, 425, 429, server failures, or transport errors, acceptance is ambiguous. The record is retained and the exception note tells the caller which problem to inspect.</p>
+<p>Do not blindly resubmit an ambiguous paid job:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">jobs</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_problem_jobs</span><span class="p">(</span><span class="n">problem_id</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</code></pre></div>
+<p><code>solve()</code> raises <code>JobFailedError</code>, <code>JobCancelledError</code>, or <code>TimeoutError</code> when the waiter reaches those outcomes. HTTP and validation failures use <code>APIError</code>, <code>AuthenticationError</code>, Requests exceptions, or <code>pydantic.ValidationError</code>.</p>
+<p>The result tables above define every solver-specific field; common result and error semantics are in <a href="local-solving.html">Local solving</a> and <a href="automation.html">Automation</a>. <a href="#construct-a-platform-problem">Construct a platform problem</a> shows modeller-to-solver and independently supplied QUBO input, and <a href="#blocking-solve">blocking solve</a> shows the explicit paid submission boundary.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="local-solving.html"><span>Previous</span><strong>Local solving and automatic routing</strong></a><a class="pager-card next" href="hubo-solver.html"><span>Next</span><strong>HUBO solver</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#construct-a-platform-problem">Construct a platform problem</a><a class="toc-level-3" href="#from-a-modeller">From a modeller</a><a class="toc-level-3" href="#direct-symmetric-matrix">Direct symmetric matrix</a><a class="toc-level-3" href="#direct-upper-triangular-coefficients">Direct upper-triangular coefficients</a><a class="toc-level-2" href="#quboproblem-fields">QUBOProblem fields</a><a class="toc-level-2" href="#client-and-solver-construction">Client and solver construction</a><a class="toc-level-2" href="#blocking-solve">Blocking solve</a><a class="toc-level-2" href="#nonblocking-lifecycle">Nonblocking lifecycle</a><a class="toc-level-2" href="#result-interpretation">Result interpretation</a><a class="toc-level-2" href="#problem-names-and-experiments">Problem names and experiments</a><a class="toc-level-2" href="#submission-failures">Submission failures</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

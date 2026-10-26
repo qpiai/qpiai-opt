@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="HUBO modeller">
+<title>HUBO modeller | QpiAI Opt</title>
+<link rel="icon" href="assets/icon1.ico" sizes="any">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="alternate" type="text/markdown" href="markdown/docs/hubo-modeller.md">
+<link rel="describedby" href="llms.txt" type="text/plain">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('qpiai-docs-theme')||'light'}catch(e){}</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{ignoreHtmlClass:'tex2jax_ignore',processHtmlClass:'arithmatex'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
+</head>
+<body data-page="hubo-modeller">
+<a class="skip-link" href="#content">Skip to content</a>
+<header class="topbar">
+<button class="icon-button mobile-only" id="nav-toggle" aria-expanded="false" aria-label="Open navigation">☰</button>
+<a class="brand" href="index.html" aria-label="QpiAI Opt documentation home"><img class="brand-logo" src="assets/qpiai-opt.svg" alt="QpiAI Opt"></a>
+<nav class="top-links" aria-label="Primary"><a href="getting-started.html">Getting started</a><a href="public-api.html">API</a><a href="contributing.html">Contributing</a></nav>
+<div class="top-actions"><button class="search-trigger" id="search-trigger" type="button" aria-haspopup="dialog"><span>Search docs</span><kbd>Ctrl K</kbd></button><button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle color theme">◐</button><a class="icon-button" href="https://github.com/qpiai/qpiai-opt" aria-label="QpiAI Opt source repository" rel="noreferrer">↗</a></div>
+</header>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Documentation navigation"><div class="sidebar-inner"><section class="nav-group"><h2>Overview</h2><a class="" href="index.html">QpiAI Opt SDK</a><a class="" href="manual.html">QpiAI Opt user manual</a></section><section class="nav-group"><h2>Getting started</h2><a class="" href="getting-started.html">Getting started</a></section><section class="nav-group"><h2>Modelling</h2><a class="" href="modelling-workflows.html">Indexed variables, updates, and parameters</a><a class="" href="milp-modeller.html">MILP modeller</a><a class="" href="qp-modeller.html">Continuous quadratic programming</a><a class="" href="qubo-modeller.html">QUBO modeller</a><a class="active" href="hubo-modeller.html">HUBO modeller</a><a class="" href="ising-modeller.html">Ising modeller</a><a class="" href="piecewise-linear.html">Piecewise-linear relationships</a><a class="" href="performance.html">Modeller limits and capacity</a></section><section class="nav-group"><h2>Solving</h2><a class="" href="local-solving.html">Local solving and automatic routing</a><a class="" href="qubo-solver.html">QUBO solver</a><a class="" href="hubo-solver.html">HUBO solver</a><a class="" href="milp-solver.html">MILP solver</a><a class="" href="quantum-optimization.html">Gate-based optimization</a></section><section class="nav-group"><h2>Interoperability</h2><a class="" href="model-ir.html">Canonical model IR</a><a class="" href="interoperability.html">External solver interoperability</a><a class="" href="transformations.html">Model inspection, transformations, and decoding</a></section><section class="nav-group"><h2>Platform</h2><a class="" href="platform-client.html">Platform client</a><a class="" href="automation.html">Automation and agent workflows</a></section><section class="nav-group"><h2>Reference</h2><a class="" href="public-api.html">Public Python API</a><a class="" href="api-quantum.html">Gate-based optimization API reference</a><a class="" href="exceptions.html">Exception reference</a><a class="" href="api-modeller.html">Modeller API reference</a><a class="" href="api-formats.html">Representation utility API</a><a class="" href="api-solvers.html">Common solver API reference</a><a class="" href="api-qubo.html">QUBO solver API reference</a><a class="" href="api-hubo.html">HUBO solver API reference</a><a class="" href="api-milp.html">MILP solver API reference</a><a class="" href="package-metadata.html">Package metadata and system support</a></section><section class="nav-group"><h2>Project</h2><a class="" href="contributing.html">Contributing to QpiAI Opt</a><a class="" href="reporting-bugs.html">Reporting bugs and security issues</a><a class="" href="feature-requests.html">Feature requests</a><a class="" href="citation.html">Citation</a><a class="" href="license.html">Apache License 2.0</a></section></div></aside>
+<main class="main" id="content"><div class="breadcrumbs"><a href="index.html">Docs</a><span aria-hidden="true">&gt;</span><span>Modelling</span><span aria-hidden="true">&gt;</span><span>HUBO modeller</span></div><article class="doc-content"><h1 id="hubo-modeller">HUBO modeller</h1>
+<p>A HUBO is a finite-degree polynomial over binary variables. Unlike QUBO, terms may contain three or more distinct variables.</p>
+<h2 id="mathematical-form">Mathematical form</h2>
+<div class="arithmatex">\[
+H(x)=c+\sum_{S}a_S\prod_{i\in S}x_i,\qquad x_i\in\{0,1\}.
+\]</div>
+<p>Binary idempotence applies: <code>x**k == x</code> for every positive integer <code>k</code>.</p>
+<h2 id="build-with-expressions">Build with expressions</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Binary</span><span class="p">,</span> <span class="n">Model</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"x"</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"y"</span><span class="p">)</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"z"</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"cubic"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span> <span class="o">*</span> <span class="n">z</span> <span class="o">-</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">7</span><span class="p">)</span>
+
+<span class="n">polynomial</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to_hubo_dict</span><span class="p">()</span>
+</code></pre></div>
+<p><code>to_hubo_dict()</code> returns the polynomial mapping:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="p">{</span>
+    <span class="p">():</span> <span class="mf">7.0</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">"x"</span><span class="p">,):</span> <span class="o">-</span><span class="mf">3.0</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">):</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">):</span> <span class="mf">2.0</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Tuple keys are canonical variable-label sets:</p>
+<ul>
+<li><code>()</code> is the constant;</li>
+<li>repeated factors are removed;</li>
+<li>labels in each term are sorted deterministically;</li>
+<li>equivalent coefficients are added;</li>
+<li>zero terms are omitted.</li>
+</ul>
+<p>The output is always a minimization energy. If the source model uses <code>maximize()</code>, compilation negates the entire source objective. Retain <code>model.sense</code> when a later consumer must restore the source value.</p>
+<p>After compilation, <code>model.hubo_variable_names</code> contains the compiled binary labels, including registered isolated variables and encoding bits.</p>
+<p>Decode a solver sample after the same model instance has been compiled:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">decoded</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">decode_hubo_sample</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+<span class="p">)</span>
+<span class="n">source_objective</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate_objective</span><span class="p">(</span><span class="n">decoded</span><span class="p">)</span>
+</code></pre></div>
+<p><code>decode_hubo_sample()</code> also accepts a sequence in <code>hubo_variable_names</code> order. It rejects a wrong-length sequence, missing compiled names, conflicting name/index values, or non-binary values. The result contains original declared variables and reverses integer, fractional, and discretized-continuous encodings; compiler auxiliaries are omitted.</p>
+<h2 id="supported-model-structures">Supported model structures</h2>
+<p>Binary objectives may contain terms of any finite degree. The modeller canonicalizes repeated binary factors before reporting the degree, so <code>x * x * y</code> is the degree-two term <code>x * y</code>.</p>
+<p>Variables may be:</p>
+<ul>
+<li><code>Binary</code>, without encoding;</li>
+<li>bounded <code>Integer</code>, encoded exactly;</li>
+<li><code>Fraction</code>, encoded exactly on its fixed-point grid;</li>
+<li>bounded <code>Continuous</code>, with an explicit finite discretization.</li>
+</ul>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Continuous</span>
+
+<span class="n">flow</span> <span class="o">=</span> <span class="n">Continuous</span><span class="p">(</span><span class="s2">"flow"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">continuous_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">"cubic_flow"</span><span class="p">)</span>
+<span class="n">continuous_model</span><span class="o">.</span><span class="n">minimize</span><span class="p">((</span><span class="n">flow</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">continuous_polynomial</span> <span class="o">=</span> <span class="n">continuous_model</span><span class="o">.</span><span class="n">to_hubo_dict</span><span class="p">(</span><span class="n">continuous_bits</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="c1"># or</span>
+<span class="n">continuous_polynomial</span> <span class="o">=</span> <span class="n">continuous_model</span><span class="o">.</span><span class="n">to_hubo_dict</span><span class="p">(</span><span class="n">continuous_precision</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</code></pre></div>
+<p>As in QUBO compilation, <code>max_bits</code> bounds the number of bits per continuous encoding. Source polynomial terms do not have a fixed modelling-degree limit. The selected conversion or solver validates its own capabilities after any variable encoding. Semi-continuous, semi-integer, mixed, and spin domains do not have an implicit HUBO encoding and are rejected.</p>
+<p>SOS and indicator constraints require LP/MILP export.</p>
+<h2 id="relational-and-logical-penalties">Relational and logical penalties</h2>
+<p>Binary equality and inequalities are compiled into the same exact penalties as the QUBO path:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"capacity"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"coverage"</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="n">z</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"link"</span><span class="p">)</span>
+</code></pre></div>
+<p>Logical gates are supported:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">AND</span><span class="p">,</span> <span class="n">NOT</span><span class="p">,</span> <span class="n">OR</span><span class="p">,</span> <span class="n">XOR</span>
+
+<span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
+<span class="n">a_and_b</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"a_and_b"</span><span class="p">)</span>
+<span class="n">a_or_b</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"a_or_b"</span><span class="p">)</span>
+<span class="n">a_xor_b</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"a_xor_b"</span><span class="p">)</span>
+<span class="n">not_a</span> <span class="o">=</span> <span class="n">Binary</span><span class="p">(</span><span class="s2">"not_a"</span><span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">AND</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">a_and_b</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">OR</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">a_or_b</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">XOR</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">a_xor_b</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">NOT</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">not_a</span><span class="p">))</span>
+</code></pre></div>
+<p>Automatic weights dominate the complete unconstrained energy range in either mode. With <code>strict_penalties=False</code> (default), an explicit hard-constraint weight below the computed safe threshold emits <code>UserWarning</code>: <code>Selected penalty may be insufficient. Recommended penalty weight: {x}.</code> Here <code>x</code> is the SDK-computed threshold. Compilation retains the selected weight; <code>strict_penalties=True</code> raises <code>ConstraintValidationError</code> instead. Python warning filters control display; treating this warning as an error aborts compilation and restores the preceding compilation state. <code>CustomPenalty(expression)</code> contributes energy but is not a hard constraint and receives no sufficiency warning.</p>
+<p>HUBO compilation does not quadratize higher-order terms. It preserves them in the polynomial. Use <code>hubo_to_qubo()</code> when the consumer requires a quadratic model.</p>
+<p>Modelling, local solving, and platform execution have separate capability boundaries. The native local solver has no separate polynomial-degree ceiling; term degree contributes to its deterministic work limit. The platform applies its current service and resource limits independently. A model above a target's limit remains valid for inspection, IR persistence, energy evaluation, or explicit conversion; solving through that target raises instead of truncating or reducing the term silently.</p>
+<p>Expression multiplication rejects an operation that would require more than 100,000 intermediate term-and-factor operations, and a single canonical term may retain at most 100,000 factors. These are work and memory guards, not polynomial-degree capabilities. Build a sparse polynomial from explicit <code>Term</code> objects when an algebraic expansion would materialize unnecessary zero or duplicate terms.</p>
+<h2 id="direct-polynomial-functions">Direct polynomial functions</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller.formats</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">calculate_hubo_energy</span><span class="p">,</span>
+    <span class="n">canonicalize_polynomial</span><span class="p">,</span>
+    <span class="n">get_polynomial_stats</span><span class="p">,</span>
+    <span class="n">polynomial_to_string</span><span class="p">,</span>
+    <span class="n">validate_polynomial_dict</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">validate_polynomial_dict</span><span class="p">(</span><span class="n">polynomial</span><span class="p">)</span>
+<span class="n">canonical</span> <span class="o">=</span> <span class="n">canonicalize_polynomial</span><span class="p">(</span><span class="n">polynomial</span><span class="p">)</span>
+<span class="n">energy</span> <span class="o">=</span> <span class="n">calculate_hubo_energy</span><span class="p">(</span>
+    <span class="n">canonical</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+<span class="p">)</span>
+<span class="n">stats</span> <span class="o">=</span> <span class="n">get_polynomial_stats</span><span class="p">(</span><span class="n">canonical</span><span class="p">)</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">polynomial_to_string</span><span class="p">(</span><span class="n">canonical</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="validation">Validation</h3>
+<p><code>validate_polynomial_dict()</code> returns <code>None</code> after checking:</p>
+<ul>
+<li>the polynomial is a dictionary;</li>
+<li>every key is a tuple;</li>
+<li>coefficients are finite real values, excluding booleans;</li>
+<li>labels are hashable, non-boolean, and not empty strings.</li>
+</ul>
+<p>Coefficients are stored as IEEE-754 binary64 values. Ordinary decimal rounding is expected, and <code>decimal.Decimal</code> is not accepted. Keep values within the finite binary64 range; the shared numeric contract is described in the <a href="model-ir.html#numeric-representation">canonical IR reference</a>.</p>
+<h3 id="canonicalization">Canonicalization</h3>
+<p><code>canonicalize_polynomial()</code> returns a new dictionary. It applies binary idempotence, orders factors within each term, aggregates equivalent terms, checks finite overflow, and removes zero totals. Monomial order follows first occurrence in the input.</p>
+<h3 id="energy">Energy</h3>
+<p><code>calculate_hubo_energy()</code> requires a mapping containing every referenced label. Every referenced value must be <code>0</code> or <code>1</code>; missing values do not default to zero. Extra values are ignored because they do not occur in the polynomial.</p>
+<h3 id="statistics">Statistics</h3>
+<p><code>get_polynomial_stats()</code> returns:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>num_variables</code></td>
+<td>Number of distinct labels.</td>
+</tr>
+<tr>
+<td><code>num_terms</code></td>
+<td>Number of nonzero canonical terms, including the constant if nonzero.</td>
+</tr>
+<tr>
+<td><code>degree</code></td>
+<td>Largest canonical term size; zero for an empty/constant-zero polynomial.</td>
+</tr>
+<tr>
+<td><code>constant</code></td>
+<td>Coefficient of <code>()</code>, or zero.</td>
+</tr>
+<tr>
+<td><code>term_counts</code></td>
+<td>Degree-to-term-count dictionary.</td>
+</tr>
+<tr>
+<td><code>variables</code></td>
+<td>Deterministically sorted labels.</td>
+</tr>
+</tbody>
+</table>
+<p><code>polynomial_to_string()</code> returns a readable algebraic string. It is for inspection, not interchange parsing.</p>
+<h2 id="exact-hubo-to-qubo-reduction">Exact HUBO-to-QUBO reduction</h2>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_modeller</span><span class="w"> </span><span class="kn">import</span> <span class="n">hubo_to_qubo</span>
+
+<span class="n">qubo_convert</span> <span class="o">=</span> <span class="n">hubo_to_qubo</span><span class="p">(</span>
+    <span class="n">polynomial</span><span class="p">,</span>
+    <span class="n">sense</span><span class="o">=</span><span class="s2">"MIN"</span><span class="p">,</span>
+    <span class="n">matrix_format</span><span class="o">=</span><span class="s2">"symmetric"</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>The conversion introduces reusable auxiliary product variables. Each product receives a Rosenberg penalty that is zero exactly when the auxiliary equals the product.</p>
+<p>The automatic <code>strength</code> is above the complete transformed objective range. Supplying a smaller value raises <code>ModelCompilationError</code>; the converter does not return a silently non-exact reduction.</p>
+<p>Conversion fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>qubo</code>, <code>offset</code></td>
+<td>Reduced QUBO minimization energy.</td>
+</tr>
+<tr>
+<td><code>variable_names</code></td>
+<td>All QUBO columns in index order.</td>
+</tr>
+<tr>
+<td><code>original_variables</code></td>
+<td>Source HUBO labels.</td>
+</tr>
+<tr>
+<td><code>auxiliary_products</code></td>
+<td>Auxiliary label to defining pair.</td>
+</tr>
+<tr>
+<td><code>strength</code></td>
+<td>Applied consistency strength.</td>
+</tr>
+<tr>
+<td><code>source_polynomial</code></td>
+<td>Canonical source polynomial.</td>
+</tr>
+<tr>
+<td><code>original_sense</code></td>
+<td>Validated source sense.</td>
+</tr>
+<tr>
+<td><code>index_to_variable</code>, <code>variable_to_index</code></td>
+<td>Explicit bidirectional QUBO map.</td>
+</tr>
+</tbody>
+</table>
+<p>Conversion methods:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="n">source_sample</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+<span class="n">full_sample</span> <span class="o">=</span> <span class="n">qubo_convert</span><span class="o">.</span><span class="n">complete_sample</span><span class="p">(</span><span class="n">source_sample</span><span class="p">)</span>
+
+<span class="n">auxiliaries_valid</span> <span class="o">=</span> <span class="n">qubo_convert</span><span class="o">.</span><span class="n">verify_auxiliaries</span><span class="p">(</span><span class="n">full_sample</span><span class="p">)</span>
+<span class="n">decoded_source_sample</span> <span class="o">=</span> <span class="n">qubo_convert</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">full_sample</span><span class="p">)</span>
+
+<span class="n">qubo_energy</span> <span class="o">=</span> <span class="n">qubo_convert</span><span class="o">.</span><span class="n">qubo_energy</span><span class="p">(</span><span class="n">full_sample</span><span class="p">)</span>
+<span class="n">source_objective</span> <span class="o">=</span> <span class="n">qubo_convert</span><span class="o">.</span><span class="n">original_objective</span><span class="p">(</span><span class="n">source_sample</span><span class="p">)</span>
+</code></pre></div>
+<p><code>complete_sample()</code> fills missing auxiliaries from source values and returns a list in <code>variable_names</code> order. If a caller supplies auxiliary values, they are retained; call <code>verify_auxiliaries()</code> to check them.</p>
+<p>For <code>sense="MAX"</code>, the QUBO minimizes the negative source polynomial. <code>original_objective()</code> reports the unnegated source value.</p>
+<p>For a validated solver-facing <code>HUBOProblem</code>, the automation operation reads the sense from the problem and does not require it again:</p>
+<div class="code-shell"><div class="code-toolbar"><span>python</span><button class="copy-code" type="button">Copy</button></div><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qpiai_opt.opt_solvers.hubo</span><span class="w"> </span><span class="kn">import</span> <span class="n">HUBOProblem</span>
+
+<span class="n">hubo_problem</span> <span class="o">=</span> <span class="n">HUBOProblem</span><span class="o">.</span><span class="n">from_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="n">qubo_convert</span> <span class="o">=</span> <span class="n">convert</span><span class="p">(</span>
+    <span class="n">hubo_problem</span><span class="p">,</span>
+    <span class="s2">"QUBO"</span><span class="p">,</span>
+    <span class="n">matrix_format</span><span class="o">=</span><span class="s2">"upper"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">preserved_source_sense</span> <span class="o">=</span> <span class="n">qubo_convert</span><span class="o">.</span><span class="n">original_sense</span>
+</code></pre></div>
+<p>The accepted options are <code>strength</code>, <code>auxiliary_prefix</code>, and <code>matrix_format</code>. Passing a second <code>sense</code> is rejected so it cannot conflict with <code>hubo_problem.sense</code>.</p>
+<h2 id="labels-and-ambiguity">Labels and ambiguity</h2>
+<p>Low-level HUBO dictionary utilities accept any valid hashable label except booleans and empty strings. This permits tuples and other hashable domain identifiers.</p>
+<p>The solver-facing <code>HUBOProblem</code> is narrower: labels must be non-empty strings. This guarantees unambiguous JSON result keys. The empty tuple <code>()</code> is still the constant term. See the <a href="hubo-solver.html">HUBO solver guide</a>.</p>
+<p>Lower-level modelling and conversion functions may still accept other hashable labels. Convert them to distinct strings before constructing a <code>HUBOProblem</code> or crossing a JSON boundary.</p>
+<h2 id="failure-behavior">Failure behavior</h2>
+<p>HUBO modelling and reduction reject:</p>
+<ul>
+<li>missing objectives and incompatible variable types;</li>
+<li>non-finite coefficients or aggregation overflow;</li>
+<li>malformed/unhashable labels;</li>
+<li>incomplete or non-binary energy samples;</li>
+<li>insufficient explicit hard-constraint weights when <code>strict_penalties=True</code>;</li>
+<li>insufficient explicit quadratization strengths in either mode;</li>
+<li>unsupported SOS/indicator constraints;</li>
+<li>continuous variables without an explicit resolution;</li>
+<li>reduction residue above degree two.</li>
+</ul>
+<p>The sections above define the polynomial, statistics, reduction result, decode methods, and their validation failures.</p></article><footer class="page-footer"><p><a href="automation.html">Automation guide</a> · QpiAI Opt 0.0.9</p><div class="pager"><a class="pager-card previous" href="qubo-modeller.html"><span>Previous</span><strong>QUBO modeller</strong></a><a class="pager-card next" href="ising-modeller.html"><span>Next</span><strong>Ising modeller</strong></a></div></footer></main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h2>On this page</h2><a class="toc-level-2" href="#mathematical-form">Mathematical form</a><a class="toc-level-2" href="#build-with-expressions">Build with expressions</a><a class="toc-level-2" href="#supported-model-structures">Supported model structures</a><a class="toc-level-2" href="#relational-and-logical-penalties">Relational and logical penalties</a><a class="toc-level-2" href="#direct-polynomial-functions">Direct polynomial functions</a><a class="toc-level-3" href="#validation">Validation</a><a class="toc-level-3" href="#canonicalization">Canonicalization</a><a class="toc-level-3" href="#energy">Energy</a><a class="toc-level-3" href="#statistics">Statistics</a><a class="toc-level-2" href="#exact-hubo-to-qubo-reduction">Exact HUBO-to-QUBO reduction</a><a class="toc-level-2" href="#labels-and-ambiguity">Labels and ambiguity</a><a class="toc-level-2" href="#failure-behavior">Failure behavior</a></div></aside>
+</div>
+<div class="search-backdrop" id="search-backdrop" hidden><div class="search-dialog" role="dialog" aria-modal="true" aria-label="Documentation search"><div class="search-box"><input id="search-input" type="search" autocomplete="off" placeholder="Search APIs, models, fields, limits, and errors"><button id="search-close" type="button">Esc</button></div><div class="search-results" id="search-results"></div></div></div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

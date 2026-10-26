@@ -1,0 +1,290 @@
+[
+  {
+    "slug": "index",
+    "title": "QpiAI Opt SDK",
+    "category": "Overview",
+    "sources": [
+      "README.md"
+    ]
+  },
+  {
+    "slug": "manual",
+    "title": "QpiAI Opt user manual",
+    "category": "Overview",
+    "sources": [
+      "docs/index.md"
+    ]
+  },
+  {
+    "slug": "getting-started",
+    "title": "Getting started",
+    "category": "Getting started",
+    "sources": [
+      "docs/getting-started.md"
+    ]
+  },
+  {
+    "slug": "modelling-workflows",
+    "title": "Indexed variables, updates, and parameters",
+    "category": "Modelling",
+    "sources": [
+      "docs/modelling-workflows.md"
+    ]
+  },
+  {
+    "slug": "milp-modeller",
+    "title": "MILP modeller",
+    "category": "Modelling",
+    "sources": [
+      "docs/milp-modeller.md"
+    ]
+  },
+  {
+    "slug": "qp-modeller",
+    "title": "Continuous quadratic programming",
+    "category": "Modelling",
+    "sources": [
+      "docs/qp-modeller.md"
+    ]
+  },
+  {
+    "slug": "qubo-modeller",
+    "title": "QUBO modeller",
+    "category": "Modelling",
+    "sources": [
+      "docs/qubo-modeller.md"
+    ]
+  },
+  {
+    "slug": "hubo-modeller",
+    "title": "HUBO modeller",
+    "category": "Modelling",
+    "sources": [
+      "docs/hubo-modeller.md"
+    ]
+  },
+  {
+    "slug": "ising-modeller",
+    "title": "Ising modeller",
+    "category": "Modelling",
+    "sources": [
+      "docs/ising-modeller.md"
+    ]
+  },
+  {
+    "slug": "piecewise-linear",
+    "title": "Piecewise-linear relationships",
+    "category": "Modelling",
+    "sources": [
+      "docs/piecewise-linear.md"
+    ]
+  },
+  {
+    "slug": "performance",
+    "title": "Modeller limits and capacity",
+    "category": "Modelling",
+    "sources": [
+      "docs/performance.md"
+    ]
+  },
+  {
+    "slug": "local-solving",
+    "title": "Local solving and automatic routing",
+    "category": "Solving",
+    "sources": [
+      "docs/local-solving.md"
+    ]
+  },
+  {
+    "slug": "qubo-solver",
+    "title": "QUBO solver",
+    "category": "Solving",
+    "sources": [
+      "docs/qubo-solver.md"
+    ]
+  },
+  {
+    "slug": "hubo-solver",
+    "title": "HUBO solver",
+    "category": "Solving",
+    "sources": [
+      "docs/hubo-solver.md"
+    ]
+  },
+  {
+    "slug": "milp-solver",
+    "title": "MILP solver",
+    "category": "Solving",
+    "sources": [
+      "docs/milp-solver.md"
+    ]
+  },
+  {
+    "slug": "quantum-optimization",
+    "title": "Gate-based optimization",
+    "category": "Solving",
+    "sources": [
+      "docs/quantum-optimization.md"
+    ]
+  },
+  {
+    "slug": "model-ir",
+    "title": "Canonical model IR",
+    "category": "Interoperability",
+    "sources": [
+      "docs/model-ir.md"
+    ]
+  },
+  {
+    "slug": "interoperability",
+    "title": "External solver interoperability",
+    "category": "Interoperability",
+    "sources": [
+      "docs/interoperability.md"
+    ]
+  },
+  {
+    "slug": "transformations",
+    "title": "Model inspection, transformations, and decoding",
+    "category": "Interoperability",
+    "sources": [
+      "docs/transformations.md"
+    ]
+  },
+  {
+    "slug": "platform-client",
+    "title": "Platform client",
+    "category": "Platform",
+    "sources": [
+      "docs/platform-client.md"
+    ]
+  },
+  {
+    "slug": "automation",
+    "title": "Automation and agent workflows",
+    "category": "Platform",
+    "sources": [
+      "automation.md"
+    ]
+  },
+  {
+    "slug": "public-api",
+    "title": "Public Python API",
+    "category": "Reference",
+    "sources": [
+      "docs/public-api.md"
+    ]
+  },
+  {
+    "slug": "api-quantum",
+    "title": "Gate-based optimization API reference",
+    "category": "Reference",
+    "sources": [
+      "docs/api-quantum.md"
+    ]
+  },
+  {
+    "slug": "exceptions",
+    "title": "Exception reference",
+    "category": "Reference",
+    "sources": [
+      "docs/exceptions.md"
+    ]
+  },
+  {
+    "slug": "api-modeller",
+    "title": "Modeller API reference",
+    "category": "Reference",
+    "sources": [
+      "docs/api-modeller.md"
+    ]
+  },
+  {
+    "slug": "api-formats",
+    "title": "Representation utility API",
+    "category": "Reference",
+    "sources": [
+      "docs/api-formats.md"
+    ]
+  },
+  {
+    "slug": "api-solvers",
+    "title": "Common solver API reference",
+    "category": "Reference",
+    "sources": [
+      "docs/api-solvers.md"
+    ]
+  },
+  {
+    "slug": "api-qubo",
+    "title": "QUBO solver API reference",
+    "category": "Reference",
+    "sources": [
+      "docs/api-qubo.md"
+    ]
+  },
+  {
+    "slug": "api-hubo",
+    "title": "HUBO solver API reference",
+    "category": "Reference",
+    "sources": [
+      "docs/api-hubo.md"
+    ]
+  },
+  {
+    "slug": "api-milp",
+    "title": "MILP solver API reference",
+    "category": "Reference",
+    "sources": [
+      "docs/api-milp.md"
+    ]
+  },
+  {
+    "slug": "package-metadata",
+    "title": "Package metadata and system support",
+    "category": "Reference",
+    "sources": [
+      "docs/package-metadata.md"
+    ]
+  },
+  {
+    "slug": "contributing",
+    "title": "Contributing to QpiAI Opt",
+    "category": "Project",
+    "sources": [
+      "CONTRIBUTING.md"
+    ]
+  },
+  {
+    "slug": "reporting-bugs",
+    "title": "Reporting bugs and security issues",
+    "category": "Project",
+    "sources": [
+      "REPORTING_BUGS.md"
+    ]
+  },
+  {
+    "slug": "feature-requests",
+    "title": "Feature requests",
+    "category": "Project",
+    "sources": [
+      "FEATURE_REQUESTS.md"
+    ]
+  },
+  {
+    "slug": "citation",
+    "title": "Citation",
+    "category": "Project",
+    "sources": [
+      "docs/citation.md"
+    ]
+  },
+  {
+    "slug": "license",
+    "title": "Apache License 2.0",
+    "category": "Project",
+    "sources": [
+      "LICENSE"
+    ]
+  }
+]

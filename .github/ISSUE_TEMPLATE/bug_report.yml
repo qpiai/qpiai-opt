@@ -1,0 +1,40 @@
+name: Bug report
+description: Report a reproducible QpiAI Opt defect
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Never include API keys, private models, or account identifiers. Use private security reporting for vulnerabilities.
+  - type: input
+    id: version
+    attributes:
+      label: SDK and Python versions
+      placeholder: qpiai-opt 0.0.9; Python 3.12.4
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Execution path
+      options: [local, platform, auto, local gate-based optimization, platform gate-based optimization, modelling or conversion only]
+    validations:
+      required: true
+  - type: textarea
+    id: reproducer
+    attributes:
+      label: Minimal reproducer
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Redacted traceback or solver result
+      render: text
